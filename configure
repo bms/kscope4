@@ -1,0 +1,53 @@
+#!/bin/sh
+
+case ${WITH_DEBUG:="no"} in
+    "yes")
+    DEFAULT_BUILD_TYPE=-Debug
+    DEFAULT_OPT_CXXFLAGS=-g
+    ;;
+
+    "no")
+    ;;
+
+    *)
+    WITH_DEBUG="no"
+    ;;
+esac
+
+BUILD_DIR=./build
+BUILD_TYPE=${DEFAULT_BUILD_TYPE:-Release}
+OPT_CXXFLAGS=${DEFAULT_OPT_CXXFLAGS:-"-O2 -fomit-frame-pointer "}
+PREFIX=${prefix:-/usr}
+
+export QTDIR=/usr/lib/qt4
+export PATH=/usr/lib/qt4/bin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/lib/qt4/bin:/usr/lib/jdk-1_5_0_06/bin:/usr/lib/qt4/bin
+export CXXFLAGS="${OPT_CXXFLAGS} -pipe -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i586 -mtune=generic -fasynchronous-unwind-tables"
+export LDFLAGS='-Wl,--as-needed -Wl,--no-undefined -Wl,-z,relro'
+
+mkdir -p ${BUILD_DIR} && pushd ${BUILD_DIR} && {
+    /usr/bin/cmake .. 							\
+	-DBUILD_SHARED_LIBS:BOOL=ON					\
+	-DBUILD_STATIC_LIBS:BOOL=OFF					\
+	-DCMAKE_BUILD_TYPE=${BUILD_TYPE}				\
+	-DCMAKE_INSTALL_LIBDIR:PATH=${PREFIX}/lib			\
+	-DCMAKE_INSTALL_PREFIX:PATH=${PREFIX}				\
+	-DCMAKE_MODULE_LINKER_FLAGS='-Wl,--as-needed  -Wl,-z,relro'	\
+	-DCMAKE_SKIP_RPATH:BOOL=ON					\
+	-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF				\
+	-DDBUS_INTERFACES_INSTALL_DIR=${PREFIX}/share/dbus-1/interfaces	\
+	-DDBUS_SERVICES_INSTALL_DIR=${PREFIX}/share/dbus-1/services	\
+	-DENABLE_FAM=ON							\
+	-DINCLUDE_INSTALL_DIR:PATH=${PREFIX}/include			\
+	-DKDE4_BIN_INSTALL_DIR:PATH=${PREFIX}/bin			\
+	-DKDE4_DATA_DIR=/usr/share/apps					\
+	-DKDE4_ENABLE_FPIE=ON						\
+	-DKDE4_USE_ALWAYS_FULL_RPATH=OFF				\
+	-DKDE_DEFAULT_HOME=.kde4					\
+	-DLIB_INSTALL_DIR:PATH=${PREFIX}/lib				\
+	-DPHONON_INCLUDE_DIR=/usr/include				\
+	-DSHARE_INSTALL_PREFIX:PATH=${PREFIX}/share			\
+	-DSYSCONF_INSTALL_DIR:PATH=/etc
+    popd
+}
+
+echo -e "WITH_DEBUG = ${WITH_DEBUG}\nprefix = ${PREFIX}" > ${BUILD_DIR}/config.mk

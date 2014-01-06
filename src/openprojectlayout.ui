@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0" stdsetdef="1">
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>OpenProjectLayout</class>
+  <widget class="QDialog" name="OpenProjectLayout">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>417</width>
+        <height>384</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>Open Project</string>
+    </property>
+    <layout class="QVBoxLayout">
+      <item>
+        <widget class="QGroupBox" name="groupBox5">
+          <property name="title">
+            <string>Project Path</string>
+          </property>
+          <layout class="QHBoxLayout">
+            <item>
+              <widget class="KUrlRequester" name="m_pProjPathRequester"/>
+            </item>
+          </layout>
+        </widget>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="groupBox6">
+          <property name="title">
+            <string>Recent Projects</string>
+          </property>
+          <layout class="QVBoxLayout">
+            <item>
+              <widget class="QListWidget" name="m_pRecentList"/>
+            </item>
+            <item>
+              <layout class="QHBoxLayout">
+                <item>
+                  <spacer name="spacer4">
+                    <property name="sizeHint">
+                      <size>
+                        <width>281</width>
+                        <height>21</height>
+                      </size>
+                    </property>
+                    <property name="sizeType">
+                      <enum>QSizePolicy::Expanding</enum>
+                    </property>
+                    <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                    </property>
+                  </spacer>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="m_pRemoveButton">
+                    <property name="text">
+                      <string>Remove</string>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </item>
+          </layout>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout">
+          <item>
+            <spacer name="spacer6">
+              <property name="sizeHint">
+                <size>
+                  <width>201</width>
+                  <height>31</height>
+                </size>
+              </property>
+              <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="m_pOpenButton">
+              <property name="text">
+                <string>&amp;Open</string>
+              </property>
+              <property name="shortcut">
+                <string>Alt+O</string>
+              </property>
+              <property name="default">
+                <bool>true</bool>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="m_pCancelButton">
+              <property name="text">
+                <string>C&amp;ancel</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+  <includes>
+    <include location="local">kurlrequester.h</include>
+    <include location="local">klineedit.h</include>
+    <include location="local">kpushbutton.h</include>
+  </includes>
+  <connections>
+    <connection>
+      <sender>m_pOpenButton</sender>
+      <signal>clicked()</signal>
+      <receiver>OpenProjectLayout</receiver>
+      <slot>accept()</slot>
+    </connection>
+    <connection>
+      <sender>m_pCancelButton</sender>
+      <signal>clicked()</signal>
+      <receiver>OpenProjectLayout</receiver>
+      <slot>reject()</slot>
+    </connection>
+    <connection>
+      <sender>m_pRemoveButton</sender>
+      <signal>clicked()</signal>
+      <receiver>OpenProjectLayout</receiver>
+      <slot>slotRemoveRecent()</slot>
+    </connection>
+    <connection>
+      <sender>m_pRecentList</sender>
+      <signal>itemClicked(QListWidgetItem*)</signal>
+      <receiver>OpenProjectLayout</receiver>
+      <slot>slotSelectRecent(QListWidgetItem*)</slot>
+    </connection>
+    <connection>
+      <sender>m_pRecentList</sender>
+      <signal>itemActivated(QListWidgetItem*)</signal>
+      <receiver>OpenProjectLayout</receiver>
+      <slot>slotOpenRecent(QListWidgetItem*)</slot>
+    </connection>
+    <connection>
+      <sender>m_pProjPathRequester</sender>
+      <signal>urlSelected(const KUrl)</signal>
+      <receiver>OpenProjectLayout</receiver>
+      <slot>slotProjectSelected(const KUrl)</slot>
+    </connection>
+  </connections>
+</ui>

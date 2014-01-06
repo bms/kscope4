@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0" stdsetdef="1">
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>ProjectFilesLayout</class>
+  <widget class="QDialog" name="ProjectFilesLayout">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>585</width>
+        <height>480</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>Project Files</string>
+    </property>
+    <layout class="QHBoxLayout">
+      <item>
+        <layout class="QVBoxLayout">
+          <item>
+            <layout class="QHBoxLayout">
+              <item>
+                <widget class="QLineEdit" name="m_pFilterEdit"/>
+              </item>
+              <item>
+                <widget class="QPushButton" name="m_pFilterButton">
+                  <property name="text">
+                    <string>Filter</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QPushButton" name="m_pShowAllButton">
+                  <property name="text">
+                    <string>Show All</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+          <item>
+             <layout class="QVBoxLayout">
+               <item>
+                 <widget class="QGroupBox" name="filelistBox">
+                   <property name="title">
+                     <string>File Path</string>
+                   </property>
+                   <layout class="QVBoxLayout">
+                     <item>
+                       <widget class="QListWidget" name="m_pFileList"/>
+                     </item>
+                   </layout>
+                 </widget>
+               </item>
+             </layout>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <layout class="QVBoxLayout">
+          <item>
+            <widget class="QGroupBox" name="groupBox1">
+              <property name="title">
+                <string>Add</string>
+              </property>
+              <layout class="QVBoxLayout">
+                <item>
+                  <widget class="QPushButton" name="m_pAddFilesButton">
+                    <property name="text">
+                      <string>Files...</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="m_pAddDirButton">
+                    <property name="text">
+                      <string>Directory...</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="m_pAddTreeButton">
+                    <property name="text">
+                      <string>Tree...</string>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
+          </item>
+          <item>
+            <widget class="QGroupBox" name="groupBox2">
+              <property name="title">
+                <string>Remove</string>
+              </property>
+              <layout class="QVBoxLayout">
+                <item>
+                  <widget class="QPushButton" name="m_pRemSelButton">
+                    <property name="text">
+                      <string>Selected</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="m_pRemDirButton">
+                    <property name="text">
+                      <string>Directory...</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="m_pRemTreeButton">
+                    <property name="text">
+                      <string>Tree...</string>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
+          </item>
+          <item>
+            <spacer name="spacer3">
+              <property name="sizeHint">
+                <size>
+                  <width>21</width>
+                  <height>118</height>
+                </size>
+              </property>
+              <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="orientation">
+                <enum>Qt::Vertical</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QGroupBox" name="groupBox3">
+              <property name="title">
+                <string/>
+              </property>
+              <layout class="QVBoxLayout">
+                <item>
+                  <widget class="QPushButton" name="m_pOKButton">
+                    <property name="text">
+                      <string>OK</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="m_pCancelButton">
+                    <property name="text">
+                      <string>Cancel</string>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+</ui>

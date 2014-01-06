@@ -1,0 +1,78 @@
+Basic Installation
+==================
+
+   These are generic installation instructions.
+
+   The `configure' shell script is used to create the whole CMake
+infrastructure in the 'build' subdirectory created where the soure files
+were unpacked.
+
+   The default build type is `Release' but you can build a debug one by
+running `configure' with the shel variable `WITH_DEBUG' set to "yes"; the
+default value of this variable is "no"
+
+   Use WITH_DEBUG="yes" ./configure to configure a `Debug' build in which
+case the created binary will not be striped and no optimization occurs
+during compilation process
+
+The simplest way to compile this package is:
+
+  1. `cd' to the directory containing the package's source code and type
+     `./configure' to configure the package for your system.  If you're
+     using `csh' on an old version of System V, you might need to type
+     `sh ./configure' instead to prevent `csh' from trying to execute
+     `configure' itself.
+
+     Running `configure' takes a while.  While running, it prints some
+     messages telling which features it is checking for.
+
+  2. Type `make' to compile the package.
+
+  3. Type `make [DESTDIR=PATH] install' to install the programs and any
+     data files and documentation.
+
+  4. You can remove the program binaries and object files from the
+     source code directory by typing `make clean'.  
+
+Compilers and Options
+=====================
+
+   Some systems require unusual options for compilation or linking that
+the `configure' script does not know about.  You can give `configure'
+initial values for variables by setting them in the environment.  Using
+a Bourne-compatible shell, you can do that on the command line like
+this:
+     CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
+
+Or on systems that have the `env' program, you can do it like this:
+     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
+
+Compiling For Multiple Architectures
+====================================
+
+   You can compile the package for more than one kind of computer at the
+same time, by placing the object files for each architecture in their
+own directory.  To do this, you must use a version of `make' that
+supports the `VPATH' variable, such as GNU `make'.  `cd' to the
+directory where you want the object files and executables to go and run
+the `configure' script.  `configure' automatically checks for the
+source code in the directory that `configure' is in and in `..'.
+
+   If you have to use a `make' that does not supports the `VPATH'
+variable, you have to compile the package for one architecture at a time
+in the source code directory.  After you have installed the package for
+one architecture, use `make distclean' before reconfiguring for another
+architecture.
+
+Installation Names
+==================
+
+   By default, `make install' will install the package's files under
+`/usr' which is the default value of `prefix'. You can specify an
+installation prefix other than `/usr' by running `configure' with the
+variable `prefix' set to the desired path.
+
+   Run:           "prefix=PREFIX ./configure"
+
+   Running `make DESTDIR=PATH install' will install the files under
+PATH/PREFIX (default value is: `/usr' )

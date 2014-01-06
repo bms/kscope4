@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0" stdsetdef="1">
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>SearchResultsLayout</class>
+  <widget class="QDialog" name="SearchResultsLayout">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>361</width>
+        <height>307</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>Filter Query Results</string>
+    </property>
+    <layout class="QVBoxLayout">
+      <item>
+        <layout class="QHBoxLayout">
+          <item>
+            <widget class="QLabel" name="textLabel2">
+              <property name="text">
+                <string>Search For:</string>
+              </property>
+              <property name="wordWrap">
+                <bool>false</bool>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QLineEdit" name="m_pSearchEdit"/>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <layout class="QHBoxLayout">
+          <item>
+            <widget class="QLabel" name="textLabel1">
+              <property name="text">
+                <string>Search In:</string>
+              </property>
+              <property name="wordWrap">
+                <bool>false</bool>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <spacer name="spacer2">
+              <property name="sizeHint">
+                <size>
+                  <width>171</width>
+                  <height>20</height>
+                </size>
+              </property>
+              <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QComboBox" name="m_pColumnCB">
+              <item>
+                <property name="text">
+                  <string>Function</string>
+                </property>
+              </item>
+              <item>
+                <property name="text">
+                  <string>File</string>
+                </property>
+              </item>
+              <item>
+                <property name="text">
+                  <string>Line</string>
+                </property>
+              </item>
+              <item>
+                <property name="text">
+                  <string>Text</string>
+                </property>
+              </item>
+            </widget>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="buttonGroup1">
+          <property name="title">
+            <string>Search Type</string>
+          </property>
+          <layout class="QVBoxLayout">
+            <item>
+              <widget class="QRadioButton" name="m_pTextRadio">
+                <property name="text">
+                  <string>Plain Text</string>
+                </property>
+              </widget>
+            </item>
+            <item>
+              <widget class="QRadioButton" name="m_pRegExpRadio">
+                <property name="text">
+                  <string>RegE&amp;xp</string>
+                </property>
+              </widget>
+            </item>
+            <item>
+              <widget class="QRadioButton" name="m_pSimpRegExpRadio">
+                <property name="text">
+                  <string>Simplified RegExp</string>
+                </property>
+              </widget>
+            </item>
+          </layout>
+        </widget>
+      </item>
+      <item>
+        <widget class="QCheckBox" name="m_pCaseSenCheck">
+          <property name="text">
+            <string>Case Sensitive</string>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QCheckBox" name="m_pNegateCheck">
+          <property name="text">
+            <string>Negate Search</string>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout">
+          <item>
+            <spacer name="spacer1">
+              <property name="sizeHint">
+                <size>
+                  <width>201</width>
+                  <height>21</height>
+                </size>
+              </property>
+              <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="m_pOKButton">
+              <property name="text">
+                <string>OK</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="m_pCancelButton">
+              <property name="text">
+                <string>Cancel</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+  <tabstops>
+    <tabstop>m_pSearchEdit</tabstop>
+    <tabstop>m_pColumnCB</tabstop>
+    <tabstop>m_pTextRadio</tabstop>
+    <tabstop>m_pRegExpRadio</tabstop>
+    <tabstop>m_pSimpRegExpRadio</tabstop>
+    <tabstop>m_pCaseSenCheck</tabstop>
+    <tabstop>m_pOKButton</tabstop>
+    <tabstop>m_pCancelButton</tabstop>
+  </tabstops>
+</ui>

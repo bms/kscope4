@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0" stdsetdef="1">
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>PrefColorLayout</class>
+  <widget class="QWidget" name="PrefColorLayout">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>350</width>
+        <height>210</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>Form4</string>
+    </property>
+    <layout class="QHBoxLayout">
+      <item>
+        <widget class="QTreeView" name="m_pList">
+          <column>
+            <property name="text">
+              <string>GUI Element</string>
+            </property>
+            <property name="clickable">
+              <bool>true</bool>
+            </property>
+            <property name="resizable">
+              <bool>true</bool>
+            </property>
+          </column>
+          <column>
+            <property name="text">
+              <string>Colour</string>
+            </property>
+            <property name="clickable">
+              <bool>true</bool>
+            </property>
+            <property name="resizable">
+              <bool>false</bool>
+            </property>
+          </column>
+        </widget>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+  <connections>
+    <connection>
+      <sender>m_pList</sender>
+      <signal>activated(const QModelIndex)</signal>
+      <receiver>PrefColorLayout</receiver>
+      <slot>slotItemSelected(const QModelIndex)</slot>
+    </connection>
+  </connections>
+</ui>

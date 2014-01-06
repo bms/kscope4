@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0" stdsetdef="1">
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>WelcomeDlg</class>
+  <widget class="QDialog" name="WelcomeDlg">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>519</width>
+        <height>386</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>Welcome</string>
+    </property>
+    <layout class="QVBoxLayout">
+      <item>
+        <widget class="KTextBrowser" name="m_pBrowser">
+          <property name="text">
+            <string>&lt;h1&gt;Welcome to &lt;font color=&quot;#c00000&quot;&gt;KScope&lt;/font&gt;!&lt;/h1&gt;
+
+If this is the first time you are running Kscope, please follow these steps (click on the links for detailed instructions):
+&lt;p&gt;
+1. &lt;a href=&quot;help:/kscope/configuration.html#config-progs&quot;&gt;Configure&lt;/a&gt; paths to the required back-end executables&lt;br&gt;
+2. &lt;a href=&quot;help:/kscope/projects.html#project-create&quot;&gt;Create&lt;/a&gt; a new project&lt;br&gt;
+3. &lt;a href=&quot;help:/kscope/projects.html#project-files&quot;&gt;Populate&lt;/a&gt; the project with source files&lt;br&gt;
+4. &lt;a href=&quot;help:/kscope/queries.html&quot;&gt;Browse&lt;/a&gt; the project and &lt;a href=&quot;help:/kscope/editing.html&quot;&gt;edit&lt;/a&gt; files&lt;br&gt;
+
+&lt;/p&gt;
+
+&lt;p&gt;
+For more information, please take a look at KScope's &lt;a href=&quot;help:/kscope&quot;&gt;manual&lt;/a&gt;, or visit the KScope &lt;a href=&quot;http://kscope.sourceforge.net&quot;&gt;website&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;
+Enjoy!
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;font size=&quot;-1&quot;&gt;This message will only appear once. Use the &quot;&lt;b&gt;Help-&gt;Show Welcome Message...&lt;/b&gt;&quot; menu command to show it again at any time.&lt;/font&gt;
+&lt;/p&gt;</string>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="Line" name="line1">
+          <property name="frameShape">
+            <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+            <enum>QFrame::Sunken</enum>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout">
+          <item>
+            <spacer name="spacer1">
+              <property name="sizeHint">
+                <size>
+                  <width>381</width>
+                  <height>21</height>
+                </size>
+              </property>
+              <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="m_pCloseButton">
+              <property name="text">
+                <string>Close</string>
+              </property>
+              <property name="default">
+                <bool>true</bool>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+  <includes>
+    <include location="local">ktextbrowser.h</include>
+  </includes>
+  <connections>
+    <connection>
+      <sender>m_pCloseButton</sender>
+      <signal>clicked()</signal>
+      <receiver>WelcomeDlg</receiver>
+      <slot>accept()</slot>
+    </connection>
+  </connections>
+</ui>
