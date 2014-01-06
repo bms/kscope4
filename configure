@@ -14,7 +14,8 @@ case ${WITH_DEBUG:="no"} in
     ;;
 esac
 
-BUILD_DIR=./build
+TOP_DIR=.
+BUILD_DIR=${TOP_DIR}/build
 BUILD_TYPE=${DEFAULT_BUILD_TYPE:-Release}
 OPT_CXXFLAGS=${DEFAULT_OPT_CXXFLAGS:-"-O2 -fomit-frame-pointer "}
 PREFIX=${prefix:-/usr}
@@ -24,7 +25,7 @@ export PATH=/usr/lib/qt4/bin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/l
 export CXXFLAGS="${OPT_CXXFLAGS} -pipe -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i586 -mtune=generic -fasynchronous-unwind-tables"
 export LDFLAGS='-Wl,--as-needed -Wl,--no-undefined -Wl,-z,relro'
 
-mkdir -p ${BUILD_DIR} && pushd ${BUILD_DIR} && {
+mkdir -p ${BUILD_DIR} && ( cd ${BUILD_DIR} && {
     /usr/bin/cmake .. 							\
 	-DBUILD_SHARED_LIBS:BOOL=ON					\
 	-DBUILD_STATIC_LIBS:BOOL=OFF					\
@@ -47,7 +48,7 @@ mkdir -p ${BUILD_DIR} && pushd ${BUILD_DIR} && {
 	-DPHONON_INCLUDE_DIR=/usr/include				\
 	-DSHARE_INSTALL_PREFIX:PATH=${PREFIX}/share			\
 	-DSYSCONF_INSTALL_DIR:PATH=/etc
-    popd
-}
+    }
+) && cd ${TOP_DIR}
 
 echo -e "WITH_DEBUG = ${WITH_DEBUG}\nprefix = ${PREFIX}" > ${BUILD_DIR}/config.mk
