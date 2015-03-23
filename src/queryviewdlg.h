@@ -57,7 +57,7 @@ public:
 	/** These flags control the behaviour of the dialogue. */
 	enum { CloseOnSelect = 0x1, DestroyOnClose = 0x2,
 		DestroyOnSelect = CloseOnSelect | DestroyOnClose };
-	
+
 	void query(uint nType, const QString& sText);
 
 	//	QueryView::Iterator getIterator();
@@ -74,11 +74,11 @@ signals:
 private:
 	/** Flags the control the behaviour of the dialogue. */
 	uint m_nFlags;
-	
+
 	/** Used for running Cscope queries and displaying their results in the
 		view. */
 	QueryViewDriver* m_pDriver;
-	
+
 private slots:
 	void slotShow();
 	void slotLineRequested(const QString&, uint);

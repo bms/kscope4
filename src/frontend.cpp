@@ -27,7 +27,9 @@
 
 #include <qfileinfo.h>
 #include <qdir.h>
+
 #include <klocale.h>
+
 #include "frontend.h"
 
 /**
@@ -53,7 +55,7 @@ Frontend::Frontend(uint nRecordSize, bool bAutoDelete) : KProcess(),
 	// Parse data on the standard error
 	connect(this, SIGNAL(readyReadStandardError()), this,
 		SLOT(slotReadStderr()));
-		
+
 	// Delete the process object when the process exits
 	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this,
 		SLOT(slotProcessExit(int, QProcess::ExitStatus)));
@@ -77,8 +79,9 @@ Frontend::~Frontend()
  * @param	bBlock		(Optional) true to block, false otherwise
  * @return	true if the process was executed successfully, false otherwise
  */
-bool Frontend::run(const QString& sName, const QStringList& slArgs, 
-	const QString& sWorkDir, bool bBlock)
+bool Frontend::run(const QString& sName, const QStringList& slArgs,
+		   const QString& incDirs, const QString& srcDirs,
+		   const QString& sWorkDir, bool bBlock)
 {
 	// Cannot start if another controlled process is currently running
 	if (QProcess::state() == QProcess::Running) {
@@ -90,7 +93,7 @@ bool Frontend::run(const QString& sName, const QStringList& slArgs,
 	// Reset variables
 	m_nRecords = 0;
 	m_bKilled = false;
-	
+
 	// Setup the command-line arguments
 	clearProgram();
 
@@ -100,10 +103,18 @@ bool Frontend::run(const QString& sName, const QStringList& slArgs,
 	else
 		// Or setup args directly
 		setProgram(slArgs);
-	
+
 	// Set the working directory, if requested
 	if (!sWorkDir.isEmpty())
 		setWorkingDirectory(sWorkDir);
+
+	// Set environment variables (INCLUDEDIRS & SOURCEDIRS) if required
+	if (! incDirs.isEmpty()) {
+		setEnv("INCLUDEDIRS", incDirs);
+	}
+	if (! srcDirs.isEmpty()) {
+		setEnv("SOURCEDIRS", srcDirs);
+	}
 
 	// Execute the child process
 	setOutputChannelMode( KProcess::SeparateChannels );
@@ -126,7 +137,7 @@ void Frontend::kill()
 {
 	m_bKilled = true;
 	KProcess::kill();
-	
+
 	emit aborted();
 }
 
@@ -154,7 +165,7 @@ void Frontend::addToken(FrontendToken* pToken)
 void Frontend::removeToken()
 {
 	FrontendToken* pToken;
-	
+
 	if (m_pHeadToken == NULL)
 		return;
 
@@ -196,7 +207,7 @@ bool Frontend::tokenize(char** ppBuf, int* pBufSize, QString& sResult,
 	int nSize;
 	char* pBuf;
 	bool bDelim, bWhiteSpace, bFoundToken = false;
-	
+
 	// Iterate buffer
 	for (nSize = *pBufSize, pBuf = *ppBuf; (nSize > 0) && !bFoundToken;
 		nSize--, pBuf++) {
@@ -273,10 +284,10 @@ void Frontend::slotProcessExit(int exitCode, QProcess::ExitStatus exitStatus)
 
 	// Allow specialised clean-up by inheriting classes
 	finalize();
-	
+
 	// Signal the process has terminated
 	emit finished(m_nRecords);
-	
+
 	// Delete the object, if required
 	if (m_bAutoDelete)
 		delete this;
@@ -296,11 +307,11 @@ void Frontend::slotReadStdout()
 	QString sToken;
 	bool bTokenEnded;
 	ParserDelim delim;
-	
+
 	// Do nothing if waiting for process to die
 	if (m_bKilled)
 		return;
-	
+
 	QByteArray ba = readAllStandardOutput();
 	int nSize = ba.length();
 
@@ -345,7 +356,7 @@ void Frontend::slotReadStdout()
 			// Delete all tokens in the entry
 			removeRecord();
 			break;
-			
+
 		case Abort:
 			kill();
 			nSize = 0;
@@ -378,3 +389,9 @@ void Frontend::slotReadStderr()
 }
 
 #include "frontend.moc"
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

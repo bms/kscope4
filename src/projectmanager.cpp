@@ -63,19 +63,23 @@ bool ProjectManager::create(const QString& sName, const QString& sPath,
 {
 	// Make sure the directory doesn't exist
 	QDir dir(sPath);
+
 	if (dir.exists(sName)) {
-		KMessageBox::error(0, i18n("Cannot create a project inside an "
-			"existing directory"));
+		if (KMessageBox::warningContinueCancel(NULL, i18n("<p style='white-space:pre'><qt><b>Project will be created in an existing directory</b><br/><br/>Do you want to continue ?</qt>")) == KMessageBox::Cancel)
+			return false;
+	} else {
+		// Try to create the project's directory
+		if (! dir.mkdir(sName)) {
+			KMessageBox::error(NULL, i18n("<p style='white-space:pre'><qt><b>Failed to create the project's directory</b> ( %1 )").arg(sPath + "/" + sName));
+			return false;
+		}
+	}
+
+	if (! dir.cd(sName)) {
+		KMessageBox::error(NULL, i18n("<p style='white-space:pre'><qt><b>Cannot cd to the project directory</b> ( %1 )<br/><br/>Project creation aborted</qt>").arg(dir.absolutePath()));
 		return false;
 	}
 
-	// Try to create the projcet's directory
-	if (!dir.mkdir(sName) || !dir.cd(sName)) {
-		KMessageBox::error(0, i18n("Failed to create the project's "
-			"directory"));
-		return false;
-	}
-	
 	return Project::create(sName, dir.absolutePath(), opt);
 }
 
@@ -87,20 +91,20 @@ bool ProjectManager::create(const QString& sName, const QString& sPath,
 bool ProjectManager::open(const QString& sPath)
 {
 	Project* pProj;
-	
+
 	// Close the current project
 	close();
-	
+
 	// Try to open the new project
 	pProj = new Project();
 	if (!pProj->open(sPath)) {
 		delete pProj;
 		return false;
 	}
-	
+
 	// Add to the list of recently opened projects
 	Config().addRecentProject(sPath);
-	
+
 	// Project opened successfully
 	m_pCurProj = pProj;
 	return true;
@@ -114,20 +118,20 @@ bool ProjectManager::open(const QString& sPath)
 bool ProjectManager::openCscopeOut(const QString& sFilePath)
 {
 	ProjectBase* pProj;
-	
+
 	// Close the current project
 	close();
-	
+
 	// Try to open the new project
 	pProj = new ProjectBase();
 	if (!pProj->open(sFilePath)) {
 		delete pProj;
 		return false;
 	}
-	
+
 	// Add to the list of recently opened projects
 	Config().addRecentProject(sFilePath);
-	
+
 	// Project opened successfully
 	m_pCurProj = pProj;
 	return true;	
@@ -149,6 +153,12 @@ QString ProjectManager::getProjName() const
 {
 	if (!m_pCurProj)
 		return i18n("No Project");
-		
+
 	return m_pCurProj->getName();
 }
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

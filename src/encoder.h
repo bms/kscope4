@@ -39,11 +39,11 @@ public:
 	~Encoder();
 	const char* encode(const QString&);
 	const char* decode(const QString&);
-	
+
 private:
 	/** A buffer to contain the result of encoding/decoding. */
 	char* m_pBuf;
-	
+
 	/** The buffer's length. */
 	int m_nBufLen;
 

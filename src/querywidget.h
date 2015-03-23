@@ -63,7 +63,7 @@ public:
 	void selectActiveHistory();
 	void setPageMenu(QMenu*, KToggleAction*);
 	void getBookmarks(FileLocationList&);
-	
+
 	/**
 	 * Enables/disables new history items.
 	 * @param	bEnabled	true to enable new history items, false to 
@@ -82,7 +82,7 @@ public slots:
 	void slotCloseAll();
 	void slotHistoryPrev();
 	void slotHistoryNext();
-	
+
 signals:
 	/**
  	 * Emitted when the a lineRequested() signal is received from any of the
@@ -91,12 +91,12 @@ signals:
 	 * @param	nLine	The requested line number
 	 */
 	void lineRequested(const QString& sPath, uint nLine);
-	
+
 	/**
 	 * Emitted when new query page is requested by user
 	 */
 	void newQuery();
-	
+
 private:
 	/** A popup menu with query page commands (new query, lock/unlock, close
 		query, etc.). */

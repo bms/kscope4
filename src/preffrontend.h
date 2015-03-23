@@ -47,14 +47,14 @@ public:
 
 	void load();
 	void apply();
-	
+
 signals:
 	/**
 	 * Emitted whenever the user makes a change to the dialogue's input 
 	 * widgets.
 	 */
 	void modified();
-	
+
 private slots:
 	void slotChanged(const QString&);
 	void slotGuessPaths();

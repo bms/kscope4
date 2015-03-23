@@ -56,7 +56,7 @@ public:
 	~CtagsFrontend();
 
 	bool run(const QString&);
-	
+
 	static bool verify(const QString&);
 
 protected:

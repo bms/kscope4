@@ -65,7 +65,7 @@ GraphNode::~GraphNode()
 GraphEdge* GraphNode::addOutEdge(GraphNode* pTail)
 {
 	GraphEdge* pEdge;
-	
+
 	// Look for the edge
 	if ((pEdge = m_dictOutEdges.find(pTail->getFunc())) == NULL) {
 		// Create a new edge
@@ -73,7 +73,7 @@ GraphEdge* GraphNode::addOutEdge(GraphNode* pTail)
 		m_dictOutEdges.insert(pTail->getFunc(), pEdge);
 		pTail->m_dictInEdges.replace(m_sFunc, pEdge);
 	}
-	
+
 	// Return the new/constructed edge
 	return pEdge;
 }
@@ -87,21 +87,21 @@ void GraphNode::dfs()
 	// Stop if this node is already marked
 	if (m_bDfsFlag)
 		return;
-		
+
 	// Mark the node as visited
 	m_bDfsFlag = true;
-		
+
 	// Continue along outgoing edges
 	Q3DictIterator<GraphEdge> itrOut(m_dictOutEdges);
 	for (; itrOut.current(); ++itrOut)
 		(*itrOut)->getTail()->dfs();
-		
+
 	// Continue along incoming edges
 	Q3DictIterator<GraphEdge> itrIn(m_dictInEdges);
 	for (; itrIn.current(); ++itrIn)
 		(*itrIn)->getHead()->dfs();
 }
-	
+
 /**
  * Deletes all outgoing edges.
  * Uses the auto-delete property of the dictionary.
@@ -126,7 +126,7 @@ void GraphNode::removeInEdges()
 		if ((pNode = (*itr)->getHead()) != NULL)
 			pNode->m_dictOutEdges.remove(m_sFunc);
 	}
-	
+
 	// remove edges from the local dictionary (will not delete them)
 	m_dictInEdges.clear();
 }
@@ -141,7 +141,7 @@ void GraphNode::getFirstNeighbour(GraphNode*& pNode, bool& bCalled)
 {
 	Q3DictIterator<GraphEdge> itrIn(m_dictInEdges);
 	Q3DictIterator<GraphEdge> itrOut(m_dictOutEdges);
-	
+
 	if (itrIn.current()) {
 		pNode = itrIn.current()->getHead();
 		bCalled = false;
@@ -160,9 +160,9 @@ void GraphNode::getFirstNeighbour(GraphNode*& pNode, bool& bCalled)
 void GraphNode::setRect(const QRect& rect)
 {
 	Q3PointArray arr(4);
-	
+
 	m_rect = rect;
-	
+
 	arr.setPoint(0, m_rect.topLeft());
 	arr.setPoint(1, m_rect.topRight());
 	arr.setPoint(2, m_rect.bottomRight());
@@ -178,11 +178,11 @@ void GraphNode::drawShape(QPainter& painter)
 {
 	const QPen& pen = painter.pen();
 	const QFont& font = painter.font();
-	
+
 	// Draw the rectangle
 	painter.setPen(QPen(Qt::black));
 	painter.drawRect(m_rect);
-	
+
 	// Draw the text
 	painter.setPen(pen);
 	painter.setFont(m_font);
@@ -190,6 +190,6 @@ void GraphNode::drawShape(QPainter& painter)
 		painter.drawText(m_rect, Qt::AlignCenter, "...");
 	else
 		painter.drawText(m_rect, Qt::AlignCenter, m_sFunc);
-	
+
 	painter.setFont(font);
 }

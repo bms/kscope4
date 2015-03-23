@@ -72,7 +72,7 @@ void ScanProgressDlg::addFiles(int nFiles)
 
 	// Update the total number of files scanned
 	m_nFiles += nFiles;
-	
+
 	// Update progress only if more than 100 files were scanned since the last
 	// update
 	if ((m_nFiles - m_nCurFiles) > 100) {

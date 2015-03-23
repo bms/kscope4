@@ -47,7 +47,7 @@ struct ElementInfo
 {
 	/** The display name of the element. */
 	const char* szName;
-	
+
 	/** The configuration file entry. */
 	const char* szEntry;
 };
@@ -144,7 +144,7 @@ KScopeConfig::~KScopeConfig()
 void KScopeConfig::load()
 {
 	uint i;
-	
+
 	KSharedConfigPtr pConf = KGlobal::config();
 	KConfigGroup configGrp;
 
@@ -154,7 +154,7 @@ void KScopeConfig::load()
 	s_cpDef.fonts[TagList] = KGlobalSettings::generalFont();
 	s_cpDef.fonts[QueryWindow] = KGlobalSettings::generalFont();
 	s_cpDef.fonts[Graph] = KGlobalSettings::generalFont();
-	
+
 	// Read the paths to required executables
 	configGrp = pConf->group("Programs");
 	m_cp.sCscopePath = configGrp.readEntry("CScope");
@@ -235,7 +235,7 @@ void KScopeConfig::loadWorkspace(KXmlGuiWindow* pMainWindow)
 void KScopeConfig::store()
 {
 	uint i;
-	
+
 	KSharedConfigPtr pConf = KGlobal::config();
 	KConfigGroup configGrp;
 
@@ -264,10 +264,10 @@ void KScopeConfig::store()
 		configGrp = pConf->group("Fonts");
 		for (i = 0; i <= LAST_FONT; i++)
 			configGrp.writeEntry(FONT_ENTRY(i), m_cp.fonts[i]);
-		
+
 		m_bFontsChanged = false;
 	}
-		
+
 	// Other options
 	configGrp = pConf->group("Options");
 	configGrp.writeEntry("CtagSortOrder", (uint)m_cp.ctagSortOrder);
@@ -283,7 +283,7 @@ void KScopeConfig::store()
 	configGrp.writeEntry("GraphOrientation", m_cp.sGraphOrient);
 	configGrp.writeEntry("GraphMaxNodeDegree", m_cp.nGraphMaxNodeDegree);
 	configGrp.writeEntry("DefGraphView", m_cp.nDefGraphView);
-	
+
 	// Do not report it's the first time on the next run
 	configGrp = pConf->group("General");
 	configGrp.writeEntry("FirstTime", false);
@@ -691,11 +691,11 @@ QString KScopeConfig::getEditorPopupName() const
 	switch (m_cp.popup) {
 	case Embedded:
 		return "ktexteditor_popup";
-		
+
 	case KScopeOnly:
 		return "kscope_popup";
 	}
-	
+
 	// Will not happen, but the compiler complains if no return statement is
 	// given here
 	return "";

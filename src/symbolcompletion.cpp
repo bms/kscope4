@@ -52,15 +52,15 @@ SymbolCompletion::SymbolCompletion(SymbolCompletion::Interface* pEditor,
 	// Initialise member objects
 	m_pCscope = new CscopeFrontend();
 	m_pAutoCompTimer = new QTimer(this);
-	
+
 	// Add entries to the completion list when they are available
 	connect(m_pCscope, SIGNAL(dataReady(FrontendToken*)), this, 
 		SLOT(slotAddEntry(FrontendToken*)));
-	
+
 	// Show the completion list when the query finishes
 	connect(m_pCscope, SIGNAL(finished(uint)), this, 
 		SLOT(slotQueryFinished(uint)));
-			
+
 	// Initiate automatic symbol completion when timer expires
 	connect(m_pAutoCompTimer, SIGNAL(timeout()), this,
 		SLOT(slotAutoCompleteTimeout()));
@@ -83,7 +83,7 @@ void SymbolCompletion::abort()
 {
 	if (m_pCscope->state() == QProcess::Running)
 		m_pCscope->kill();
-		
+
 	m_pAutoCompTimer->stop();
 }
 
@@ -114,13 +114,13 @@ void SymbolCompletion::slotComplete()
 {
 	QString sSymbol;
 	uint nPosInWord;
-	
+
 	// Read the symbol currently under the cursor
 	sSymbol = m_pEditor->getWordUnderCursor(&nPosInWord);
-	
+
 	// The completion was triggered by user
 	m_bAutoCompletion = false;
-	
+
 	// start completion process, prefix is only on the left from the cursor
 	complete(sSymbol.left(nPosInWord));
 }
@@ -146,7 +146,7 @@ void SymbolCompletion::complete(const QString& sPrefix, int nMaxEntries)
 	// Create a regular expression to extract symbol names from the query
 	// results
 	m_reSymbol.setPattern(sPrefix + "[a-zA-Z0-9_]*");
-	
+
 	// If the new prefix is itself a prefix of the old one, we only need to
 	// filter the current entries
 	if (!m_sPrefix.isEmpty() && sPrefix.startsWith(m_sPrefix)) {
@@ -155,12 +155,12 @@ void SymbolCompletion::complete(const QString& sPrefix, int nMaxEntries)
 		slotQueryFinished(0);
 		return;
 	}
-	
+
 	// Prepare member variables
 	m_sPrefix = sPrefix;
 	m_nMaxEntries = nMaxEntries;
 	m_elEntries.clear();
-		
+
 	// Run the code-completion query 
 	m_pCscope->query(CscopeFrontend::Definition, sPrefix + ".*");
 }
@@ -174,7 +174,7 @@ void SymbolCompletion::complete(const QString& sPrefix, int nMaxEntries)
 void SymbolCompletion::filterEntries()
 {
 	EntryList::Iterator itr;
-	
+
 	// Iterate over the list and check each entry against the current RE
 	for (itr = m_elEntries.begin(); itr != m_elEntries.end();) {
 		if (m_reSymbol.indexIn((*itr).text) == -1)
@@ -192,15 +192,15 @@ void SymbolCompletion::filterEntries()
 void SymbolCompletion::makeErrMsg(const QString& sMsg)
 {
 	Entry entry;
-	
+
 	// Clear the current list
 	m_elEntries.clear();
-	
+
 	// Create the message item and add it to the list
 	entry.text = sMsg;
 	entry.userdata = "NO_INSERT"; // The message should not be insertable
 	m_elEntries.append(entry);
-	
+
 	// Make sure a new completion request will start a new query
 	m_sPrefix = "";
 }
@@ -215,11 +215,11 @@ void SymbolCompletion::slotAddEntry(FrontendToken* pToken)
 {
 	Entry entry;
 	QString sText;
-	
+
 	// Do not add entries beyond the requested limit
 	if (m_elEntries.count() > m_nMaxEntries)
 		return;
-	
+
 	// Get the line text
 	pToken = pToken->getNext()->getNext()->getNext();
 	sText = pToken->getData();
@@ -232,7 +232,7 @@ void SymbolCompletion::slotAddEntry(FrontendToken* pToken)
 	entry.text = m_reSymbol.capturedTexts().first();
 	entry.userdata = "";
 	entry.comment = sText;
-	
+
 	m_elEntries.append(entry);
 }
 
@@ -246,22 +246,22 @@ void SymbolCompletion::slotQueryFinished(uint /* nRecords */)
 	uint nEntryCount;
 	EntryList::Iterator itr;
 	QString sPrevText;
-	
+
 	// Get the number of entries
 	nEntryCount = m_elEntries.count();
-	
+
 	// Do not show the box the only completion option is the prefix itself
 	if (m_bAutoCompletion && (nEntryCount == 1) &&
 		(m_elEntries.first().text == m_sPrefix)) {
 		return;
 	}
-	
+
 	// Get a pointer to the CC interface
 	m_pCCObject = m_pEditor->getCCObject();
 	pCCI = dynamic_cast<KTextEditor::CodeCompletionInterface*>(m_pCCObject);
 	if (!pCCI)
 		return;
-		
+
 	// Insert the correct part of the completed symbol, when chosen by the
 	// user
 	connect(m_pCCObject, 
@@ -282,7 +282,7 @@ void SymbolCompletion::slotQueryFinished(uint /* nRecords */)
 	else {
 		// Sort the entries
 		m_elEntries.sort();
-		
+
 		// Make sure entries are unique
 		for (itr = m_elEntries.begin(); itr != m_elEntries.end();) {
 			if ((*itr).text == sPrevText) {
@@ -294,11 +294,6 @@ void SymbolCompletion::slotQueryFinished(uint /* nRecords */)
 			}
 		}
 	}
-	
-	// Display the completion list
-#if 0
-	pCCI->showCompletionBox(m_elEntries);
-#endif
 }
 
 /**
@@ -315,7 +310,7 @@ void SymbolCompletion::slotFilterInsert(CompletionEntry* pEntry,
 		*pTextToInsert = pEntry->text.mid(m_sPrefix.length());
 	else
 		*pTextToInsert = "";
-		
+
 	// Disconnect the CC object signals
 	disconnect(m_pCCObject, 0, this, 0);
 	m_pCCObject = NULL;
@@ -333,11 +328,11 @@ void SymbolCompletion::slotAutoCompleteTimeout()
 {	
 	QString sPrefix;
 	uint nPosInWord, nLength;
-	
+
 	// Read the symbol currently under the cursor
 	sPrefix = m_pEditor->getWordUnderCursor(&nPosInWord);
 	nLength = sPrefix.length();
-	
+
 	// Check conditions, and start the completion process
 	if ((nLength >= s_nACMinChars) && (nPosInWord == nLength)) {
 		// The completion was triggered by auto-completion

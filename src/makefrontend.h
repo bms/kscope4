@@ -40,7 +40,7 @@
 class MakeFrontend : public Frontend
 {
 	Q_OBJECT
-	
+
 public:
 	MakeFrontend(bool bAutoDelete = false);
 	~MakeFrontend();
@@ -48,11 +48,11 @@ public:
 	virtual bool run(const QString&, const QStringList&, 
 		const QString&, bool bBlock = false);
 	virtual ParseResult parseStdout(QString&, ParserDelim);
-	
+
 signals:
 	void error(const QString& sFile, const QString& sLine,
 		const QString& sText);
-	
+
 private:
 	/** A stack of paths used to track the current build directory. */
 	QStringList m_slPathStack;

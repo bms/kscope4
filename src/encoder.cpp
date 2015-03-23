@@ -100,7 +100,7 @@ const char* Encoder::decode(const QString& str)
 	m_pBuf[i] = 0;
 	return m_pBuf;
 }
-	
+
 /**
  * Sets a new size to the buffer.
  * @param	nNewLen	The new size of the buffer

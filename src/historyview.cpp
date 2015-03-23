@@ -79,7 +79,7 @@ void HistoryView::addRecord(const QString& /* sFunc */, const QString& sFile,
 void HistoryView::selectPrev()
 {
 	QTreeWidgetItem *pItem, *pPrevItem;
- 
+
   	// Get the current item
  	pItem = currentItem();
 
@@ -99,7 +99,7 @@ void HistoryView::selectNext()
 
   	// Get the current item
 	pItem = currentItem();
-  	
+
 	// Select the previous item in the list
 	if (pItem != NULL && (pNextItem = itemAbove(pItem)) != NULL)
 		select(pNextItem);

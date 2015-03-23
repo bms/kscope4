@@ -64,7 +64,7 @@ bool CtagsFrontend::run(const QString& sFileName)
 	slArgs.append("-u"); // don't sort
 	slArgs.append("-f");
 	slArgs.append("-");
-	
+
 	// The following regular expressions add support for goto labels and file
 	// inclusions.
 	// NOTE: We need to add the 'include' pattern to C++, since .h files are
@@ -75,7 +75,7 @@ bool CtagsFrontend::run(const QString& sFileName)
 		"([_a-zA-Z0-9\\.\\/]*)[\\\">]/\\1/i,include/");
 	slArgs.append("--regex-c++=/^[ \\t]*#[ \\t]*include[ \\t]*[\\\"<]"
 		"([_a-zA-Z0-9\\.\\/]*)[\\\">]/\\1/i,include/");
-	
+
 	slArgs.append(sFileName);
 
 	// Run a new process
@@ -146,7 +146,7 @@ Frontend::ParseResult CtagsFrontend::parseStdout(QString& sToken,
 		m_delim = All;
 		result = AcceptToken;
 		break;
-		
+
 	case Type:
 		if (delim == Newline) {
 			m_state = Name;
@@ -156,7 +156,7 @@ Frontend::ParseResult CtagsFrontend::parseStdout(QString& sToken,
 			m_state = Other;
 			m_delim = Newline;
 		}
-		
+
 		result = RecordReady;
 		break;
 

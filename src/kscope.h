@@ -51,6 +51,7 @@ class EditorPage;
 class ProgressDlg;
 class CscopeMsgDlg;
 class MakeDlg;
+class SetEnvDialog;
 class CallTreeManager;
 class KScopeActions;
 
@@ -83,7 +84,7 @@ public:
 	bool openCscopeOut(const QString&);
 	void parseCmdLine(KCmdLineArgs *pArgs);
 	void verifyCscope();
-	
+
 public slots:
 	void slotClose();
 
@@ -106,7 +107,7 @@ private:
 
 	/** The query results tabbed window. */
 	QueryWidget* m_pQueryWidget;
-	
+
 	/** A KDE editor part manager, responsible for creating KTextEditor
 		parts. */
 	EditorManager* m_pEditMgr;
@@ -157,6 +158,12 @@ private:
 	 * Used to postpone rebuilding of the database, until Cscope is ready.
 	 */
 	bool m_bRebuildDB;
+
+	/**
+	 * A permanent dialog to setup Cscope INCLUDEDIRS & SOURCEDIRS environement
+	 * variables when rebuilding database
+	 */
+	SetEnvDialog *m_pSetEnvDialog;
 
 	/**
 	 * A widget for running make.

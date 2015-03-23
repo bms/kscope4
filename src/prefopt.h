@@ -34,7 +34,7 @@
  * A widget for setting different global options.
  * @author Elad Lahav
  */
- 
+
 class PrefOpt : public QWidget, public Ui::PrefOptLayout
 {
 	Q_OBJECT
@@ -45,7 +45,7 @@ public:
 
 	void load();
 	void apply();
-	
+
 signals:
 	/**
 	 * Emitted whenever the user makes a change to the dialogue's input 

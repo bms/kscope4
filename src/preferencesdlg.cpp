@@ -77,7 +77,7 @@ PreferencesDlg::PreferencesDlg(uint nPage, QWidget* pParent,
 	item->setIcon(KIcon("preferences-desktop-default-applications", KIconLoader::global()));
 	m_lDlgPageItems << item;
 	m_pPrefFrontend = new PrefFrontend(pFrame);
-	
+
 	// Create and add the "Colours" page
 	pFrame = new KVBox();
 	item = addPage(pFrame, i18n("Colours"));
@@ -85,7 +85,7 @@ PreferencesDlg::PreferencesDlg(uint nPage, QWidget* pParent,
 	item->setIcon(KIcon("preferences-desktop-color", KIconLoader::global()));
 	m_lDlgPageItems << item;
 	m_pPrefColor = new PrefColor(pFrame);
-	
+
 	// Create and add the "Fonts" page
 	pFrame = new KVBox();
 	item = addPage(pFrame, i18n("Fonts"));
@@ -93,7 +93,7 @@ PreferencesDlg::PreferencesDlg(uint nPage, QWidget* pParent,
 	item->setIcon(KIcon("preferences-desktop-font", KIconLoader::global()));
 	m_lDlgPageItems << item;
 	m_pPrefFont = new PrefFont(pFrame);
-	
+
 	// Create and add the "Options" page
 	pFrame = new KVBox();
 	item = addPage(pFrame, i18n("Options"));
@@ -104,7 +104,7 @@ PreferencesDlg::PreferencesDlg(uint nPage, QWidget* pParent,
 
 	// Make sure the "Apply" button is initially disabled
 	enableButtonApply(false);
-		
+
 	// Enable the "Apply" button when a parameter changes its value
 	connect(m_pPrefFrontend, SIGNAL(modified()), this, SLOT(slotModified()));
 	connect(m_pPrefColor, SIGNAL(modified()), this, SLOT(slotModified()));
@@ -151,7 +151,7 @@ bool PreferencesDlg::updateConfig()
 	m_pPrefColor->apply();
 	m_pPrefFont->apply();
 	m_pPrefOpt->apply();
-	
+
 	emit applyPref();
 	return true;
 }
@@ -162,56 +162,9 @@ bool PreferencesDlg::updateConfig()
  */
 bool PreferencesDlg::verifyPaths()
 {
-#if 0
-	return (CtagsFrontend::verify(m_pPrefFrontend->m_pCtagsURL->url().pathOrUrl()) &&
-		DotFrontend::verify(m_pPrefFrontend->m_pDotURL->url().pathOrUrl()));
-#else
 	return (CtagsFrontend::verify(m_pPrefFrontend->m_pCtagsURL->url().pathOrUrl()));
-#endif
 }
 
-#if 0
-/**
- * Updates the global configuration based on the values given in the 
- * preferences dialogue, and then closes the dialogue.
- * This function is called after the user clicks the dialogue's "OK" button.
- */
-void PreferencesDlg::accept()
-{
-	if (updateConfig())
-		QDialog::accept();
-}
-
-/**
- * Updates the global configuration based on the values given in the 
- * preferences dialogue, leaving the dialogue open.
- * This function is called after the user clicks the dialogue's "Apply" 
- * button.
- */
-void PreferencesDlg::slotApply()
-{
-	if (updateConfig())
-		enableButtonApply(false);
-}
-
-/**
- * Resets all configuration parameters to their default values.
- * This slot is called when the user clicks the "Default" button.
- */
-void PreferencesDlg::slotDefault()
-{
-	// Prompt the user before applying default values
-	if (KMessageBox::questionYesNo(0, i18n("This would reset all your "
-		"configuration settings! Continue?")) == KMessageBox::Yes) {
-		// Load the default values
-		Config().loadDefault();
-		loadConfig();
-
-		// Apply the default values
-		slotApply();
-	}
-}
-#else
 /**
  * - The user clicks the dialogue's "OK" button : updates the global configuration based
  *   on the values given in the preferences dialogue, and then closes the dialogue.
@@ -251,7 +204,6 @@ void PreferencesDlg::slotButtonClicked(int button)
 			break;
 	}
 }
-#endif
 
 /**
  * Enables the "Apply" button.

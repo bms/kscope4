@@ -40,7 +40,7 @@
  * previously entered text.
  * @author Elad Lahav
  */
- 
+
 class SymbolDlg : public QDialog, public Ui::SymbolLayout
 {
 	Q_OBJECT

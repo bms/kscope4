@@ -76,7 +76,7 @@ private:
 	/** Holds all file paths in a quickly searchable format (for duplicate
 		entries lookup). */
 	QHash<QString, QListWidgetItem*> m_dicFiles;
-	
+
 	/** A thread object to a-synchronously scan directories for source files
 		to add to the project. */
 	DirScanner* m_pScanner;
@@ -91,7 +91,7 @@ private:
 	QListWidgetItem* m_pLastItem;
 
 	void removeItem(QListWidgetItem*);
-	
+
 private slots:
 	void slotAddFiles();
 	void slotAddDir();

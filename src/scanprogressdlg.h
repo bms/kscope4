@@ -55,11 +55,11 @@ signals:
 	 * user.
 	 */
 	void cancelled();
-	
+
 private:
 	/** The total number of files scanned thus far. */
 	int m_nFiles;
-	
+
 	/** The number of files currently displayed in the progress report (which
 		may be smaller than m_nFiles since not every call to addFiles() updates
 		the progress display.)*/

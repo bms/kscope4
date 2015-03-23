@@ -73,17 +73,17 @@ void CallTreeManager::loadOpenDialogs(const QString& sProjPath,
 {
 	QStringList::ConstIterator itr;
 	CallTreeDlg *pDlg;
-	
+
 	for (itr = slFiles.begin(); itr != slFiles.end(); ++itr) {
 		// Create a new dialogue for this file
 		pDlg = addDialog();
-		
+
 		// Try to load the graph from the file
 		if (!pDlg->load(sProjPath, *itr)) {
 			slotRemoveDialog(pDlg);
 			continue;
 		}
-		
+
 		// Show the call tree
 		pDlg->show();
 	}
@@ -96,11 +96,11 @@ void CallTreeManager::loadOpenDialogs(const QString& sProjPath,
 CallTreeDlg* CallTreeManager::addDialog() 
 {
 	CallTreeDlg* pDlg;
-	
+
 	// Create a modeless call tree dialogue
 	pDlg = new CallTreeDlg();
 	m_lstDialogs.append(pDlg); 
-	
+
 	// Open an editor whenever a function name is double-clicked
 	connect(pDlg, SIGNAL(lineRequested(const QString&, uint)),
 		this, SIGNAL(lineRequested(const QString&, uint)));
@@ -108,7 +108,7 @@ CallTreeDlg* CallTreeManager::addDialog()
 	// Track the closing of the call tree dialog
 	connect(pDlg, SIGNAL(closed(const CallTreeDlg*)), this,
 		SLOT(slotRemoveDialog(const CallTreeDlg*)));
-	
+
 	return pDlg;
 }
 

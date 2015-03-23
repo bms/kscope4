@@ -50,10 +50,10 @@ public:
 private:
 	/** The list button. */
 	QToolButton* m_pButton;
-	
+
 	/** A popup-menu containing all tab labels. */
 	QMenu* m_pMenu;
-	
+
 private slots:
 	void slotShowTabList();
 	void slotSetCurrentPage(QAction*);

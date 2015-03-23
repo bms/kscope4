@@ -53,51 +53,6 @@ const char* GRAPH_DIRS[] = { "TB", "LR", "BT", "RL" };
 const char TMP_TMPL[] = "/tmp/kscope_dot.XXXXXX";
 #define TMP_TMPL_SIZE	(sizeof(TMP_TMPL) + 1)
 
-#if 0
-/**
- * Displays a tool tip on the graph.
- * Note that we cannot use the standard tool tip class here, since graph
- * items are neither rectangular nor is their position known in advance.
- * @author	Elad Lahav
- */
-class GraphTip : public QToolTip
-{
-public:
-	/**
-	 * Class constructor.
-	 * @param	pWidget	Owner graph widget
-	 */
-	GraphTip(GraphWidget* pWidget) : QToolTip(pWidget->viewport()),
-		m_pGraphWidget(pWidget) {}
-
-	/**
-	 * Class destructor.
-	 */
-	virtual ~GraphTip() {}
-	
-protected:
-	/**
-	 * Called when the pre-conditions for a tool tip are met.
-	 * Asks the owner for a tip to display and, if one is returned, shows
-	 * the tool tip.
-	 * @param	ptPos	Current mouse position
-	 */
-	virtual void maybeTip(const QPoint& ptPos) {
-		QString sText;
-		QRect rc;
-		
-		// Display a tip, if required by the owner
-		sText = m_pGraphWidget->getTip(ptPos, rc);
-		//		if (sText != QString::null)
-		//		  showText(ptPos, sText, m_pGraphWidget, rc);
-	}
-	
-private:
-	/** The parent graph widget. */
-	GraphWidget* m_pGraphWidget;
-};
-#endif
-
 /**
  * Provides a menu separator with text.
  * The separator is added with QMenuData::insertItem(QWidget*).
@@ -268,14 +223,14 @@ void GraphWidget::setRoot(const QString& sFunc)
 GraphNode* GraphWidget::addNode(const QString& sFunc, bool bMultiCall)
 {
 	GraphNode* pNode;
-	
+
 	// Look for a node with the given name
 	if ((pNode = m_dictNodes.find(sFunc)) == NULL) {
 		// Node not found, create it
 		pNode = new GraphNode(canvas(), sFunc, bMultiCall);
 		m_dictNodes.insert(sFunc, pNode);
 	}
-	
+
 	// Return the found/created node
 	return pNode;
 }
@@ -289,11 +244,11 @@ void GraphWidget::addCall(const CallData& data)
 {
 	GraphNode* pCaller, * pCallee;
 	GraphEdge* pEdge;
-	
+
 	// Find the relevant nodes (create new nodes if necessary)
 	pCaller = addNode(data.m_sCaller);
 	pCallee = addNode(data.m_sCallee);
-	
+
 	// Create a new edge
 	pEdge = pCaller->addOutEdge(pCallee);
 	pEdge->setCallInfo(data.m_sFile, data.m_sLine, data.m_sText);
@@ -314,14 +269,14 @@ void GraphWidget::addMultiCall(const QString& sFunc, bool bCalled)
 	QString sMulti;
 	GraphNode* pCaller, * pCallee;
 	GraphEdge* pEdge;
-	
+
 	// Create a unique name for the new node.
 	// The name is of the form 0XXX, where XXX is a hexadecimal number. 
 	// We assume that no function starts with a digit, and that there are no
 	// more than 0xfff multi-call nodes in the graph.
 	sMulti.sprintf("0%.3x", m_nMultiCallNum);
 	m_nMultiCallNum = (m_nMultiCallNum + 1) & 0xfff;
-	
+
 	// Find the relevant nodes (create new nodes if necessary)
 	if (bCalled) {
 		pCaller = addNode(sFunc);
@@ -331,7 +286,7 @@ void GraphWidget::addMultiCall(const QString& sFunc, bool bCalled)
 		pCaller = addNode(sMulti, true);
 		pCallee = addNode(sFunc);
 	}
-	
+
 	// Create a new edge
 	pEdge = pCaller->addOutEdge(pCallee);
 }
@@ -347,11 +302,11 @@ void GraphWidget::draw()
 	char szTempFile[TMP_TMPL_SIZE];
 	int nFd;
 	FILE* pFile;
-	
+
 	// Do nothing if drawing process has already started
 	if (m_dot.state() == QProcess::Running)
 		return;
-	
+
 	// Apply the zoom factor
 	mtx.scale(m_dZoom, m_dZoom);
 	setWorldMatrix(mtx);
@@ -364,19 +319,19 @@ void GraphWidget::draw()
 	nFd = mkstemp(szTempFile);
 	if ((pFile = fdopen(nFd, "w")) == NULL)
 		return;
-	
+
 	// Remember the file name (so it can be deleted later)
 	m_sDrawFilePath = szTempFile;
-	
+
 	// Write the graph contents to the temporary file
 	{
 		QTextStream str(pFile, QIODevice::WriteOnly);
 		write(str, "graph", "--", false);
 	}
-	
+
 	// Close the file
 	fclose(pFile);
-	
+
 	// Draw the graph
 	if (m_dot.run(szTempFile)) {
 		// Create the progress dialogue
@@ -384,7 +339,7 @@ void GraphWidget::draw()
 			i18n("Generating graph, please wait"), this);
 		m_pProgressDlg->setMinimumDuration(1000);
 		m_pProgressDlg->setValue(0);
-		
+
 		// TODO:
 		// Implement cancel (what do we do when the drawing process is 
 		// terminated, even though the nodes and edges were already added by
@@ -412,11 +367,11 @@ void GraphWidget::save(FILE* pFile)
 void GraphWidget::save(const QString& sFile)
 {
 	QFile file(sFile);
-	
+
 	// Open/create the file
 	if (!file.open(QIODevice::WriteOnly))
 		return;
-		
+
 	QTextStream str(&file);
 	write(str, "digraph", "->", false);
 }
@@ -428,13 +383,13 @@ void GraphWidget::save(const QString& sFile)
 void GraphWidget::zoom(bool bIn)
 {
 	QMatrix mtx;
-	
+
 	// Set the new zoom factor
 	if (bIn)
 		m_dZoom *= 1.5;
 	else
 		m_dZoom /= 1.5;
-		
+
 	// Apply the transformation matrix
 	mtx.scale(m_dZoom, m_dZoom);
 	setWorldMatrix(mtx);
@@ -458,10 +413,10 @@ void GraphWidget::rotate()
 {
 	QString sDir;
 	int i;
-	
+
 	// Get the current direction
 	sDir = Config().getGraphOrientation();
-	
+
 	// Find the next direction
 	for (i = 0; i < 4 && sDir != GRAPH_DIRS[i]; i++){}
 	if (i == 4)
@@ -488,11 +443,11 @@ QString GraphWidget::getTip(const QPoint& ptPos, QRect& rc)
 	Q3CanvasItemList::Iterator itr;
 	GraphEdge* pEdge;
 	QString sText, sFile, sLine;
-	
+
 	ptRealPos = viewportToContents(ptPos);
 	ptRealPos /= m_dZoom;
 	pEdge = NULL;
-	
+
 	// Check if there is an edge at this position
 	il = canvas()->collisions(ptRealPos);
 	for (itr = il.begin(); itr != il.end(); ++itr) {
@@ -500,11 +455,11 @@ QString GraphWidget::getTip(const QPoint& ptPos, QRect& rc)
 		if (pEdge != NULL)
 			break;
 	}
-	
+
 	// No tip if no edge was found
 	if (pEdge == NULL)
 		return QString::null;
-	
+
 	// Set the rectangle for the tip (the tip is closed when the mouse leaves
 	// this area)
 	rc = pEdge->tipRect();
@@ -515,7 +470,7 @@ QString GraphWidget::getTip(const QPoint& ptPos, QRect& rc)
 	ptTopLeft = contentsToViewport(ptTopLeft);
 	ptBottomRight = contentsToViewport(ptBottomRight);
 	rc = QRect(ptTopLeft, ptBottomRight);
-	
+
 	// Create a tip for this edge
 	return pEdge->getTip();
 }
@@ -539,21 +494,21 @@ void GraphWidget::resize(int nWidth, int nHeight)
 void GraphWidget::drawNode(const QString& sFunc, const QRect& rect)
 {
 	GraphNode* pNode;
-	
+
 	// Find the node
 	pNode = addNode(sFunc);
-	
+
 	// Set the visual aspects of the node
 	pNode->setRect(rect);
 	pNode->setZ(2.0);
 	pNode->setPen(QPen(Qt::black));
 	pNode->setFont(Config().getFont(KScopeConfig::Graph));
-	
+
 	if (pNode->isMultiCall())
 		pNode->setBrush(Config().getColor(KScopeConfig::GraphMultiCall));
 	else
 		pNode->setBrush(Config().getColor(KScopeConfig::GraphNode));
-	
+
 	// Draw the node
 	pNode->show();
 }
@@ -570,18 +525,18 @@ void GraphWidget::drawEdge(const QString& sCaller, const QString& sCallee,
 {
 	GraphNode* pCaller, * pCallee;
 	GraphEdge* pEdge;
-	
+
 	// Find the edge
 	pCaller = addNode(sCaller);
 	pCallee = addNode(sCallee);
 	pEdge = pCaller->addOutEdge(pCallee);
-	
+
 	// Set the visual aspects of the edge
 	pEdge->setPoints(arrCurve, s_ai);
 	pEdge->setZ(1.0);
 	pEdge->setPen(QPen(Qt::black));
 	pEdge->setBrush(QBrush(Qt::black));
-	
+
 	// Draw the edge
 	pEdge->show();
 }
@@ -598,10 +553,10 @@ void GraphWidget::drawEdge(const QString& sCaller, const QString& sCallee,
 void GraphWidget::setArrowInfo(int nLength, int nDegrees)
 {
 	double dRad;
-	
+
 	// Turn degrees into radians
 	dRad = ((double)nDegrees) * PI / 180.0;
-	
+
 	s_ai.m_dLength = (double)nLength;
 	s_ai.m_dTan = tan(dRad);
 	s_ai.m_dSqrt = sqrt(1 + s_ai.m_dTan * s_ai.m_dTan);
@@ -624,7 +579,7 @@ void GraphWidget::drawContents(QPainter* pPainter, int nX, int nY,
 {
 	// Draw the contents of the canvas
 	Q3CanvasView::drawContents(pPainter, nX, nY, nWidth, nHeight);
-	
+
 	// Erase the canvas's area border
 	if (canvas() != NULL) {
 		QRect rect = canvas()->rect();
@@ -646,20 +601,20 @@ void GraphWidget::contentsMousePressEvent(QMouseEvent* pEvent)
 	QString sFunc;
 	GraphNode* pNode;
 	GraphEdge* pEdge;
-	
+
 	pNode = NULL;
 	pEdge = NULL;
-	
+
 	// Handle right-clicks only
 	if (pEvent->button() != Qt::RightButton) {
 		Q3CanvasView::contentsMousePressEvent(pEvent);
 		return;
 	}
-	
+
 	// Take the zoom factor into consideration
 	ptRealPos = pEvent->pos();
 	ptRealPos /= m_dZoom;
-	
+
 	// Check if an item was clicked
 	il = canvas()->collisions(ptRealPos);
 	for (itr = il.begin(); itr != il.end(); ++itr) {
@@ -668,7 +623,7 @@ void GraphWidget::contentsMousePressEvent(QMouseEvent* pEvent)
 		else if (dynamic_cast<GraphEdge*>(*itr) != NULL)
 			pEdge = dynamic_cast<GraphEdge*>(*itr);
 	}
-	
+
 	// Handle clicks over different types of items
 	if (pNode != NULL) {
 		// Show a context menu for nodes
@@ -702,17 +657,17 @@ void GraphWidget::write(QTextStream& str, const QString& sType,
 	Q3DictIterator<GraphNode> itr(m_dictNodes);
 	GraphEdge* pEdge;
 	Encoder enc;
-	
+
 	font = Config().getFont(KScopeConfig::Graph);
 
 	// Header
 	str << sType << " G {\n";
-	
+
 	// Graph attributes
 	str << "\tgraph [rankdir=" << Config().getGraphOrientation() << ", "
 		<< "kscope_zoom=" << m_dZoom 
 		<< "];\n";
-	
+
 	// Default node attributes
 	str << "\tnode [shape=box, height=\"0.01\", style=filled, "
 		<< "fillcolor=\"" << Config().getColor(KScopeConfig::GraphNode).name()
@@ -722,19 +677,19 @@ void GraphWidget::write(QTextStream& str, const QString& sType,
 		<< "fontname=\"" << font.family() << "\", "
 		<< "fontsize=" << QString::number(font.pointSize())
 		<< "];\n";
-	
+
 	// Iterate over all nodes
 	for (; itr.current(); ++itr) {
 		// Write a node
 		str << "\t" << itr.current()->getFunc() << ";\n";
-		
+
 		// Iterate over all edges leaving this node		
 		Q3DictIterator<GraphEdge> itrEdge(itr.current()->getOutEdges());
 		for (; itrEdge.current(); ++itrEdge) {
 			pEdge = itrEdge.current();
 			str << "\t" << pEdge->getHead()->getFunc() << sEdge
 				<< pEdge->getTail()->getFunc();
-				
+
 			// Write call information
 			if (bWriteCall) {
 				str << " ["
@@ -743,11 +698,11 @@ void GraphWidget::write(QTextStream& str, const QString& sType,
 					<< "kscope_text=\"" << enc.encode(pEdge->getText()) << "\"" 
 					<< "]";
 			}
-			
+
 			str << ";\n";
 		}
 	}
-	
+
 	// Close the graph
 	str << "}\n";
 }
@@ -766,7 +721,7 @@ void GraphWidget::removeEdges(GraphNode* pNode, bool bOut)
 		pNode->removeOutEdges();
 	else
 		pNode->removeInEdges();
-		
+
 	// Remove all graph components no longer connected to this one
 	removeDisconnected(pNode);
 }
@@ -780,10 +735,10 @@ void GraphWidget::removeEdges(GraphNode* pNode, bool bOut)
 void GraphWidget::removeDisconnected(GraphNode* pNode)
 {
 	Q3DictIterator<GraphNode> itr(m_dictNodes);
-	
+
 	// Find all weakly connected components attached to this node
 	pNode->dfs();
-	
+
 	// Delete all unmarked nodes, reset marked ones
 	while (itr.current()) {
 		if (!(*itr)->dfsVisited()) {
@@ -806,7 +761,7 @@ void GraphWidget::showNodeMenu(GraphNode* pNode, const QPoint& ptPos)
 {
 	// Remember the node
 	m_pMenuItem = pNode;
-	
+
 	// Show the popup menu.
 	if (pNode->isMultiCall())
 		m_pMultiCallPopup->popup(ptPos);
@@ -824,7 +779,7 @@ void GraphWidget::showEdgeMenu(GraphEdge* pEdge, const QPoint& ptPos)
 {
 	// Remember the edge
 	m_pMenuItem = pEdge;
-	
+
 	// Show the popup menu.
 	m_pEdgePopup->popup(ptPos);
 }
@@ -841,13 +796,13 @@ void GraphWidget::slotDotFinished()
 		QFile::remove(m_sDrawFilePath);
 		m_sDrawFilePath = "";
 	}
-	
+
 	// Delete the progress dialogue
 	if (m_pProgressDlg) {
 		delete m_pProgressDlg;
 		m_pProgressDlg = NULL;
 	}
-	
+
 	setUpdatesEnabled(true);
 	canvas()->update();
 }
@@ -863,7 +818,7 @@ void GraphWidget::slotDataReady(FrontendToken* pToken)
 {
 	CallData data;
 	QString sFunc;
-	
+
 	// Get the file name
 	data.m_sFile = pToken->getData();
 	pToken = pToken->getNext();
@@ -876,12 +831,12 @@ void GraphWidget::slotDataReady(FrontendToken* pToken)
 	data.m_sLine = pToken->getData();
 	if (data.m_sLine.toUInt() == 0)
 		return;
-		
+
 	pToken = pToken->getNext();
 
 	// Get the line's text
 	data.m_sText = pToken->getData();
-		
+
 	// Determine the caller and the callee
 	if (m_bCalled) {
 		data.m_sCaller = m_sQueriedFunc;
@@ -891,7 +846,7 @@ void GraphWidget::slotDataReady(FrontendToken* pToken)
 		data.m_sCaller = sFunc;
 		data.m_sCallee = m_sQueriedFunc;
 	}
-		
+
 	// Add the call to the graph
 	addCall(data);
 }
@@ -917,7 +872,7 @@ void GraphWidget::slotFinished(uint /*nRecords*/)
 {
 	// Destroy the progress bar
 	m_progress.finished();
-		
+
 	// Redraw the graph
 	draw();
 }
@@ -932,7 +887,7 @@ void GraphWidget::slotAborted()
 		"A multiple-call node will appear in the graph instead.\n"
 		"Hint: The maximum number of in/out edges\n"
 		"can be adjusted by clicking the dialogue's \"Preferences\" button"));
-	
+
 	addMultiCall(m_sQueriedFunc, m_bCalled);
 	draw();
 }
@@ -945,12 +900,12 @@ void GraphWidget::slotAborted()
 void GraphWidget::slotShowCalled()
 {
 	GraphNode* pNode;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL)
 		return;
-	
+
 	// Run a query for called functions
 	m_sQueriedFunc = pNode->getFunc();
 	m_bCalled = true;
@@ -998,7 +953,7 @@ void GraphWidget::slotListCalled()
 		itr++;
 		addCall(data);
 	}
-	
+
 	// Clean-up and redraw the graph
 	removeDisconnected(pNode);
 	draw();
@@ -1012,12 +967,12 @@ void GraphWidget::slotListCalled()
 void GraphWidget::slotHideCalled()
 {
 	GraphNode* pNode;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL)
 		return;
-	
+
 	// Remove edges and redraw the graph
 	removeEdges(pNode, true);
 	draw();
@@ -1031,12 +986,12 @@ void GraphWidget::slotHideCalled()
 void GraphWidget::slotShowCalling()
 {
 	GraphNode* pNode;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL)
 		return;
-	
+
 	// Run a query for called functions
 	m_sQueriedFunc = pNode->getFunc();
 	m_bCalled = false;
@@ -1054,28 +1009,28 @@ void GraphWidget::slotShowCalling()
 void GraphWidget::slotListCalling()
 {
 	GraphNode* pNode;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL)
 		return;
-	
+
 	QueryViewDlg dlg(0, (QWidget*)parent());
-	
+
 	// Show the query view dialogue
 	dlg.query(CscopeFrontend::Calling, pNode->getFunc());
 	if (dlg.exec() != QDialog::Accepted)
 		return;
-		
+
 	// The OK button was clicked, replace current calls with the listed ones
 	pNode->removeInEdges();
-	
+
 	//	QueryView::Iterator itr;
 	QTreeWidgetItemIterator itr(dlg.m_pView, QTreeWidgetItemIterator::NotHidden);
 	CallData data;
 
 	data.m_sCallee = pNode->getFunc();
-	
+
 	// Add all listed calls
 	while (*itr){
 		data.m_sCallee = (*itr)->text(0);
@@ -1085,7 +1040,7 @@ void GraphWidget::slotListCalling()
 		itr++;
 		addCall(data);
 	}
-	
+
 	// Clean-up and redraw the graph
 	removeDisconnected(pNode);
 	draw();
@@ -1099,12 +1054,12 @@ void GraphWidget::slotListCalling()
 void GraphWidget::slotHideCalling()
 {
 	GraphNode* pNode;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL)
 		return;
-	
+
 	// Remove edges and redraw the graph
 	removeEdges(pNode, false);
 	draw();
@@ -1118,19 +1073,19 @@ void GraphWidget::slotFindDef()
 {
 	GraphNode* pNode;
 	QueryViewDlg* pDlg;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL)
 		return;
-	
+
 	// Create a query view dialogue
 	pDlg = new QueryViewDlg(QueryViewDlg::DestroyOnSelect, this);
-	
+
 	// Display a line when it is selected in the dialogue
 	connect(pDlg, SIGNAL(lineRequested(const QString&, uint)), this,
 		SIGNAL(lineRequested(const QString&, uint)));
-		
+
 	// Start the query
 	pDlg->query(CscopeFrontend::Definition, pNode->getFunc());
 }
@@ -1144,18 +1099,18 @@ void GraphWidget::slotFindDef()
 void GraphWidget::slotRemoveNode()
 {
 	GraphNode* pNode;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL)
 		return;
-	
+
 	// Remove all incoming edges
 	pNode->removeInEdges();
-	
+
 	// Remove the node (also deletes the object and its outgoing edges)
 	m_dictNodes.remove(pNode->getFunc());
-	
+
 	// Redraw the graph
 	draw();
 }
@@ -1168,19 +1123,19 @@ void GraphWidget::slotMultiCallDetails()
 {
 	GraphNode* pNode, * pParent;
 	bool bCalled;
-	
+
 	// Make sure the menu item is a node
 	pNode = dynamic_cast<GraphNode*>(m_pMenuItem);
 	if (pNode == NULL || !pNode->isMultiCall())
 		return;
-	
+
 	// Get the required information from the node
 	pNode->getFirstNeighbour(pParent, bCalled);
 	if (!pParent)
 		return;
-		
+
 	QueryViewDlg dlg(0, (QWidget*)parent());
-	
+
 	dlg.query(bCalled ? CscopeFrontend::Calling : CscopeFrontend::Called, 
 		pParent->getFunc());
 	dlg.exec();
@@ -1195,7 +1150,7 @@ void GraphWidget::slotOpenCall()
 {
 	GraphEdge* pEdge;
 	QString sFile, sLine;
-	
+
 	// Make sure the menu item is an edge
 	pEdge = dynamic_cast<GraphEdge*>(m_pMenuItem);
 	if (pEdge != NULL && pEdge->getFile() != "")

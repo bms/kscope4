@@ -73,17 +73,17 @@ bool MakeFrontend::run(const QString& sName, const QStringList& slArgs,
 	const QString& sWorkDir, bool bBlock)
 {
 	QStringList slShellArgs;
-	
+
 	// Store the current build directory
 	m_slPathStack.push_back(sWorkDir);
-	
+
 	// Join the output streams, so that they can both be parsed by
 	// parseStdout()
 	slShellArgs = slArgs;
 	slShellArgs << "2>&1";
-	
+
 	// Execute the command
-	return Frontend::run(sName, slShellArgs, sWorkDir, bBlock);
+	return Frontend::run(sName, slShellArgs, QString(), QString(), sWorkDir, bBlock);
 }
 
 /**
@@ -98,7 +98,7 @@ Frontend::ParseResult MakeFrontend::parseStdout(QString& sToken, ParserDelim)
 	QString sRep;
 	int nPos;
 	QString sFile, sLine, sText;
-	
+
 	if ((nPos = reErrWarn.indexIn(sToken)) >= 0) {
 		// An error/warning message
 		if (sToken.at(nPos) == '/') {
@@ -108,11 +108,11 @@ Frontend::ParseResult MakeFrontend::parseStdout(QString& sToken, ParserDelim)
 			sFile = m_slPathStack.last() + "/" +
 				reErrWarn.capturedTexts()[1];
 		}
-		
+
 		sLine = reErrWarn.capturedTexts()[2];
 		sText = reErrWarn.capturedTexts()[4];
 		emit error(sFile, sLine, sText);
-		
+
 		sRep = QString("<a href=\"") + sFile + "&\\2\">\\1:\\2</a>\\3: \\4";
 		sToken.replace(reErrWarn, sRep);
 	}
@@ -133,3 +133,9 @@ Frontend::ParseResult MakeFrontend::parseStdout(QString& sToken, ParserDelim)
 }
 
 #include "makefrontend.moc"
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

@@ -50,7 +50,7 @@ class SearchLineEdit : public QLineEdit
 public:
 	SearchLineEdit(QWidget* pParent = 0) : QLineEdit(pParent) {};
 	~SearchLineEdit() {};
-	
+
 signals:
 	/**
 	 * Emitted when one of the up/down or page up/page down keys were pressed
@@ -58,7 +58,7 @@ signals:
 	 * @param	pEvent	The event received for this key press
 	 */
 	void keyPressed(QKeyEvent* pEvent);
-	
+
 private:
 	virtual void keyPressEvent(QKeyEvent*);
 };
@@ -82,7 +82,7 @@ public:
 	 * @return	A pointer to the list part of the widget.
 	 */
 	QTreeWidget* getList() { return m_pList; }
-	
+
 	/**
 	 * Constructs a tool-tip for the given item.
 	 * @param	pItem	The item for which a tip is required
@@ -97,7 +97,7 @@ public slots:
 protected:
 	/** The search edit-box. */
 	SearchLineEdit* m_pEdit;
-	
+
 	/** The list part of the widget. */
 	QTreeWidget* m_pList;
 
@@ -109,18 +109,18 @@ protected:
 	 * @param	pItem	The selected list item
 	 */
 	virtual void processItemSelected(QTreeWidgetItem* pItem) = 0;
-	
+
 protected slots:
 	void slotFindItem(const QString&);
 	void slotItemSelected(QTreeWidgetItem*, int);
 	void slotItemSelected();
 	void slotKeyPressed(QKeyEvent*);
-	
+
 private:
 	/** Specifies the search column, i.e., the list column whose strings are
 		compared with the text in the search edit-box. */
 	int m_nSearchCol;
-	
+
 	/** A tool-tip for the list entries. */
 	QString* m_pToolTip;
 };

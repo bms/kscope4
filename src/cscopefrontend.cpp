@@ -76,18 +76,19 @@ CscopeFrontend::~CscopeFrontend()
  * @param	slArgs	Command line arguments for Cscope
  * @return	true if successful, false otherwise
  */
-bool CscopeFrontend::run(const QStringList& slArgs)
+bool CscopeFrontend::run(const QStringList& slArgs, const QString& incDirs,
+			 const QString& srcDirs)
 {
 	QStringList slCmdLine;
 
 	// Set the command line arguments
 	slCmdLine.append(Config().getCscopePath());
 	slCmdLine += slArgs;
-	
+
 	// Use verbose mode, if supported
 	if (s_nSupArgs & VerboseOut)
 		slCmdLine << "-v";
-		
+
 	// Project-specific options
 	if (s_nProjArgs & Kernel)
 		slCmdLine << "-k";
@@ -97,9 +98,9 @@ bool CscopeFrontend::run(const QStringList& slArgs)
 		slCmdLine << "-c";
 	if (s_nProjArgs & s_nSupArgs & SlowPathDef)
 		slCmdLine << "-D";
-		
+
 	// Run a new process
-	if (!Frontend::run("cscope", slCmdLine, s_sProjPath)) {
+	if (!Frontend::run("cscope", slCmdLine, incDirs, srcDirs, s_sProjPath)) {
 		emit aborted();
 		return false;
 	}
@@ -120,16 +121,16 @@ void CscopeFrontend::query(uint nType, const QString& sText, uint nMaxRecords)
 {
 	QString sQuery;
 	QStringList slArgs;
-	
+
 	m_nMaxRecords = nMaxRecords;
-	
+
 	// Create the Cscope command line
 	slArgs.append(QString("-L") + QString::number(nType));
 	slArgs.append(sText);
 	slArgs.append("-d");
-	
+
 	run(slArgs);
-	
+
 	// Initialise stdout parsing
 	m_state = SearchSymbol;
 	m_delim = WSpace;
@@ -140,25 +141,25 @@ void CscopeFrontend::query(uint nType, const QString& sText, uint nMaxRecords)
 /**
  * Rebuilds the symbol database of the current project.
  */
-void CscopeFrontend::rebuild()
+void CscopeFrontend::rebuild(const QString& incDirs, const QString& srcDirs)
 {
 	QStringList slArgs;
-	
+
 	// If a process is already running, kill it start a new one
 	if (QProcess::state() == QProcess::Running) {
 		m_bRebuildOnExit = true;
 		kill();
 		return;
 	}
-	
+
 	// Run the database building process
 	slArgs.append("-b");
-	run(slArgs);
-	
+	run(slArgs, incDirs, srcDirs);
+
 	// Initialise output parsing
 	m_state = BuildStart;
 	m_delim = Newline;
-	
+
 	emit progress(0, 1);
 }
 
@@ -197,10 +198,10 @@ Frontend::ParseResult CscopeFrontend::parseStdout(QString& sToken,
 	int nFiles, nTotal, nRecords;
 	ParseResult result = DiscardToken;
 	ParserState stPrev;
-	
+
 	// Remember previous state
 	stPrev = m_state;
-	
+
 	// Handle the token according to the current state
 	switch (m_state) {
 	case BuildStart:
@@ -211,7 +212,7 @@ Frontend::ParseResult CscopeFrontend::parseStdout(QString& sToken,
 		else if (sToken == "Building inverted index...") {
 			emit buildInvIndex();
 		}
-		
+
 		result = DiscardToken;
 		break;
 
@@ -230,12 +231,12 @@ Frontend::ParseResult CscopeFrontend::parseStdout(QString& sToken,
 		// Try to get building progress
 		if (sscanf(sToken.toLatin1(), BUILD_STR, &nFiles, &nTotal) == 2) {
 			emit progress(nFiles, nTotal);
-			
+
 			// Check for last progress message
 			if (nFiles == nTotal) {
 				m_state = BuildStart;
 				m_delim = Newline;
-				
+
 				result = DiscardToken;
 				break;
 			}
@@ -299,9 +300,9 @@ Frontend::ParseResult CscopeFrontend::parseStdout(QString& sToken,
 			m_delim = WSpace;
 			result = DiscardToken;
 		}
-		
+
 		break;
-		
+
 	case Func:
 		// Treat the token as the name of the function in this record
 		if (sToken.toInt()) {
@@ -314,7 +315,7 @@ Frontend::ParseResult CscopeFrontend::parseStdout(QString& sToken,
 			// Not a number, it is the name of the function
 			m_state = Line;
 		}
-		
+
 		result = AcceptToken;
 		break;
 
@@ -351,10 +352,10 @@ void CscopeFrontend::parseStderr(const QString& sText)
 	m_sErrMsg += sText;
 	if (!sText.endsWith("\n"))
 		return;
-	
+
 	// Display the error message
 	emit error(m_sErrMsg);
-		
+
 	// Line displayed, reset the text accumulator
 	m_sErrMsg = "";
 }
@@ -368,7 +369,7 @@ void CscopeFrontend::finalize()
 {
 	// Reset the parser state machine
 	m_state = Unknown;
-	
+
 	// Restart the building process, if required
 	if (m_bRebuildOnExit) {
 		m_bRebuildOnExit = false;
@@ -414,7 +415,7 @@ void CscopeProgress::setProgress(int nProgress, int nTotal)
 			delete m_pProgressBar;
 			m_pProgressBar = NULL;
 		}
-		
+
 		// Show the "Please wait..." label
 		if (m_pLabel == NULL) {
 			m_pLabel = new QLabel(i18n("Processing query results, "
@@ -422,17 +423,17 @@ void CscopeProgress::setProgress(int nProgress, int nTotal)
 			m_pLabel->setFrameStyle(QFrame::Box | QFrame::Plain);
 			m_pLabel->setLineWidth(1);
 			m_pLabel->adjustSize();
-			
+
 			{
 				QPalette p = m_pLabel->palette();
 				p.setColor(m_pLabel->backgroundRole(), QPalette::Highlight);
 				p.setColor(m_pLabel->foregroundRole(), QPalette::HighlightedText);
 				m_pLabel->setPalette(p);
 			}
-				
+
 			QTimer::singleShot(1000, this, SLOT(slotShowLabel()));
 		}
-		
+
 		return;
 	}
 
@@ -444,7 +445,7 @@ void CscopeProgress::setProgress(int nProgress, int nTotal)
 		m_pProgressBar = new QProgressBar(m_pMainWidget);
 		QTimer::singleShot(1000, this, SLOT(slotShowProgressBar()));
 	}
-	
+
 	// Set the current progress value
 	int value = (int)(100.0 * ((float)nProgress / (float)nTotal));
 	m_pProgressBar->setValue(value);
@@ -460,7 +461,7 @@ void CscopeProgress::finished()
 		delete m_pProgressBar;
 		m_pProgressBar = NULL;
 	}
-	
+
 	// Destroy the label
 	if (m_pLabel != NULL) {
 		delete m_pLabel;
@@ -493,12 +494,12 @@ void CscopeProgress::slotShowLabel()
 void CscopeVerifier::verify()
 {
 	ConfigFrontend* pConf;
-	 
+
 	pConf = new ConfigFrontend(true);
 	connect(pConf, SIGNAL(result(uint, const QString&)), this,
 		SLOT(slotConfigResult(uint, const QString&)));
 	connect(pConf, SIGNAL(finished(uint)), this, SLOT(slotFinished()));
-	
+
 	pConf->run(Config().getCscopePath(), "", "", true);
 }
 
@@ -509,11 +510,11 @@ void CscopeVerifier::slotConfigResult(uint nType, const QString& sResult)
 		if (sResult == "Yes")
 			m_nArgs |= CscopeFrontend::VerboseOut;
 		break;
-	
+
 	case ConfigFrontend::CscopeSlowPath:
 		if (sResult == "Yes")
 			m_nArgs |= CscopeFrontend::SlowPathDef;
-			
+
 		// If we got this far, then Cscope is configured properly
 		m_bResult = true;
 		break;
@@ -527,3 +528,9 @@ void CscopeVerifier::slotFinished()
 }
 
 #include "cscopefrontend.moc"
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

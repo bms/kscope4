@@ -47,14 +47,14 @@ class FileList : public SearchList, public FileListTarget
 public: 
 	FileList(QWidget* pParent = 0, const char* szName = 0);
 	~FileList();
-	
+
 	virtual void addItem(const QString&);
 	bool findFile(const QString&);
 	void clear();
 	void applyPrefs();
 	void setRoot(const QString&);
 	virtual bool getTip(QTreeWidgetItem*, QString&);
-	
+
 signals:
 	/**
 	 * Emitted when a file is selected, by either double-clicking a list
@@ -66,7 +66,7 @@ signals:
 
 protected:
 	virtual void processItemSelected(QTreeWidgetItem*);
-	
+
 private:
 	/** A common root path for all items in the list. */
 	QString m_sRoot;

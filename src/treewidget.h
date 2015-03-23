@@ -45,38 +45,38 @@ class QueryViewDriver;
 class TreeWidget : public QueryView
 {
 	Q_OBJECT
-	
+
 public:
 	TreeWidget(QWidget* pParent = 0, const char* szName = 0);
 	~TreeWidget();
-	
+
 	/**
 	 * The type of tree to display.
 	 */
 	enum Mode { Called, Calling };
-	
+
 	void setMode(Mode);
 	void setRoot(const QString&);
 	void queryRoot();
 	void save(FILE*);
-	
+
 	virtual void addRecord(const QString&, const QString&, const QString&,
 		const QString&, QTreeWidgetItem*);
 	virtual void queryFinished(uint, QTreeWidgetItem* pParent = NULL);
-	
+
 protected slots:
 	virtual void slotSearch(QTreeWidgetItem*, const QRegExp&, int);
 	virtual void slotShowAll(QTreeWidgetItem*);
-	
+
 private:
 	/** The CscopeFrontend query type to use (based on the current mode). */
 	uint m_nQueryType;
-	
+
 	/** Runs queries and outputs the results as tree items. */
 	QueryViewDriver* m_pDriver;
-	
+
 	void saveItems(QTreeWidgetItem*, QTextStream&, Encoder&);
-	
+
 private slots:
 	void slotQueryItem(QTreeWidgetItem*);
 };

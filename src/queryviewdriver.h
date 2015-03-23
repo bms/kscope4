@@ -52,26 +52,26 @@ public:
 	~QueryViewDriver();
 
 	void query(uint, const QString&, QTreeWidgetItem* pParent = NULL);
-	
+
 	/**
 	 * @return	true if a query is currently running, false otherwise
 	 */
 	bool isRunning() { return m_bRunning; }
-		
+
 private:
 	/** The view to which this object adds result records. */
 	QueryView* m_pView;
-	
+
 	/** QueryView item passed to addRecord(). */
 	QTreeWidgetItem* m_pItem;
-	
+
 	/** Displays query progress information. */
 	CscopeProgress m_progress;
-	
+
 	/** This flag is set to true when a query is executed, and back to false
 		when the the CscopeFrontend object emits the finished() signal. */
 	bool m_bRunning;
-	
+
 private slots:
 	void slotDataReady(FrontendToken*);
 	void slotFinished(uint);

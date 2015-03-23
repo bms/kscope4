@@ -38,15 +38,15 @@ class ProjectManager : public QObject
 public: 
 	ProjectManager();
 	virtual ~ProjectManager();
-	
+
 	bool create(const QString&, const QString&, const ProjectBase::Options&);
 	bool open(const QString&);
 	bool openCscopeOut(const QString&);
 	void close();
 	QString getProjName() const;
-	
+
 	ProjectBase* curProject() const { return m_pCurProj; }
-	
+
 private:
 	/** The current project (NULL if no project is open). */
 	ProjectBase* m_pCurProj;

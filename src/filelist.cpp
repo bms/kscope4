@@ -52,9 +52,9 @@ FileList::FileList(QWidget* pParent, const char* szName) :
 		m_pList->sortByColumn(1, Qt::AscendingOrder);
 	else
 		m_pList->sortByColumn(m_pList->columnCount() + 1, Qt::AscendingOrder);
-	
+
 	m_pList->setAllColumnsShowFocus(true);
-	
+
 	// Set colours and font
 	applyPrefs();
 }
@@ -82,19 +82,19 @@ void FileList::addItem(const QString& sFilePath)
 
 	// Extract the file name
 	sFileName = sFilePath.mid(sFilePath.lastIndexOf('/') + 1);
-		
+
 	// Get the file's extension (empty string for file names without an
 	// extension)
 	nTypePos = sFileName.lastIndexOf('.');
 	if (nTypePos > -1)
 		sFileType = sFileName.mid(nTypePos + 1);
-	
+
 	// If a root path has been set, use a $ sign instead of that part of the
 	// path
 	sPath = sFilePath;
 	if (m_sRoot != "/")
 		sPath.replace(m_sRoot, "$");
-	
+
 	// Create the list item
 	QStringList item;
 	item << sFileType << sFileName << sPath;
@@ -112,10 +112,10 @@ bool FileList::findFile(const QString& sPath)
 {
 	QString sFindPath(sPath);
 	QList<QTreeWidgetItem*> itemsList;
-	
+
 	if (m_sRoot != "/")
 		sFindPath.replace(m_sRoot, "$");
-	
+
 	itemsList = m_pList->findItems(sFindPath, Qt::MatchExactly, 2);
 	return (!itemsList.isEmpty());
 }
@@ -141,7 +141,7 @@ void FileList::processItemSelected(QTreeWidgetItem* pItem)
 	sPath = pItem->text(2);
 	if (sPath.startsWith("$"))
 		sPath.replace("$", m_sRoot);
-		
+
 	// Submit a request to open the file for editing
 	emit fileRequested(sPath, 0);
 }
@@ -172,21 +172,21 @@ void FileList::setRoot(const QString& sRoot)
 {
 	QTreeWidgetItemIterator it(m_pList);
 	QString sPath;
-	
+
 	// Update all items in the list
 	while (*it){
 		 sPath = (*it)->text(2);
-		
+
 		// Restore the full path
 		sPath.replace("$", m_sRoot);
-		
+
 		// Replace the root with a $ sign
 		if (sRoot != "/")
 			sPath.replace(sRoot, "$");
-		
+
 		(*it++)->setText(2, sPath);
 	}
-	
+
 	// Store the new root
 	m_sRoot = sRoot;
 }

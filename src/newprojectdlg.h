@@ -34,7 +34,7 @@
 #include "ui_newprojectlayout.h"
 #include "ui_autocompletionlayout.h"
 #include "projectbase.h"
-	
+
 /**
  * A sub-dialogue of the New Project dialogue.
  * Allows the user to configure auto-completion parameters.
@@ -43,7 +43,7 @@
 class AutoCompletionDlg : public QDialog, public Ui::AutoCompletionLayout
 {
 	Q_OBJECT
-	
+
 public:
 	AutoCompletionDlg(QWidget* pParent, const char* szName = NULL);
 	~AutoCompletionDlg();

@@ -52,12 +52,12 @@ protected:
 	virtual void addRecord(const QString&, const QString&, const QString&,
 		const QString&);
 	virtual QString getFileName(const QString&) const;
-	
+
 	/**
 	 * @return	Always true, since History files do not contain a header
 	 */
 	virtual bool readHeader(QTextStream&) { return true; }
-	
+
 	/**
 	 * This method does nothing, since History files do not contain a header.
 	 */	

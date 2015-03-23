@@ -70,16 +70,16 @@ public:
 	void setFont(QFont font) {
 		QTreeWidgetItem::setFont(1, font);
 	}
-	
+
 	/**
 	 * @return	The font associated with this item
 	 */
 	QFont getFont() { return m_font; }
-	
+
 private:
 	/** The GUI element shown by this item. */
 	KScopeConfig::FontElement m_fe;
-	
+
 	/** The font associated with this item. */
 	QFont m_font;
 };
@@ -117,7 +117,7 @@ void PrefFont::load()
 {
 	uint i;
 	FontListItem* pItem;
-	
+
 	// Create a list item for every GUI element
 	for (i = 0; i <= KScopeConfig::LAST_FONT; i++)
 		pItem = new FontListItem(m_pList, (KScopeConfig::FontElement)i);
@@ -130,7 +130,7 @@ void PrefFont::apply()
 {
 	QTreeWidgetItemIterator itr(m_pList);
 	FontListItem* pItem;
-	
+
 	// Create a list item for every GUI element
 	while (*itr){
 		pItem = (FontListItem*)(*itr++);
@@ -150,7 +150,7 @@ void PrefFont::slotItemSelected(QTreeWidgetItem* pItem, int /* column */)
 {
 	FontListItem* pFontItem;
 	QFont font;
-	
+
 	pFontItem = (FontListItem*)pItem;
 	font = pFontItem->getFont();
 	if (KFontDialog::getFont(font) == QDialog::Accepted) {

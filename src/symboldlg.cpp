@@ -58,19 +58,19 @@ SymbolDlg::SymbolDlg(QWidget* pParent, const char* szName) :
 	// Setup progress : m_pHintList is now initialized ( in setupUI )
 	m_pProgress = new CscopeProgress(m_pHintList);
 	m_pCscope = new CscopeFrontend();
-	
+
 	// Initialise the hint list (hidden by default)
 	((QWidget*)m_pHintGroup)->hide();
 	m_pBeginWithRadio->toggle();
 	adjustSize();
-	
+
 	// Close the dialogue when either the "OK" or "Cancel" button are clicked
 	connect(m_pOKButton, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(m_pCancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-	
+
 	// Run a symbol completion query when the "Hint" button is clicked
 	connect(m_pHintButton, SIGNAL(clicked()), this, SLOT(slotHintClicked()));
-	
+
 	// Add results to the hint list
 	connect(m_pCscope, SIGNAL(dataReady(FrontendToken*)), this,
 		SLOT(slotHintDataReady(FrontendToken*)));
@@ -78,23 +78,23 @@ SymbolDlg::SymbolDlg(QWidget* pParent, const char* szName) :
 	// Set hint button availability based on the type of query
 	connect(m_pTypeCombo, SIGNAL(activated(int)), this, 
 		SLOT(slotTypeChanged(int)));
-		
+
 	// Selecting an item in the hint list sets it as the current text	
 	connect(m_pHintList, SIGNAL(itemClicked(QListWidgetItem*)), this,
 		SLOT(slotHintItemSelected(QListWidgetItem*)));
-	
+
 	// Double-clicking an item in the hint list accepts that item as the
 	// result of the query (i.e., the item is selcted and the dialogue is
 	// closed)
 	connect(m_pHintList, SIGNAL(itemActivated(QListWidgetItem*)), this,
 		SLOT(accept()));
-		
+
 	// Refresh the hint list when the hint options change
 	connect(m_pBeginWithRadio, SIGNAL(toggled(bool)), this,
 		SLOT(slotHintOptionChanged(bool)));
 	connect(m_pContainRadio, SIGNAL(toggled(bool)), this,
 		SLOT(slotHintOptionChanged(bool)));
-		
+
 	// Show hint query progress information
 	connect(m_pCscope, SIGNAL(progress(int, int)), this,
 		SLOT(slotHintProgress(int, int)));
@@ -150,11 +150,11 @@ void SymbolDlg::setHistory(QStringList& slSymHistory)
 QString SymbolDlg::getSymbol() const
 {
 	QString sResult;
-	
+
 	sResult = m_pSymbolHC->currentText().trimmed();
 	if (m_pSubStringCheck->isChecked())
 		sResult = ".*" + sResult + ".*";
-		
+
 	return sResult;
 }
 
@@ -178,20 +178,19 @@ uint SymbolDlg::getType() const
  * @return	The text entered by the user in the symbol combo-box, or an empty
  *			string if the dialogue was cancelled
  */
-QString SymbolDlg::promptSymbol(QWidget* pParent, uint& nType, 
-	const QString& sSymbol)
+QString SymbolDlg::promptSymbol(QWidget* pParent, uint& nType, const QString& sSymbol)
 {
 	SymbolDlg dlg(pParent);
-	
-	// Initialise the dialogue
+
+	// Initialise the dialog
 	dlg.setType(nType);
 	dlg.setHistory(s_slHistory);
 	dlg.setSymbol(sSymbol);
-	
+
 	// Display the dialogue
 	if (dlg.exec() != QDialog::Accepted)
 		return "";
-	
+
 	// Return the text entered by the user
 	nType = dlg.getType();
 	dlg.m_pSymbolHC->addToHistory(dlg.getSymbol());
@@ -208,10 +207,10 @@ uint SymbolDlg::getQueryType(uint nType)
 {
 	if (nType == CallTree)
 		return CscopeFrontend::None;
-		
+
 	if (nType <= Text)
 		return nType;
-		
+
 	return nType + 1;
 }
 
@@ -224,16 +223,16 @@ uint SymbolDlg::getQueryType(uint nType)
 void SymbolDlg::slotHintClicked()
 {
 	QString sText, sRegExp;
-	
+
 	// Show the hint list if necessary
 	if (!m_pHintGroup->isVisible()) {
 		((QWidget*)m_pHintGroup)->show();
 		adjustSize();
 	}
-	
+
 	// Clear the previous contents
 	m_pHintList->clear();
-	
+
 	// Get the currently entered text (must have at least one character)
 	sText = m_pSymbolHC->currentText().trimmed();
 	if (sText.isEmpty())
@@ -244,7 +243,7 @@ void SymbolDlg::slotHintClicked()
 		sRegExp = sText + "[a-zA-Z0-9_]*";
 	else	
 		sRegExp = "[a-zA-Z0-9_]*" + sText + "[a-zA-Z0-9_]*";
-	
+
 	m_reHint.setPattern(sRegExp);
 
 	// Run a Cscope symbol definition query using a regular expression
@@ -269,13 +268,13 @@ void SymbolDlg::slotHintDataReady(FrontendToken* pToken)
 	// Find the symbol within the line
 	if (m_reHint.indexIn(sText) == -1)
 		return;
-	
+
 	// Find the symbol within the list, if found - do not add
 	QList<QListWidgetItem*> lItems;
 	lItems = m_pHintList->findItems(m_reHint.capturedTexts().first(), Qt::MatchExactly);
 	if (! lItems.isEmpty())
 		return;
-	
+
 	// Add a list item
 	(void)new QListWidgetItem(m_reHint.capturedTexts().first(), m_pHintList);
 

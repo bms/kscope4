@@ -33,7 +33,7 @@
 #include <qfile.h>
 #include <QList>
 
-#include <kconfig.h>
+#include <KSharedConfig>
 
 #define DEF_IS_KERNEL		false
 #define DEF_INV_INDEX		true
@@ -127,13 +127,13 @@ struct FileLocation
 	 */
 	FileLocation(QString sPath, uint nLine, uint nCol) : m_sPath(sPath),
 		m_nLine(nLine), m_nCol(nCol) {}
-		
+
 	/** The full path of the file. */
 	QString m_sPath;
-	
+
 	/** The line position of the cursor. */
 	uint m_nLine;
-	
+
 	/** The column position of the cursor. */
 	uint m_nCol;
 };
@@ -148,10 +148,11 @@ class FileSemaphore;
 /**
  * @author Elad Lahav
  */
+
 class ProjectBase
 {
 public:
-	ProjectBase();
+	ProjectBase(bool isTemp = true);
 	virtual ~ProjectBase();
 
 	/**
@@ -159,50 +160,60 @@ public:
 	 */
 	struct Options {
 		QString sSrcRootPath;
-		
+
 		/** A list of MIME-types that determines which files are included in
-			the project. */
+		    the project. */
 		QStringList slFileTypes;
-		
+
+		/** The name of the project, as written in the configuration file */
+		QString sName;
+
+		/** The list of directories to search for #include files when rebuilding
+		    database */
+		QString sIncludeDirs;
+
+		/** The list of directories containing additional source files */
+		QString sSourceDirs;
+
 		/** true if the -k option for CScope should be used. */
 		bool bKernel;
-		
+
 		/** true if Cscope should build an inverted index. */
 		bool bInvIndex;
-		
+
 		/** true if the -c option for CScope should be used. */
 		bool bNoCompress;
-		
+
 		/** true if the -D option for CScope should be used. */
 		bool bSlowPathDef;
-		
+
 		/** The time, in milliseconds, after which the database should be
-			automatically rebuilt (-1 if this option is disabled). */
+		    automatically rebuilt (-1 if this option is disabled). */
 		int nAutoRebuildTime;
-		
+
 		/** true to use auto-completion. */
 		bool bACEnabled;
-		
+
 		/** Minimum number of characters in a symbol for auto-completion. */
 		uint nACMinChars;
-		
+
 		/** Time interval, in milliseconds, before auto-completion is
-			started. */
+		    started. */
 		uint nACDelay;
-		
+
 		/** Maximal number of entries for auto-completion. */
 		uint nACMaxEntries;
-		
+
 		uint nTabWidth;
 	};
-	
+
 	virtual bool open(const QString&);
 	virtual bool loadFileList(FileListTarget*);
 	virtual bool storeFileList(FileListSource*) { return false; }
 	virtual bool isEmpty() { return false; }
 	bool dbExists();
 	virtual void close() {}
-	
+
 	virtual QString getFileTypes() const { return QString::null; }
 	virtual void getOptions(Options&) const;
 	virtual void setOptions(const Options&) {}
@@ -215,59 +226,80 @@ public:
 	 * therefore considered as a temporary project.
 	 * @return	true if this is a temporary project, false otherwise
 	 */
-	virtual bool isTemporary() { return true; }
+	bool isTemporary() { return m_bIsTemporary; }
 
 	/**
 	 * @return	The name of the current project
 	 */
-	QString getName() const { return m_sName; }
-	
+	QString getName() const { return m_opt.sName; }
+
 	/**
 	 * @return	The full path of the project's directory
 	 */
 	QString getPath() const { return m_dir.absolutePath(); }
-	
+
 	/**
 	 * @return	Command-line arguments to pass to a Cscope object, based on
 	 * 			project's options
 	 */
 	uint getArgs() const { return m_nArgs; }
-	
+
 	const QString& getSourceRoot() const { return m_opt.sSrcRootPath; }
-	
+
 	/**
 	 * @return	The time, in seconds, to wait before rebuilding the
 	 *			cross-refernce database.
 	 */
 	int getAutoRebuildTime() const { return m_opt.nAutoRebuildTime; }
-	
+
+	/**
+	 * @return	The list of include directories
+	 */
+	const QString& getIncludeDirs() const { return m_opt.sIncludeDirs; }
+	void setIncludeDirs(const QString& incDirs) { m_opt.sIncludeDirs = incDirs; }
+
+	/**
+	 * @return	The list of additional source directories
+	 */
+	const QString& getSourceDirs() const { return m_opt.sSourceDirs; }
+	void setSourceDirs(const QString& srcDirs) { m_opt.sSourceDirs = srcDirs; }
+
 	/**
 	 * @return	The tab width to use (0 to use the editor's default)
 	 */
 	uint getTabWidth() const { return m_opt.nTabWidth; }
-	
+
 	static void getDefOptions(Options&);
-	
+
 protected:
-	/** The name of the project, as written in the configuration file */
-	QString m_sName;
+	/** True if the project is temporary (i.e when processing cscope.out) */
+	bool m_bIsTemporary;
 
 	/** The directory associated with the project */
 	QDir m_dir;
-	
+
+	/** The configuration file ("cscope.proj") */
+	KSharedConfigPtr m_pConf;
+
 	/** A cached version of the project's options. */
 	Options m_opt;
-	
+
 	/** A list of Cscope command-line arguments based on the project's
 		options. */
 	uint m_nArgs;
-	
+
 	/** A list of symbols previously queried. */
 	QStringList m_slSymHistory;
-	
+
 	void initOptions();
-	
+
 	static bool isCscopeOut(const QString&);
 };
 
 #endif
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

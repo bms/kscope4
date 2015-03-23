@@ -68,7 +68,7 @@ int GraphPrefDlg::getMaxNodeDegree()
 void GraphPrefDlg::slotFontClicked()
 {
 	PreferencesDlg dlg(PreferencesDlg::Fonts);
-	
+
 	dlg.exec();
 }
 
@@ -79,7 +79,7 @@ void GraphPrefDlg::slotFontClicked()
 void GraphPrefDlg::slotColorClicked()
 {
 	PreferencesDlg dlg(PreferencesDlg::Colors);
-	
+
 	dlg.exec();
 }
 

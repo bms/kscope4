@@ -87,7 +87,7 @@ void KScopeActions::init()
 		SLOT(slotExtEdit()),
 		"edit_external_editor",
 		SIGNAL(toggleFile(bool)));
-	
+
 	addAction(i18n("Go To Tag"),
 		NULL,
 		"Ctrl+Shift+T",
@@ -251,7 +251,7 @@ void KScopeActions::init()
 		SIGNAL(toggleProject(bool)));
 
 	addAction(i18n("Re&build database"),
-		"vcs_update",
+		"svn-update",
 		NULL,
 		m_pWindow,
 		SLOT(slotRebuildDB()),
@@ -338,7 +338,7 @@ void KScopeActions::init()
 	// Settings menu
 	m_pCollection->addAction(KStandardAction::Preferences, m_pWindow, SLOT(slotConfigure()));
 	m_pCollection->addAction(KStandardAction::KeyBindings, m_pWindow, SLOT(slotShortcuts()));
-	
+
 	// Help menu
 	addAction(i18n("Show &Welcome Message..."),
 		NULL,
@@ -395,7 +395,7 @@ void KScopeActions::initPopups()
 		NULL);
 	connect(m_pWindow->m_pFileViewDock, SIGNAL(visibilityChanged(bool)),
 		m_pToggleFileViewAction, SLOT(setChecked(bool)));
-	
+
 	m_pToggleQueryWindowAction = addToggle(i18n("Toggle Query Window"),
 		"view-split-top-bottom",
 		"Ctrl+.",
@@ -430,7 +430,7 @@ void KScopeActions::enableExtEditor(bool bEnable)
 {
 	m_pExtEditAction->setEnabled(bEnable);
 }
- 
+
 void KScopeActions::slotQueryDockToggled(bool bVisible)
 {
 	m_pToggleQueryWindowAction->setChecked(bVisible);
@@ -445,7 +445,7 @@ void KScopeActions::slotEnableProjectActions(bool bEnable)
 {
 	emit toggleProject(bEnable);
 }
- 
+
 /**
  * Enables/disables all actions related to open files.
  * This slot should be called the first file is opened, or when the last one
@@ -474,18 +474,18 @@ KAction* KScopeActions::addAction(const QString& sCaption, const char* szIcon,
 	const char* szName, const char* szSignal)
 {
 	KAction* pAction = m_pCollection->addAction(QString(szName));;
-	
+
 	// Create the action
 	pAction->setText(sCaption);
 	if (szIcon != NULL)
 		pAction->setIcon(KIcon(szIcon));
 	pAction->setShortcut(szShortcut == NULL ? KShortcut() : KShortcut(szShortcut));
 	connect(pAction, SIGNAL(triggered()), pReceiver, szSlot);
-			
+
 	// Add to the given action list, if any
 	if (szSignal)
 		connect(this, szSignal, pAction, SLOT(setEnabled(bool)));
-		
+
 	return pAction;
 }
 
@@ -506,18 +506,24 @@ KToggleAction* KScopeActions::addToggle(const QString& sCaption,
 	const char* szSlot, const char* szName, const char* szSignal)
 {
 	KToggleAction* pAction;
-	
+
 	// Create the action in m_pCollection
 	pAction = new KToggleAction(((szIcon != NULL) ? KIcon(szIcon) : KIcon()),
 			sCaption, pReceiver);
 	pAction->setShortcut(szShortcut == NULL ? KShortcut() : KShortcut(szShortcut));
 	m_pCollection->addAction(QString(szName), pAction);
 	connect(pAction, SIGNAL(triggered(bool)), pReceiver, szSlot);
-			
+
 	// Add to the given action list, if any
 	if (szSignal)
 		connect(this, szSignal, pAction, SLOT(setEnabled(bool)));
-		
+
 	return pAction;
 }
 #include "kscopeactions.moc"
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

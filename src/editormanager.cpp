@@ -74,20 +74,6 @@ void EditorManager::remove(KTextEditor::Document* pDoc)
 	delete pDoc;
 }
 
-#if 0
-/**
- * Applies the user preferences.
- * Determines if Kate warnings are displayed in case the currently edited
- * file is modified outside KScope.
- * NOTE: This behaviour is determined by a static function, which is why this
- * code appears here, rather then for every EditorPage object.
- */
-void EditorManager::applyPrefs()
-{
-	Kate::Document::setFileChangedDialogsActivated(
-		Config().getWarnModifiedOnDisk());
-}
-#else
 /***
  * Applies the user preferences : determines if Kate warnings are displayed in case
  * the currently edited file is modified outside KScope is done on a per-document basis.
@@ -96,5 +82,5 @@ void EditorManager::applyPrefs()
 void EditorManager::applyPrefs()
 {
 }
-#endif
+
 #include "editormanager.moc"

@@ -44,13 +44,13 @@ void SearchLineEdit::keyPressEvent(QKeyEvent* pKey)
 	case Qt::Key_PageDown:
 		emit keyPressed(pKey); 
 		break;
-	
+
 	default:
 		QLineEdit::keyPressEvent(pKey);
 		break;
 	}
 }
-	
+
 /**
  * Class constructor.
  * @param	nSearchCol	The list column on which to perform string look-ups
@@ -211,7 +211,7 @@ void SearchList::slotKeyPressed(QKeyEvent* pKey)
 
 	// Select the current item, or the first one if there is no current item
 	pItem = m_pList->currentItem();
-		
+
 	if ((key == Qt::Key_PageUp) || (key == Qt::Key_PageDown)){
 		nPageSize = m_pList->contentsRect().height() / m_pList->sizeHintForRow(0);
 		index = m_pList->currentIndex();
@@ -229,7 +229,7 @@ void SearchList::slotKeyPressed(QKeyEvent* pKey)
 				pItem = pNewItem;
 		}
 		break;
-		
+
 	case  Qt::Key_Down:
 		if (pItem) {
 			for (pNewItem = m_pList->itemBelow(pItem); 
@@ -240,7 +240,7 @@ void SearchList::slotKeyPressed(QKeyEvent* pKey)
 				pItem = pNewItem;
 		}
 		break;
-	
+
 	case  Qt::Key_PageUp:
 		pNewItem = m_pList->topLevelItem(index.row() - (nPageSize - 1));
 		if ( pNewItem != NULL ){
@@ -271,7 +271,7 @@ void SearchList::slotKeyPressed(QKeyEvent* pKey)
 	// Select the first item if no other item was selected
 	if (pItem == NULL)
 		pItem = m_pList->topLevelItem(0);
-		
+
 	// Select the new item
 	if (pItem) {
 		pItem->setSelected(true);

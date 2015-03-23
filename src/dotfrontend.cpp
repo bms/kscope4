@@ -62,19 +62,19 @@ bool DotFrontend::run(const QString& sFile)
 	QString sPath;
 	QStringList slArgs;
 	Q3PaintDeviceMetrics pdm(m_pGraph);
-	
+
 	// Set the horizontal and vertical DPI values
 	m_dDpiX = (double)pdm.logicalDpiX();
 	m_dDpiY = (double)pdm.logicalDpiY();
 
 	// Make sure the executable exists
 	sPath = Config().getDotPath();
-	
+
 	// Set the command line arguments
 	slArgs.append(sPath);
 	slArgs.append("-Tplain");
 	slArgs.append(sFile);
-	
+
 	// Run a new process
 	if (!Frontend::run("dot", slArgs))
 		return false;
@@ -125,7 +125,7 @@ Frontend::ParseResult DotFrontend::parseStdout(QString& sToken,
 	ParseResult result = DiscardToken;
 	double dVal;
 	bool bOK;
-	
+
 	// Handle the token according to the current state
 	switch (m_state) {
 	case Graph:
@@ -153,14 +153,14 @@ Frontend::ParseResult DotFrontend::parseStdout(QString& sToken,
 		dVal = sToken.toDouble(&bOK);
 		if (bOK) {
 			nHeight = (int)(dVal * m_dDpiY) + (PAD * 2);
-			
+
 			// Set the graph's size
 			m_pGraph->resize(nWidth, nHeight);
-			
+
 			m_state = NodeEdgeStop;
 		}
 		break;
-		
+
 	case NodeEdgeStop:
 		// "node" starts a new node
 		// "edge" starts a new edge
@@ -214,17 +214,17 @@ Frontend::ParseResult DotFrontend::parseStdout(QString& sToken,
 		dVal = sToken.toDouble(&bOK);
 		if (bOK) {
 			nHeight = (int)(dVal * m_dDpiY);
-			
+
 			// Create the bounding rectangle of the node
 			QRect rect;
 			rect.setX(nXpos - (nWidth / 2));
 			rect.setY(nYpos - (nHeight / 2));
 			rect.setWidth(nWidth);
 			rect.setHeight(nHeight);
-			
+
 			// Draw the node
 			m_pGraph->drawNode(sNode, rect);
-			
+
 			m_state = EndNodeEdge;
 		}
 		break;
@@ -265,18 +265,18 @@ Frontend::ParseResult DotFrontend::parseStdout(QString& sToken,
 		dVal = sToken.toDouble(&bOK);
 		if (bOK) {
 			nYpos = (int)(dVal * m_dDpiY) + PAD;
-			
+
 			// Add the control point to the spline array
 			arrCurve.setPoint(nCurveCount++, nXpos, nYpos);
-			
+
 			// Check if this is the last control point
 			if (nCurveCount == nCurveSize) {
 				// Draw the edge
 				m_pGraph->drawEdge(sEdgeHead, sEdgeTail, arrCurve);
-				
+
 				// Must detach from contents since a QPointArray shares data
 				arrCurve.detach();
-				
+
 				m_state = EndNodeEdge;
 			}
 			else {
@@ -285,7 +285,7 @@ Frontend::ParseResult DotFrontend::parseStdout(QString& sToken,
 			}
 		}
 		break;
-		
+
 	case EndNodeEdge:
 		// Discard everything else on a node or edge line
 		if (delim == Newline)

@@ -45,17 +45,17 @@ QueryViewDlg::QueryViewDlg(uint nFlags, QWidget* pParent,
 	// Set the destructive flag, if required
 	if (nFlags & DestroyOnClose)
 	  setWindowFlags(windowFlags() | Qt::WDestructiveClose);
-		
+
 	// Create a driver for running queries
 	m_pDriver = new QueryViewDriver(m_pView, this);
-		
+
 	// Show the dialogue when instructed by the driver
 	connect(m_pView, SIGNAL(needToShow()), this, SLOT(slotShow()));	
-	
+
 	// Propagate the lineRequested() signal from the QueryView object
 	connect(m_pView, SIGNAL(lineRequested(const QString&, uint)), this,
 		SLOT(slotLineRequested(const QString&, uint)));
-		
+
 	// Make the dialogue modal
 	setModal(true);
 }
@@ -96,19 +96,9 @@ void QueryViewDlg::slotShow()
 void QueryViewDlg::slotLineRequested(const QString& sFileName, uint nLine)
 {
 	emit lineRequested(sFileName, nLine);
-	
+
 	if (m_nFlags & CloseOnSelect)
 		close();
 }
 
-#if 0
-/**
- * @return	A QueryView iterator initialised to the beginning of the result
- *			list
- */
-QueryView::Iterator QueryViewDlg::getIterator()
-{
-	return m_pView->getIterator();
-}
-#endif
 #include "queryviewdlg.moc"

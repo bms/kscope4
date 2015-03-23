@@ -57,6 +57,7 @@ set(kscope_SRCS
     scanprogressdlg.cpp
     searchlist.cpp
     searchresultsdlg.cpp
+    setenvdlg.cpp
     symbolcompletion.cpp
     symboldlg.cpp
     tabwidget.cpp

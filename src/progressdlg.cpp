@@ -41,7 +41,7 @@ ProgressDlg::ProgressDlg(const QString& sCaption, const QString& sText,
 {
 	setAutoClose(false);
 	setAllowCancel(false);
-	
+
 	// Create the idle-progress timer
 	m_pIdleTimer = new QTimer(this);
 
@@ -67,7 +67,7 @@ void ProgressDlg::setValue(int nValue)
 	QProgressBar* pProgress;
 
 	pProgress = progressBar();
-	
+
 	if (nValue != 0) {
 		// Do nothing if the value hasn't changed
 		if (nValue == pProgress->value())
@@ -108,7 +108,7 @@ void ProgressDlg::slotShowBusy()
 	m_nIdleValue += 5;
 	if (m_nIdleValue == 100)
 		m_nIdleValue = 0;
-		
+
 	// Set the value of the progress-bar
 	progressBar()->setValue(m_nIdleValue);
 }

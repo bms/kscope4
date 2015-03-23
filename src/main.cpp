@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	// Create the main window
 	KApplication a;
 	KScope* pKScope = new KScope();
-	
+
 	// Display the main window
 	pKScope->show();  
 
@@ -89,10 +89,10 @@ int main(int argc, char *argv[])
 		// No arguments given, load the most recent project
 		pKScope->openLastProject();
 	}
-	
+
 	// Make sure Cscope is properly installed
 	pKScope->verifyCscope();
-	
+
 	// Start the event loop
 	return a.exec();
 }

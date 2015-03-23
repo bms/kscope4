@@ -41,7 +41,7 @@ class CscopeMsgDlg : public QDialog, public Ui::CscopeMsgLayout
 public:
 	CscopeMsgDlg(QWidget* pParent = 0, const char* szName = 0);
 	~CscopeMsgDlg();
-	
+
 	void addText(const QString&);
 };
 

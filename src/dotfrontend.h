@@ -47,28 +47,28 @@ public:
 	~DotFrontend();
 
 	bool run(const QString&);
-	
+
 	static bool verify(const QString&);
-	
+
 protected:
 	virtual ParseResult parseStdout(QString&, ParserDelim);
 
 private:
 	/** The owner graph widget on which to draw. */
 	GraphWidget* m_pGraph;
-	
+
 	/** State values for the parser state machine. */
 	enum ParserState { Graph, GraphScale, GraphWidth, GraphHeight,
 		NodeEdgeStop, NodeName, NodeCentreX, NodeCentreY, NodeWidth, NodeHeight,
 		EdgeHead, EdgeTail, EdgeCurveSize, EdgeCurveX, EdgeCurveY,
 		EndNodeEdge };
-	
+
 	/** The current state of the parser state machine. */
 	ParserState m_state;
-	
+
 	/** The horizontal DPI value of the graph widget. */
 	double m_dDpiX;
-	
+
 	/** The vertical DPI value of the graph widget. */
 	double m_dDpiY;
 };

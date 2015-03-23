@@ -49,7 +49,7 @@ public:
 	QItemSelectionModel* selectionModel() { return m_pSelectionModel; }
 	void load();
 	void apply();
-	
+
 signals:
 	/**
 	 * Emitted whenever the user makes a change to the dialogue's input 

@@ -79,12 +79,12 @@ QueryView::QueryView(QWidget* pParent, const char* szName) :
 	// key is pressed while the record is highlighted
 	connect(this, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this,
 		SLOT(slotRecordSelected(QTreeWidgetItem*)));
-		
+
 	// Show the popup-menu when requested
 	connect(this, 
 		SIGNAL(customContextMenuRequested(const QPoint&)),
 		m_pQueryMenu, SLOT(slotShow(const QPoint&)));
-		
+
 	// Handle popup-menu commands
 	connect(m_pQueryMenu, SIGNAL(viewSource(QTreeWidgetItem*)), this,
 		SLOT(slotRecordSelected(QTreeWidgetItem*)));
@@ -116,7 +116,7 @@ void QueryView::addRecord(const QString& sFunc, const QString& sFile,
 	const QString& sLine, const QString& sText, QTreeWidgetItem* /* pParent */)
 {
 	QTreeWidgetItem* pItem;
-	
+
 	// Insert new item in "this" after last one
 	pItem = new QTreeWidgetItem(this, m_pLastItem);
 	pItem->setText(0, sFunc);
@@ -154,7 +154,7 @@ void QueryView::select(QTreeWidgetItem* pItem)
 void QueryView::selectNext()
 {
 	QTreeWidgetItem* pItem;
-	
+
 	// Do nothing if the list is empty
 	if (invisibleRootItem()->childCount() == 0)
 		return;
@@ -225,55 +225,14 @@ void QueryView::queryFinished(uint nRecords, QTreeWidgetItem* /* pParent */)
 		emit select(invisibleRootItem()->child(0));
 		return;
 	}
-	
+
 	// Report a query that has returned an empty record set
 	if (nRecords == 0)
 		addRecord(i18n("No results"), "", "", "");
-	
+
 	// Data is available, instruct the owner object to show the view
 	emit needToShow();
 }
-
-#if 0
-/**
- * Creates an iterator and initialises it to point to the first _visible_
- * item in the list.
- * @return	A new iterator initialised to the beginning of the list
- */
-QueryView::Iterator QueryView::getIterator()
-{
-	QTreeWidgetItem* pItem;
-	
-	for (pItem = firstChild(); pItem != NULL && !pItem->isVisible(); 
-		pItem = pItem->nextSibling());
-		
-	return Iterator(pItem);
-}
-
-/**
- * Handles double-click events over the view.
- * NOTE: We override this method since the QListView implementation opens
- * expandable items. This is undesired for tree-like query views (such as the
- * call tree.
- * @param	pEvent	Event description object
- */
-void QueryView::contentsMouseDoubleClickEvent(QMouseEvent* pEvent)
-{
-	QTreeWidgetItem* pItem;
-	
-	// Handle only left button double-clicks
-	if (pEvent == NULL || pEvent->button() != Qt::LeftButton)
-		return;
-
-	// Find the clicked item
-	pItem = itemAt(contentsToViewport(pEvent->pos()));
-	if (pItem == NULL)
-		return;
-
-	// Emit the doubleClicked() signal
-	emit doubleClicked(pItem);
-}
-#endif
 
 /**
  * Emits the lineRequested() signal when a list item is selected.
@@ -396,63 +355,4 @@ void QueryView::slotRemoveItem(QTreeWidgetItem* pItem)
 	invisibleRootItem()->removeChild(pItem);
 }
 
-#if 0
-/**
- * Moves the iterator to the next _visible_ item in the list.
- */
-void QueryView::Iterator::next()
-{
-	if (m_pItem == NULL)
-		return;
-		
-	do {
-		m_pItem = m_pItem->nextSibling();
-	} while (m_pItem != NULL && !m_pItem->isVisible());
-}
-
-/**
- * @return	The function associated with the list item the iterator points to
- */
-QString QueryView::Iterator::getFunc()
-{
-	if (m_pItem == NULL)
-		return "";
-		
-	return m_pItem->text(0);
-}
-
-/**
- * @return	The file associated with the list item the iterator points to
- */
-QString QueryView::Iterator::getFile()
-{
-	if (m_pItem == NULL)
-		return "";
-		
-	return m_pItem->text(1);
-}
-
-/**
- * @return	The line number associated with the list item the iterator points
- *			to
- */
-QString QueryView::Iterator::getLine()
-{
-	if (m_pItem == NULL)
-		return "";
-		
-	return m_pItem->text(2);
-}
-
-/**
- * @return	The text associated with the list item the iterator points to
- */
-QString QueryView::Iterator::getText()
-{
-	if (m_pItem == NULL)
-		return "";
-		
-	return m_pItem->text(3);
-}
-#endif
 #include "queryview.moc"

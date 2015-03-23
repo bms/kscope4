@@ -50,18 +50,18 @@ class QueryPage : public QueryPageBase
 public: 
 	QueryPage(QWidget* pParent = 0, const char* szName = 0);
 	~QueryPage();
-	
+
 	void query(uint, const QString&);
 	void clear();
 	bool isRunning();
-	
+
 	virtual QString getCaption(bool bBrief = false) const;
-	
+
 	/**
 	 * @return	The type of query whose results are displayed in this page
 	 */
 	uint getQueryType() const { return m_nType; }
-	
+
 	/**
 	 * @return	The text given as a parameter to the query whose results are
 	 * displayed in this page.
@@ -78,14 +78,14 @@ protected:
 private:
 	/** The type of query whose results are listed on this page. */
 	uint m_nType;
-	
+
 	/** The text given as a parameter to the query. */
 	QString m_sText;
-	
+
 	/** A formatted caption for this query, including the type of query and
 		its text. */
 	QString m_sName;
-	
+
 private:
 	/** Runs Cscope queries whose results are displayed in this page. */
 	QueryViewDriver* m_pDriver;

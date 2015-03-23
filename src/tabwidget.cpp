@@ -45,17 +45,17 @@ TabWidget::TabWidget(QWidget* pParent, const char* szName) :
 
 	// Create a popup menu
 	m_pMenu = new QMenu(this);
-	
+
 	// Set the current tab based on the menu selection
 	connect(m_pMenu, SIGNAL(triggered(QAction*)), this, SLOT(slotSetCurrentPage(QAction*)));
-	
+
 	// Create a button at the top-right corner of the tab widget
 	m_pButton = new QToolButton(this);
 	m_pButton->setIcon(Pixmaps().getPixmap(KScopePixmaps::TabList));
 	m_pButton->setToolTip(i18n("Shows a list of all open tabs"));
 	m_pButton->adjustSize();
 	setCornerWidget(m_pButton, Qt::TopRightCorner);
-	
+
 	// Show the popup-menu when the button is clicked
 	connect(m_pButton, SIGNAL(clicked()), this, SLOT(slotShowTabList()));
 }
@@ -84,14 +84,14 @@ void TabWidget::slotSetCurrentPage(QAction *pAction)
 void TabWidget::slotShowTabList()
 {
 	int i;
-	
+
 	// Delete the previous menu
 	m_pMenu->clear();
 
 	// Create and populate the menu	
 	for (i = 0; i < count(); i++)
 		m_pMenu->addAction(tabText(i));
-		
+
 	// Show the menu
 	m_pMenu->popup(mapToGlobal(m_pButton->pos()));
 }

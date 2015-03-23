@@ -28,7 +28,12 @@
 #ifndef MAKEDLG_H
 #define MAKEDLG_H
 
+#include <KSharedConfig>
+
 #include "ui_makelayout.h"
+
+class QAction;
+class QMenu;
 
 class MakeFrontend;
 class FrontendToken;
@@ -44,35 +49,63 @@ class FrontendToken;
 class MakeDlg: public QWidget, public Ui::MakeLayout
 {
 	Q_OBJECT
-	
+
 public:
-	MakeDlg(QWidget* pParent = 0, const char* szName = 0);
+	MakeDlg(QWidget* pParent = NULL, const char* szName = NULL);
 	virtual ~MakeDlg();
-	
+
 	QString getCommand() const;
 	void setCommand(const QString&);
 	QString getDir() const;
 	void setDir(const QString&);
-	
+
+	/**
+	 * Restore command history from a previous sesssion. Arg is the absolute path
+	 * to the current project directory */
+	void restoreCmdHistory(const QString&);
+
 public slots:
 	virtual void slotMake();
-	
+	virtual void slotMake(const QString&);
+
 signals:
 	void fileRequested(const QString&, uint);
-	
+
 protected:
 	virtual void closeEvent(QCloseEvent*);
-	
+
 protected slots:
 	virtual void slotStop();
 	void slotShowOutput(FrontendToken*);
 	void slotFinished(uint);
 	void slotBrowserClicked(const QString&);
 	void slotAddError(const QString&, const QString&, const QString&);
-	
+
+private slots:
+	void slotContextMenuRequested(const QPoint&);
+	void slotHistoryItemClicked(QAction *);
+
 private:
+	/** Install the given command in history menu; avoid duplicates */
+	void addHistoryItem(const QString&);
+
+	/** Save current cmd. history (it may have been cleared during this session) */
+	void saveCmdHistory();
+
+	/** Private copy of project's pointer to config object */
+	KSharedConfigPtr m_pConf;
+
 	/** Handles the make process. */
 	MakeFrontend* m_pMake;
+
+	/** Menu to hold make commands history for current sesion */
+	QMenu *m_pHistoryMenu;
 };
 
 #endif
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

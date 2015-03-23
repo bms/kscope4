@@ -41,10 +41,10 @@ TreeWidget::TreeWidget(QWidget* pParent, const char* szName) :
 {
 	setRootIsDecorated(true);
 	setItemsExpandable(true);
-	
+
 	// Create a driver object
 	m_pDriver = new QueryViewDriver(this, this);
-	
+
 	// Query a tree item when it is expanded for the first time
 	connect(this, SIGNAL(itemExpanded(QTreeWidgetItem*)), this,
 		SLOT(slotQueryItem(QTreeWidgetItem*)));
@@ -74,11 +74,11 @@ void TreeWidget::setMode(Mode mode)
 void TreeWidget::setRoot(const QString& sFunc)
 {
 	QTreeWidgetItem* pRoot;
-	
+
 	// Remove the current root, if any
 	if ((pRoot = invisibleRootItem()->child(0)) != NULL)
 		invisibleRootItem()->removeChild(pRoot);
-	
+
 	// Create a new root item
 	pRoot = new QTreeWidgetItem(this, QStringList(sFunc));
 	pRoot->setExpanded(true);
@@ -90,7 +90,7 @@ void TreeWidget::setRoot(const QString& sFunc)
 void TreeWidget::queryRoot()
 {
 	QTreeWidgetItem* pRoot;
-	
+
 	if ((pRoot = invisibleRootItem()->child(0)) != NULL)
 		slotQueryItem(pRoot);
 }
@@ -104,7 +104,7 @@ void TreeWidget::save(FILE* pFile)
 	QTextStream str(pFile, QIODevice::WriteOnly);
 	QTreeWidgetItem* pRoot;
 	Encoder enc;
-	
+
 	if (m_nQueryType == CscopeFrontend::Called)
 		str << "calltree {" << endl;
 	else
@@ -199,7 +199,7 @@ void TreeWidget::slotQueryItem(QTreeWidgetItem* pItem)
 	// An item has been queried if it has children or marked as non-expandable
 	if (pItem->childCount())
 		return;
-		
+
 	// Run the query
 	m_pDriver->query(m_nQueryType, pItem->text(0), pItem);
 }
@@ -218,16 +218,16 @@ void TreeWidget::slotSearch(QTreeWidgetItem* pParent, const QRegExp& re,
 	int nCol)
 {
 	QTreeWidgetItem* pItem;
-	
+
 	// Get the first child
 	pItem = (pParent != NULL) ? pParent->child(0) : invisibleRootItem()->child(0);
-	
+
 	// Iterate over all child items : filter visible items only
 	QTreeWidgetItemIterator it(this, QTreeWidgetItemIterator::NotHidden);
 	while (*it) {
 		if (re.indexIn(pItem->text(nCol)) == -1)
 			(*it)->setHidden(true);
-		
+
 		// Search recursively child items ( if any )
 		if ((*it)->childCount()) slotSearch((*it), re, nCol);
 		*it++;

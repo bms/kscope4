@@ -73,16 +73,16 @@ public:
 		Kernel = 0x04, InvIndex = 0x08, NoCompression = 0x10 };
 
 	void query(uint, const QString&, uint nMaxRecords = 0);
-	void rebuild();
-	
+	void rebuild(const QString& inculdeDirs = QString(), const QString& sourceDirs = QString());
+
 	static void init(const QString&, uint);
-	
+
 	/**
 	 * @param	nArgs	The command-line arguments supported by the version of
 	 *					Cscope currently in use
 	 */
 	static void setSupArgs(uint nArgs) { s_nSupArgs = nArgs; }
-	
+
 public slots:
 	void slotCancel();
 
@@ -103,31 +103,31 @@ private:
 	 */
 	enum ParserState { Unknown = 0, BuildStart, BuildSymbol, Building,
 		SearchSymbol, Searching, SearchEnd, File, Func, Line, LineText };
-	
+
 	/** The current state of the parser state machine. */
 	ParserState m_state;
-	
+
 	/** Accumulates text sent by Cscope to the standard error stream. */
 	QString m_sErrMsg;
-	
+
 	/** If true, the rebuild process will be restarted when the process
 		exits. */
 	bool m_bRebuildOnExit;
-	
+
 	/** The maximal number of records requested for the current query.
 		The process aborts if this number if reached. */
 	int m_nMaxRecords;
-	
+
 	/** The full path of the directory holding the project files. */
 	static QString s_sProjPath;
-	
+
 	/** Project-specific options for the command-line arguments. */
 	static uint s_nProjArgs;
-	
+
 	/** The command line arguments supported by this version of Cscope. */
 	static uint s_nSupArgs;
-	
-	bool run(const QStringList&);
+
+	bool run(const QStringList&, const QString& incDirs = QString(), const QString& srccDirs = QString());
 };
 
 /**
@@ -144,20 +144,20 @@ class CscopeProgress : public QObject
 public:
 	CscopeProgress(QWidget*);
 	~CscopeProgress();
-	
+
 	void setProgress(int, int);
 	void finished();
-	
+
 private:
 	/** The parent widget for the progress bar and label. */
 	QWidget* m_pMainWidget;
-	
+
 	/** A bar used to display query progress information. */
 	QProgressBar* m_pProgressBar;
-	
+
 	/** A label used to display a "Please wait..." message. */
 	QLabel* m_pLabel;
-	
+
 private slots:
 	void slotShowProgressBar();
 	void slotShowLabel();
@@ -166,22 +166,28 @@ private slots:
 class CscopeVerifier : public QObject
 {
 	Q_OBJECT
-	
+
 public:
 	CscopeVerifier() : m_bResult(false), m_nArgs(0) {}
-	
+
 	void verify();
-	
+
 signals:
 	void done(bool, uint);
-	
+
 private:
 	bool m_bResult;
 	uint m_nArgs;
-	
+
 private slots:
 	void slotConfigResult(uint, const QString&);
 	void slotFinished();
 };
 
 #endif
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

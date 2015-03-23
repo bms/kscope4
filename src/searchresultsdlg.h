@@ -48,25 +48,25 @@ public:
 	void setColumn(int);
 	int getColumn();
 	void getPattern(QRegExp&);
-		
+
 	/**
 	 * @return	true if the search pattern should be negated, false otherwise
 	 */
 	bool isNegated() { return m_pNegateCheck->isChecked(); }
-	
+
 protected slots:
 	virtual void accept();
-	
+
 private:
 	/** Possible search types. */
 	enum { PlainText = 0, RegExp, SimpRegExp };
-	
+
 	/** Remembers the last search type. */
 	static int s_nType;
-	
+
 	/** Remembers the last value of the Case Sensitive check-box. */
 	static bool s_bCaseSensitive;
-	
+
 	/** Remembers the last value of the Negate Search check-box. */
 	static bool s_bNegate;
 };

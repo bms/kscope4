@@ -87,7 +87,7 @@ CallTreeDlg::CallTreeDlg(QWidget* pParent, const char* szName) :
 	m_pZoomOutButton->setIcon(static_cast<QIcon>(GET_PIXMAP(ButtonZoomOut)));
 	m_pRotateButton->setIcon(static_cast<QIcon>(GET_PIXMAP(ButtonRotate)));
 	m_pPrefButton->setIcon(static_cast<QIcon>(GET_PIXMAP(ButtonPref)));
-	
+
 	// Open the location of a call
 	connect(m_pGraphWidget, SIGNAL(lineRequested(const QString&, uint)),
 		this, SIGNAL(lineRequested(const QString&, uint)));
@@ -95,9 +95,9 @@ CallTreeDlg::CallTreeDlg(QWidget* pParent, const char* szName) :
 		this, SIGNAL(lineRequested(const QString&, uint)));
 	connect(m_pCallingWidget, SIGNAL(lineRequested(const QString&, uint)),
 		this, SIGNAL(lineRequested(const QString&, uint)));
-	
+
 	m_pCallingWidget->setMode(TreeWidget::Calling);
-	
+
 	// Get the default view from KScope's configuration
 	m_nDefView = Config().getDefGraphView();
 }
@@ -115,12 +115,12 @@ CallTreeDlg::~CallTreeDlg()
 void CallTreeDlg::setRoot(const QString& sFunc)
 {
 	m_sRoot = sFunc;
-	
+
 	// Generate unique file name to save call tree later
 	m_sFileName = sFunc;
 	m_sFileName.replace(' ', '_');
 	m_sFileName += QString::number(++s_nFileNameIndex);
-	
+
 	// Set the root item in all views
 	m_pGraphWidget->setRoot(sFunc);
 	m_pCalledWidget->setRoot(sFunc);
@@ -158,7 +158,7 @@ void CallTreeDlg::closeEvent(QCloseEvent* pEvent)
 {
 	if (!m_sFilePath.isEmpty())
 		QFile::remove(m_sFilePath);
-		
+
 	emit closed(this);
 	QWidget::closeEvent(pEvent);
 }
@@ -179,29 +179,29 @@ bool CallTreeDlg::load(const QString& sProjPath, const QString& sFileName)
 	FILE* pFile;
 	int nVersion, nView, nResult;
 	Encoder enc;
-	
+
 	// Create the full path name
 	sPath = sProjPath + "/" + sFileName;
-	
+
 	// Open the file for reading
 	pFile = fopen(sPath.toLatin1(), "r");
 	if (pFile == NULL)
 		return false;
-		
+
 	// Check file version
 	if ((fscanf(pFile, "VERSION=%d\n", &nVersion) != 1) || 
 		(nVersion != FILE_VERSION)) {
 		fclose(pFile);
 		return false;
 	}
-		
+
 	// Get default view
 	if ((fscanf(pFile, "View=%d\n", &nView) == 1) &&
 		(nView >= 0) &&
 		(nView <= 2)) {
 		m_nDefView = nView;
 	}
-	
+
 	// Read the call trees and the graph stored on this file
 	//	yyinit(this, pFile, &enc);
 	//	nResult = yyparse();
@@ -209,15 +209,15 @@ bool CallTreeDlg::load(const QString& sProjPath, const QString& sFileName)
 
 	// Close the file
 	fclose(pFile);
-	
+
 	// Check the result returned by the parser
 	if (nResult != 0)
 		return false;
-	
+
 	// Store the file name
 	m_sFileName = sFileName;
 	m_sFilePath = sPath;
-	
+
 	// Draw the graph
 	m_pGraphWidget->draw();
 
@@ -245,7 +245,7 @@ void CallTreeDlg::store(const QString& sProjPath)
 	pFile = fopen(ba.constData(), "w+");
 	if (pFile == NULL)
 		return;
-		
+
 	// Write header
 	fprintf(pFile, "VERSION=%d\n", FILE_VERSION);
 	fprintf(pFile, "View=%d\n", m_pGraphButtonGrp->checkedId());
@@ -268,10 +268,10 @@ void CallTreeDlg::store(const QString& sProjPath)
 void CallTreeDlg::slotSaveClicked()
 {
 	QString sFile;
-	
+
 	// Prompt the user for a file name
 	sFile = KFileDialog::getSaveFileName(KUrl(":kscope"));
-	
+
 	// Save the graph to a file (unless the user did not give a file name)
 	if (!sFile.isEmpty())
 		m_pGraphWidget->save(sFile);
@@ -316,7 +316,7 @@ void CallTreeDlg::slotPrefClicked()
 
 	GraphPrefDlg dlg(this);
 	int nMaxNodeDegree;
-	
+
 	if (dlg.exec() == QDialog::Accepted) {
 		nMaxNodeDegree = dlg.getMaxNodeDegree();
 		Config().setGraphMaxNodeDegree(nMaxNodeDegree);
@@ -340,7 +340,7 @@ void CallTreeDlg::slotViewChanged(int nView)
 		m_pHelpLabel->setText(i18n("Right-click a function node or an arrow "
 			"head for more options."));
 		break;
-		
+
 	case CallTreeDlg::CalledTree:
 		// Called functions tree
 		setWindowTitle(i18n("Called Functions Tree"));
@@ -349,7 +349,7 @@ void CallTreeDlg::slotViewChanged(int nView)
 			"options."));
 		m_pCalledWidget->queryRoot();
 		break;
-		
+
 	case CallTreeDlg::CallingTree:
 		// Calling functions tree
 		setWindowTitle(i18n("Calling Functions Tree"));
@@ -359,7 +359,7 @@ void CallTreeDlg::slotViewChanged(int nView)
 		m_pCallingWidget->queryRoot();
 		break;
 	}
-	
+
 	Config().setDefGraphView(nView);
 }
 

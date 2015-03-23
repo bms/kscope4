@@ -52,7 +52,7 @@ public:
 
 	void setValue(int);
 	void setIdle();
-	
+
 private:
 	/** When the value is 0, this timer initiates value changes that cause
 		the progress-bar to move. */

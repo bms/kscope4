@@ -66,20 +66,20 @@ signals:
 
 protected slots:
 	void slotButtonClicked(int);
-	
+
 private:
 	/** The front-end programmes page. */
 	PrefFrontend* m_pPrefFrontend;
-	
+
 	/** The colours preference page. */
 	PrefColor* m_pPrefColor;
-	
+
 	/** The fonts preference page. */
 	PrefFont* m_pPrefFont;
-	
+
 	/** The additional options page. */
 	PrefOpt* m_pPrefOpt;
-	
+
 	/** A list of page items */
 	QList<KPageWidgetItem*> m_lDlgPageItems;
 

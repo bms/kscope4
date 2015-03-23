@@ -1,3 +1,20 @@
+1.7.1 (Mar 23 2015)
+* Cleanup source files: remove `#if 0 ... #endif' blocks, commented instructions;
+	delete space chars. in  blank lines
+* Fix icon name of `Rebuild Database' action
+* Fix bugs in project creation or opening (if previous session doesn't contain any
+	opened source files)
+* Fix problem with long commands in make dialog line edit (dialog appearence is messed
+	up)
+* New make dialog feature: the command history content of a session is written to the
+	project config file (cscope.proj) and will be restored during the next session
+	on the same project
+* Add a dialog to setup (if needed) the values of INCLUDEDIRS & SOURCEDIRS environment
+	variables used by cscope when rebuilding the database (added 2 new files:
+	setenvdlg.{cpp,h})
+* Allow project creation in an existing directory in which the source files are already
+	installed
+
 1.7.0 (Apr 13 2012)
 
 * Port to KDE4 / Qt4

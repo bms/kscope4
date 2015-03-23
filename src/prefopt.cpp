@@ -45,7 +45,7 @@ PrefOpt::PrefOpt(QWidget* pParent, const char* szName) :
 
 	// Set initial values
 	load();
-		
+
 	// Emit the "modified" signal whenever any of the widgets changes its
 	// its. This will notify the parent dialogue to enable its "Apply"
 	// button
@@ -89,22 +89,22 @@ void PrefOpt::load()
 	m_pWarnModifiedOnDiskCheck->setChecked(Config().getWarnModifiedOnDisk());
 	m_pAutoSortCheck->setChecked(Config().getAutoSortFiles());
 	m_pExtEditorEdit->setText(Config().getExtEditor());
-	
+
 	switch (Config().getSysProfile()) {
 	case KScopeConfig::Fast:
 		m_pSysProfileCB->setCurrentIndex(0);
 		break;
-		
+
 	case KScopeConfig::Slow:
 		m_pSysProfileCB->setCurrentIndex(1);
 		break;
 	}
-	
+
 	switch (Config().getEditorPopup()) {
 	case KScopeConfig::Embedded:
 		m_pEditorPopupCB->setCurrentIndex(0);
 		break;
-		
+
 	case KScopeConfig::KScopeOnly:
 		m_pEditorPopupCB->setCurrentIndex(1);
 		break;
@@ -123,22 +123,22 @@ void PrefOpt::apply()
 	Config().setWarnModifiedOnDisk(m_pWarnModifiedOnDiskCheck->isChecked());
 	Config().setAutoSortFiles(m_pAutoSortCheck->isChecked());
 	Config().setExtEditor(m_pExtEditorEdit->text());
-	
+
 	switch (m_pSysProfileCB->currentIndex()) {
 	case 0 :
 		Config().setSysProfile(KScopeConfig::Fast);
 		break;
-		 
+
 	case 1:
 		Config().setSysProfile(KScopeConfig::Slow);
 		break;
 	}
-	
+
 	switch (m_pEditorPopupCB->currentIndex()) {
 	case 0:
 		Config().setEditorPopup(KScopeConfig::Embedded);
 		break;
-		
+
 	case 1:
 		Config().setEditorPopup(KScopeConfig::KScopeOnly);
 		break;

@@ -58,10 +58,10 @@ QueryPage::QueryPage(QWidget* pParent, const char * szName) :
 {
 	m_pView = new QueryView(this);
 	m_pDriver = new QueryViewDriver(m_pView, this);
-	
+
 	connect(m_pView, SIGNAL(lineRequested(const QString&, uint)), this,
 		SIGNAL(lineRequested(const QString&, uint)));
-	
+
 	// Set colours and font
 	applyPrefs();
 }
@@ -83,7 +83,7 @@ void QueryPage::query(uint nType, const QString& sText)
 	m_nType = nType;
 	m_sText = sText;
 	m_sName = getCaption();
-	
+
 	m_pDriver->query(nType, sText);
 }
 
@@ -141,18 +141,18 @@ QString QueryPage::getFileName(const QString& sProjPath) const
 {
 	QString sFileName, sFileNameBase;
 	int i = 0;
-	
+
 	// Do nothing if not initialised
 	if (m_sName.isEmpty())
 		return "";
-	
+
 	// Create a unique file name
 	sFileNameBase = m_sName;
 	sFileNameBase.replace(' ', '_');
 	do {
 		sFileName = sFileNameBase + QString::number(++i);
 	} while (QFile(sProjPath + "/" + sFileName).exists());
-	
+
 	return sFileName;
 }
 
@@ -165,24 +165,24 @@ QString QueryPage::getFileName(const QString& sProjPath) const
 bool QueryPage::readHeader(QTextStream& str)
 {
 	QString sTemp;
-	
+
 	// Read the query name
 	m_sName = str.readLine();
 	if (m_sName == QString::null || m_sName.isEmpty())
 		return false;
-		
+
 	// Read the query's type
 	sTemp = str.readLine();
 	if (sTemp == QString::null || sTemp.isEmpty())
 		return false;
-	
+
 	// Convert the type string to an integer
 	m_nType = sTemp.toUInt();
 	if (m_nType >= CscopeFrontend::None) {
 		m_nType = CscopeFrontend::None;
 		return false;
 	}		
-				
+
 	// Read the query's text
 	m_sText = str.readLine();
 	if (m_sText == QString::null || m_sText.isEmpty())

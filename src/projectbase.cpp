@@ -29,37 +29,56 @@
 
 #include <qtextstream.h>
 
+#include <kconfig.h>
+#include <kconfiggroup.h>
+#include <kglobalsettings.h>
+
 #include "projectbase.h"
 #include "kscopeconfig.h"
 #include "cscopefrontend.h"
 
-ProjectBase::ProjectBase()
+ProjectBase::ProjectBase(bool isTemp) :
+	m_bIsTemporary(isTemp),
+	m_nArgs(0)
 {
 }
 
 ProjectBase::~ProjectBase()
 {
+	// If this is a temporary project (cscope.out was opened): write include &
+	// source directories of the current project to the global config file
+	// Otherwise write include & source directories to the project's private
+	// config file. This is done when closing the project
+
+	if (isTemporary()) {
+		KSharedConfigPtr pConf = KGlobal::config();
+		KConfigGroup configGrp;
+
+		configGrp = pConf->group(m_opt.sName);
+		configGrp.writeEntry("IncludeDirs", m_opt.sIncludeDirs);
+		configGrp.writeEntry("SourceDirs", m_opt.sSourceDirs);
+	}
 }
 
 bool ProjectBase::open(const QString& sPath)
 {
 	QFileInfo fi(sPath);
-		
+
 	// Make sure the file exists, and that is is a cross-reference file
 	if (!fi.exists() || !isCscopeOut(fi.absoluteFilePath()))
 		return false;
-		
+
 	// Set the project's directory
 	m_dir = fi.absolutePath();
-	
+
 	// Set the name of the project to be the full path of the file
-	m_sName = fi.absoluteFilePath();
-	
+	m_opt.sName = fi.absoluteFilePath();
+
 	// Initialise project options (assume source root is the folder holding the
 	// cscope.out file)
 	getDefOptions(m_opt);
 	m_opt.sSrcRootPath = m_dir.path();
-	
+
 	return true;
 }
 
@@ -92,7 +111,7 @@ void ProjectBase::getDefOptions(Options& opt)
 {
 	// Set default source path to file-system root
 	opt.sSrcRootPath = "/";
-	
+
 	// Initialise MIME-type list
 	opt.slFileTypes.append("*.c");
 	opt.slFileTypes.append("*.h");
@@ -106,18 +125,25 @@ void ProjectBase::getDefOptions(Options& opt)
 	opt.nACDelay = DEF_AC_DELAY;
 	opt.nACMaxEntries = DEF_AC_MAX_ENTRIES;
 	opt.nTabWidth = DEF_TAB_WIDTH;
-	
+
 	// Set profile-dependant options
 	if (Config().getSysProfile() == KScopeConfig::Fast) {
 		opt.nAutoRebuildTime = 10;
 		opt.bACEnabled = true;
-	}
-	else {
+	} else {
 		opt.nAutoRebuildTime = -1;
 		opt.bACEnabled = false;
 	}
+
+	// Set include & source directories (if any) for the project
+	KSharedConfigPtr pConf = KGlobal::config();
+	KConfigGroup configGrp;
+
+	configGrp = pConf->group(opt.sName);
+	opt.sIncludeDirs = configGrp.readEntry("IncludeDirs", QString());
+	opt.sSourceDirs = configGrp.readEntry("SourceDirs", QString());
 }
-	
+
 void ProjectBase::initOptions()
 {
 	// Load the options
@@ -150,7 +176,7 @@ bool ProjectBase::isCscopeOut(const QString& sPath)
 	// Try to open the file
 	if (!file.open(IO_ReadOnly))
 		return false;
-		
+
 	// Check if the first line matches the expected format
 	sLine = QTextStream(&file).readLine();
 	return sscanf(sLine.toLatin1().data(), "cscope %d %s", &nVer, szDir) == 2;
@@ -168,11 +194,11 @@ bool ProjectBase::loadFileList(FileListTarget* pList)
 {
 	QString sFilePath;
 	QFile file;
-	
+
 	// Make sure the file exists
 	if (!m_dir.exists("cscope.files"))
 		return false;
-	
+
 	// Open the file
 	file.setFileName(m_dir.absolutePath() + "/cscope.files");
 	if (!file.open(IO_ReadOnly))
@@ -192,3 +218,9 @@ bool ProjectBase::loadFileList(FileListTarget* pList)
 	file.close();
 	return true;
 }
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

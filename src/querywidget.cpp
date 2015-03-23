@@ -59,11 +59,11 @@ QueryWidget::QueryWidget(QWidget* pParent, const char* szName) :
 
 	// Pages can be closed by clicking their tabs
 	m_pQueryTabs->setTabsClosable(true);
-	
+
 	// Change the lock action state according to the current page
 	connect(m_pQueryTabs, SIGNAL(currentChanged(QWidget*)), this,
 		SLOT(slotCurrentChanged(QWidget*)));
-	
+
 	// Close a query when its tab button is clicked
 	connect(m_pQueryTabs, SIGNAL(closeRequest(QWidget*)), this,
 		SLOT(slotClosePage(QWidget*)));
@@ -92,11 +92,11 @@ QueryWidget::~QueryWidget()
 void QueryWidget::initQuery(uint nType, const QString& sText)
 {
 	QueryPage* pPage;
-	
+
 	// Make sure we have a query page
 	findQueryPage();
 	pPage = (QueryPage*)currentPage();
-			
+
 	// Use the current page, or a new page if the current one is locked
 	if (pPage->isLocked()) {
 		addQueryPage();
@@ -106,7 +106,7 @@ void QueryWidget::initQuery(uint nType, const QString& sText)
 	// Reset the page's results list
 	pPage->clear();
 	pPage->query(nType, sText);
-	
+
 	// Set the page's tab text according to the new query
 	setPageCaption(pPage);
 }
@@ -139,7 +139,7 @@ void QueryWidget::loadPages(const QString& sProjPath,
 	QStringList::ConstIterator itr;
 	QueryPageBase* pPage;
 	QString sName;
-	
+
 	// Iterate through query files
 	for (itr = slFiles.begin(); itr != slFiles.end(); ++itr) {
 		// Set the target page, based on the file type (query or history)
@@ -170,7 +170,7 @@ void QueryWidget::savePages(const QString& sProjPath, QStringList& slFiles)
 	int nPageCount, i;
 	QueryPage* pPage;
 	QString sFileName;
-	
+
 	// Iterate pages
 	nPageCount = m_pQueryTabs->count();
 	for (i = 0; i < nPageCount; i++) {
@@ -196,14 +196,14 @@ void QueryWidget::addHistoryRecord(const QString& sFile, uint nLine,
 	// Validate file name and line number
 	if (sFile.isEmpty() || nLine == 0)
 		return;
-	
+
 	// Do nothing if history logging is disabled
 	if (!m_bHistEnabled)
 		return;
 
 	// Make sure there is an active history page	
 	findHistoryPage();
-			
+
 	// Add the position entry to the active page
 	m_pHistPage->addRecord(sFile, nLine, sText);
 }
@@ -237,7 +237,7 @@ void QueryWidget::addQueryPage()
 	m_pQueryTabs->insertTab(m_nQueryPages++, pPage, GET_PIXMAP(TabUnlocked),
 		"Query");
 	setCurrentPage(pPage);
-	
+
 	// Emit the lineRequested() signal when a query record is selected on 
 	// this page
 	connect(pPage, SIGNAL(lineRequested(const QString&, uint)), this, 
@@ -262,9 +262,9 @@ void QueryWidget::slotNewQueryPage()
 void QueryWidget::slotLockCurrent(bool bOn)
 {
 	QueryPageBase* pPage;
-	
+
 	pPage = currentPage();
-	
+
 	if (pPage != NULL)
 		setPageLocked(currentPage(), bOn);
 }
@@ -275,7 +275,7 @@ void QueryWidget::slotLockCurrent(bool bOn)
 void QueryWidget::slotLockCurrent()
 {
 	QueryPageBase* pPage;
-	
+
 	pPage = currentPage();
 	if (pPage != NULL)
 		setPageLocked(pPage, !pPage->isLocked());
@@ -289,7 +289,7 @@ void QueryWidget::slotRefreshCurrent()
 	QueryPage* pPage;
 	uint nType;
 	QString sText;
-	
+
 	// Make sure the current page is a valid, non-empty one
 	pPage = dynamic_cast<QueryPage*>(currentPage());
 	if ((pPage == NULL) ||
@@ -300,7 +300,7 @@ void QueryWidget::slotRefreshCurrent()
 	// Get the current page parameters (before they are deleted by clear())
 	nType = pPage->getQueryType();
 	sText = pPage->getQueryText();
-	
+
 	// Clear the current page contents
 	pPage->clear();
 	pPage->query(nType, sText);
@@ -361,7 +361,7 @@ void QueryWidget::slotCloseAll()
 	//		delete pPage;
 		m_pQueryTabs->removeTab(i);
 	}
-	
+
 	m_pHistPage = NULL;
 }
 
@@ -427,10 +427,10 @@ void QueryWidget::slotRequestLine(const QString& sFileName, uint nLine)
 	// Disable history if the request came from the active history page
 	if (currentPage() == m_pHistPage)
 		m_bHistEnabled = false;
-		
+
 	// Emit the signal
 	emit lineRequested(sFileName, nLine);
-	
+
 	// Re-enable history
 	if (currentPage() == m_pHistPage)
 		m_bHistEnabled = true;
@@ -443,7 +443,7 @@ void QueryWidget::slotRequestLine(const QString& sFileName, uint nLine)
 void QueryWidget::slotCurrentChanged(QWidget* pWidget)
 {
 	QueryPage* pPage;
-	
+
 	// Return immediatly if last tab was removed
 	if (!pWidget) return;
 
@@ -472,7 +472,7 @@ void QueryWidget::slotClosePage(QWidget* pPage)
 	// Update the number of open history pages
 	else if (dynamic_cast<HistoryPage*>(pPage) == NULL)
 		m_nQueryPages--;
-	
+
 	// Remove the page and delete the object
 	m_pQueryTabs->removeTab(m_pQueryTabs->indexOf(pPage));
 	delete pPage;
@@ -526,19 +526,19 @@ void QueryWidget::setPageLocked(QueryPageBase* pPage, bool bLock)
 {
 	if (!pPage->canLock())
 		return;
-		
+
 	// Set the locking state of the current page
 	pPage->setLocked(bLock);
 	m_pQueryTabs->setTabIcon(m_pQueryTabs->indexOf(pPage),
 		bLock ? GET_PIXMAP(TabLocked) : GET_PIXMAP(TabUnlocked));
-		
+
 	// There can only be one unlocked history page. Check if a non-active
 	// query page is being unlocked
 	if (isHistoryPage(pPage) && (pPage != m_pHistPage)	&& !bLock) {
 		// Lock the active history page (may be NULL)
 		if (m_pHistPage != NULL)
 			setPageLocked(m_pHistPage, true);
-		
+
 		// Set the unlock page as the new active history page
 		m_pHistPage = (HistoryPage*)pPage;
 	}
@@ -556,14 +556,14 @@ void QueryWidget::findQueryPage()
 {
 	QueryPage* pPage;
 	int nPages, i;
-	
+
 	// First check if the current page is an unlocked query page
 	pPage = dynamic_cast<QueryPage*>(currentPage());
 	if (pPage != NULL) {
 		if (!pPage->isLocked() && !pPage->isRunning())
 			return;
 	}
-	
+
 	// Look for the first unlocked query page
 	nPages = m_pQueryTabs->count();
 	for (i = 0; i < nPages; i++) {
@@ -590,11 +590,11 @@ void QueryWidget::findHistoryPage()
 	HistoryPage* pPage;
 	int nPages, i;
 	QString sTitle;
-	
+
 	// First check if the active history page is unlocked
 	if (m_pHistPage != NULL && !m_pHistPage->isLocked())
 		return;
-	
+
 	// Look for the first unlocked history page
 	nPages = m_pQueryTabs->count();
 	for (i = 0; i < nPages; i++) {

@@ -63,7 +63,7 @@ bool ConfigFrontend::run(const QString& sCscopePath,
 	QStringList slArgs;
 	KStandardDirs sd;
 	QString sScript;
-	
+
 	// Execute using the user's shell
 	setUseShell();
 
@@ -71,10 +71,10 @@ bool ConfigFrontend::run(const QString& sCscopePath,
 	sScript = sd.findResource("data", "kscope/kscope_config");
 	if (sScript.isEmpty())
 		return false;
-		
+
 	// Set command line arguments
 	slArgs << QString("sh") << sScript;
-	
+
 	// Initialise environment
 	setEnv("CSCOPE_PATH", sCscopePath);
 	if (bCscopeOptsOnly){
@@ -87,10 +87,10 @@ bool ConfigFrontend::run(const QString& sCscopePath,
 	// Parser initialisation
 	m_delim = Newline;
 	m_nNextResult = CscopePath;
-	
+
 	if (!Frontend::run("sh", QStringList(slArgs)))
 		return false;
-		
+
 	emit test(CscopePath);
 	return true;
 }
@@ -104,10 +104,10 @@ bool ConfigFrontend::run(const QString& sCscopePath,
 Frontend::ParseResult ConfigFrontend::parseStdout(QString& sToken, ParserDelim)
 {
 	uint nResult;
-	
+
 	// Store the type of test for which the given token in the result
 	nResult = m_nNextResult;
-	
+
 	// Determine the next test
 	switch (m_nNextResult) {
 	case CscopePath:
@@ -116,55 +116,55 @@ Frontend::ParseResult ConfigFrontend::parseStdout(QString& sToken, ParserDelim)
 		else
 			m_nNextResult = CscopeVersion;
 		break;
-		
+
 	case CscopeVersion:
 		if (sToken == "ERROR")
 			m_nNextResult = CtagsPath;
 		else
 			m_nNextResult = CscopeVerbose;
 		break;
-		
+
 	case CscopeVerbose:
 		m_nNextResult = CscopeSlowPath;
 		break;
-		
+
 	case CscopeSlowPath:
 		m_nNextResult = CtagsPath;
 		break;
-		
+
 	case CtagsPath:
 		if (sToken == "ERROR")
 			m_nNextResult = END;
 		else
 			m_nNextResult = CtagsExub;
 		break;
-	
+
 	case CtagsExub:
 		if (sToken == "ERROR")
 			m_nNextResult = END;
 		else
 			m_nNextResult = DotPath;
 		break;
-		
+
 	case DotPath:
 		if (sToken == "ERROR")
 			m_nNextResult = END;
 		else
 			m_nNextResult = DotPlain;
 		break;
-	
+
 	case DotPlain:
 		m_nNextResult = END;
 		break;
-		
+
 	case END:
 		return DiscardToken;
 	}
-	
+
 	// Publish the result and the type of the next test
 	emit result(nResult, sToken);
 	emit test(m_nNextResult);
-	
+
 	return DiscardToken;
 }
 

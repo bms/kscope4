@@ -72,6 +72,7 @@
 #include "welcomedlg.h"
 #include "bookmarksdlg.h"
 #include "kscopeactions.h"
+#include "setenvdlg.h"
 
 /**
  * Class constructor.
@@ -87,6 +88,7 @@ KScope::KScope(QWidget* pParent, const char* szName) :
 	m_bUpdateGUI(true),
 	m_bCscopeVerified(false),
 	m_bRebuildDB(false),
+	m_pSetEnvDialog(NULL),
 	m_pMakeDlg(NULL)
 {
 	setObjectName(szName);
@@ -112,7 +114,7 @@ KScope::KScope(QWidget* pParent, const char* szName) :
 	m_pActions = new KScopeActions(this);
 	m_pActions->init();
 	m_pActions->slotEnableProjectActions(false);
-	
+
 	// Create all child widgets
 	initMainWindow();
 
@@ -123,7 +125,7 @@ KScope::KScope(QWidget* pParent, const char* szName) :
 
 	// Initialise the icon manager	
 	Pixmaps().init();
-	
+
 	// Open a file for editing when selected in the project's file list or the
 	// file tree
 	connect(m_pFileView, SIGNAL(fileRequested(const QString&, uint)), this,
@@ -132,10 +134,10 @@ KScope::KScope(QWidget* pParent, const char* szName) :
 	// Delete an editor page object after it is removed
 	connect(m_pEditTabs, SIGNAL(editorRemoved(EditorPage*)),
 		this, SLOT(slotDeleteEditor(EditorPage*)));
-	
+
 	connect(m_pEditTabs, SIGNAL(filesDropped(QDropEvent*)), this,
 		SLOT(slotDropEvent(QDropEvent*)));
-	
+
 	// Set an editor as the active part whenever its owner tab is selected
 	connect(m_pEditTabs, SIGNAL(editorChanged(EditorPage*, EditorPage*)),
 		this, SLOT(slotChangeEditor(EditorPage*, EditorPage*)));
@@ -143,7 +145,7 @@ KScope::KScope(QWidget* pParent, const char* szName) :
 	// Display a file at a specific line when selected in a query list
 	connect(m_pQueryWidget, SIGNAL(lineRequested(const QString&, uint)),
 		this, SLOT(slotQueryShowEditor(const QString&, uint)));
-	
+
 	// Display the symbol dialogue when the user opens a new query page
 	connect(m_pQueryWidget, SIGNAL(newQuery()), 
 		this, SLOT(slotQueryReference()));
@@ -155,14 +157,14 @@ KScope::KScope(QWidget* pParent, const char* szName) :
 	// Display a file at a specific line when selected in a call tree dialogue
 	connect(m_pCallTreeMgr, SIGNAL(lineRequested(const QString&, uint)),
 		this, SLOT(slotQueryShowEditor(const QString&, uint)));
-	
+
 	// Create the initial GUI (no active part)
 	setupGUI(KXmlGuiWindow::Default, "kscopeui.rc");
 
 	// Restore dock configuration
 	Config().loadWorkspace(this);
 	m_bHideQueryOnSelection = m_pQueryDock->isHidden();
-	
+
 	QMenu* pPopup;
 
 	// Associate the "Window" menu with the editor tabs widdget
@@ -172,10 +174,10 @@ KScope::KScope(QWidget* pParent, const char* szName) :
 	// Associate the "Query" popup menu with the query widget
 	pPopup = (QMenu*)factory()->container("query_popup", this);
 	m_pQueryWidget->setPageMenu(pPopup, m_pActions->getLockAction());
-	
+
 	// Initialise arrow head drawing
 	GraphWidget::setArrowInfo(15, 15);
-	
+
 	// Use a maximised window the first time
 	if (Config().isFirstTime())
 		showMaximized();
@@ -200,12 +202,12 @@ KScope::~KScope()
 	// Save configuration
 	Config().store();
 	Config().storeWorkspace(this);
-	
+
 	delete m_pCallTreeMgr;
 	delete m_pEditMgr;
 	delete m_pCscopeBuild;
 	delete m_pProjMgr;
-	
+
 	if (m_pMakeDlg != NULL)
 		delete m_pMakeDlg;
 
@@ -219,7 +221,7 @@ KScope::~KScope()
 void KScope::initMainWindow()
 {
 	KStatusBar* pStatus;
-	
+
 	// If Kscope started for the first time, set toolbars style to "IconOnly"
 	if (Config().isFirstTime()){
 		QList<KToolBar *> lToolBar = toolBars();
@@ -242,7 +244,7 @@ void KScope::initMainWindow()
 	// Create the file view dock
 	m_pFileViewDock->setWidget(m_pFileView);
 	addDockWidget(Qt::RightDockWidgetArea, m_pFileViewDock);
-	
+
 	m_pActions->initLayoutActions();
 }
 
@@ -284,28 +286,26 @@ void KScope::slotCreateProject()
 
 	// Prompt the user to close any active projects
 	if (m_pProjMgr->curProject()) {
-		if (KMessageBox::questionYesNo(0, 
-			i18n("The current project needs to be closed before a new one is"
-			" created.\nWould you like to close it now?")) != 
-			KMessageBox::Yes) {
+		if (KMessageBox::questionYesNo(NULL, i18n("<p style='white-space:pre'><qt><b>The current project needs to be closed before a new one is created</b><br/><br/>Would you like to close it now?")) != KMessageBox::Yes) {
 			return;
 		}
-		
+
 		// Try to close the project.
 		if (!slotCloseProject())
 			return;
 	}
-	
+
 	// Display the "New Project" dialog
 	if (dlg.exec() != QDialog::Accepted)
 		return;
 
 	// Create the new project
 	dlg.getOptions(opt);
-	m_pProjMgr->create(dlg.getName(), dlg.getPath(), opt);
 
-	// Open the project
-	openProject(dlg.getPath() + "/" + dlg.getName());
+	if (m_pProjMgr->create(dlg.getName(), dlg.getPath(), opt)) {
+		// Open the project
+		openProject(dlg.getPath() + "/" + dlg.getName());
+	}
 }
 
 /**
@@ -317,12 +317,12 @@ void KScope::slotOpenProject()
 {
 	OpenProjectDlg dlg;
 	QString sPath;
-	
+
 	if (dlg.exec() == QDialog::Rejected)
 		return;
 
 	sPath = dlg.getPath();
-	
+
 	// Check if the path refers to a permanent or temporary project
 	if (QFileInfo(sPath).isDir())
 		openProject(sPath);
@@ -338,7 +338,7 @@ void KScope::slotOpenProject()
 void KScope::slotProjectFiles()
 {
 	ProjectBase* pProj;
-	
+
 	// A project must be open
 	pProj = m_pProjMgr->curProject();
 	if (!pProj)
@@ -355,7 +355,7 @@ void KScope::slotProjectFiles()
 	ProjectFilesDlg dlg((Project*)pProj, this);
 	if (dlg.exec() != QDialog::Accepted)
 		return;
-	
+
 	// Update the project's file list
 	if (pProj->storeFileList(&dlg))
 		slotProjectFilesChanged();
@@ -371,7 +371,7 @@ void KScope::slotProjectProps()
 {
 	ProjectBase* pProj;
 	ProjectBase::Options opt;
-	
+
 	// A project must be open
 	pProj = m_pProjMgr->curProject();
 	if (!pProj)
@@ -383,12 +383,12 @@ void KScope::slotProjectProps()
 			"available for temporary projects."));
 		return;
 	}
-	
+
 	// Create the properties dialog
 	NewProjectDlg dlg(false, this);
 	pProj->getOptions(opt);
 	dlg.setProperties(pProj->getName(), pProj->getPath(), opt);
-		
+
 	// Display the properties dialog
 	if (dlg.exec() != QDialog::Accepted)
 		return;
@@ -396,14 +396,14 @@ void KScope::slotProjectProps()
 	// Set new properties
 	dlg.getOptions(opt);
 	pProj->setOptions(opt);
-	
+
 	// Reset the CscopeFrontend class and the builder object
 	initCscope();
-	
+
 	// Set auto-completion parameters
 	SymbolCompletion::initAutoCompletion(opt.bACEnabled, opt.nACMinChars,
 		opt.nACDelay, opt.nACMaxEntries);
-	
+
 	// Set the source root
 	m_pFileView->setRoot(pProj->getSourceRoot());
 }
@@ -416,7 +416,7 @@ void KScope::slotProjectProps()
 void KScope::slotProjectCscopeOut()
 {
 	QString sFilePath;
-	
+
 	// Prompt for a Cscope.out file
 	sFilePath = KFileDialog::getOpenFileName();
 	if (sFilePath.isEmpty())
@@ -518,19 +518,19 @@ void KScope::slotQueryQuickDef()
 	QString sSymbol;
 	QueryViewDlg* pDlg;
 	uint nType;
-	
+
 	// Get the requested symbol and query type
 	nType = SymbolDlg::Definition;
 	if (!getSymbol(nType, sSymbol, false))
 		return;
-		
+
 	// Create a modeless query view dialogue
 	pDlg = new QueryViewDlg(QueryViewDlg::DestroyOnSelect, this);
-	
+
 	// Display a line when it is selected in the dialogue
 	connect(pDlg, SIGNAL(lineRequested(const QString&, uint)), this,
 		SLOT(slotShowEditor(const QString&, uint)));
-		
+
 	// Start the query
 	pDlg->query(nType, sSymbol);
 }
@@ -551,19 +551,41 @@ void KScope::slotCallTree()
 void KScope::slotRebuildDB()
 {
 	ProjectBase* pProj;
-	
+
 	pProj = m_pProjMgr->curProject();
 	if (!pProj)
 		return;
-	
+
 	if (!pProj->dbExists()) {
 		m_pProgressDlg = new ProgressDlg(i18n("KScope"), i18n("Please wait "
 			"while KScope builds the database"), this);
 		m_pProgressDlg->setAllowCancel(false);
 		m_pProgressDlg->setValue(0);
 	}
-	
-	m_pCscopeBuild->rebuild();
+
+	// Create permanent default dialog if required & sedt default directories
+	if (!m_pSetEnvDialog)
+		m_pSetEnvDialog = new SetEnvDialog();
+
+	QString includeSetting = pProj->getIncludeDirs();
+	QString sourceSetting = pProj->getSourceDirs();
+
+	m_pSetEnvDialog->setDefaultInclude(pProj->getIncludeDirs());
+	m_pSetEnvDialog->setDefaultSource(pProj->getSourceDirs());
+	m_pSetEnvDialog->exec();
+
+	if (m_pSetEnvDialog->result() == QDialog::Accepted) {
+		includeSetting = m_pSetEnvDialog->getIncludeSetting();
+		sourceSetting = m_pSetEnvDialog->getSourceSetting();
+		pProj->setIncludeDirs(includeSetting);
+		pProj->setSourceDirs(sourceSetting);
+		m_pSetEnvDialog->hide();
+	} else {
+		KMessageBox::information(NULL, "<p style='white-space:pre'><qt><b>Rebuild canceled</b><br/>Cscope database will not be modified</qt>");
+		return;
+	}
+
+	m_pCscopeBuild->rebuild(includeSetting, sourceSetting);
 }
 
 /**
@@ -605,13 +627,13 @@ void KScope::slotConfigure()
 void KScope::slotProjectFilesChanged()
 {
 	QStringList slArgs;
-	
+
 	// Refresh the file list
 	m_pFileList->setUpdatesEnabled(false);
 	m_pFileList->clear();
 	m_pProjMgr->curProject()->loadFileList(m_pFileList);
 	m_pFileList->setUpdatesEnabled(true);
-	
+
 	// Rebuild the symbol database
 	if (isAutoRebuildEnabled())
 		slotRebuildDB();
@@ -631,7 +653,7 @@ void KScope::slotFilesAdded(const QStringList& slFiles)
 	// Add the file paths to the project's file list
 	for (itr = slFiles.begin(); itr != slFiles.end(); ++itr)
 		m_pFileList->addItem(*itr);
-	
+
 	// Rebuild the database
 	if (isAutoRebuildEnabled())
 		slotRebuildDB();
@@ -691,7 +713,7 @@ void KScope::openProject(const QString& sDir)
 	QStringList slCallTreeFiles;
 	QStringList slArgs;
 	ProjectBase::Options opt;
-	
+
 	// Close the current project (may return false if the user clicks on the
 	// "Cancel" button while prompted to save a file)
 	if (!slotCloseProject())
@@ -701,49 +723,49 @@ void KScope::openProject(const QString& sDir)
 	sProjDir = QDir::cleanPath(sDir);
 	if (!m_pProjMgr->open(sProjDir))
 		return;
-	
+
 	// Change main window title
 	pProj = m_pProjMgr->curProject();
 	setCaption(pProj->getName());
 
 	// Set the root of the file tree
 	m_pFileView->setRoot(pProj->getSourceRoot());
-	
+
 	// Initialise Cscope and create a builder object
 	initCscope();
-	
+
 	// Set auto-completion parameters
 	pProj->getOptions(opt);
 	SymbolCompletion::initAutoCompletion(opt.bACEnabled, opt.nACMinChars,
 		opt.nACDelay, opt.nACMaxEntries);
-	
+
 	// Create an initial query page
 	m_pQueryWidget->addQueryPage();
-	
+
 	// Enable project-related actions
 	m_pActions->slotEnableProjectActions(true);
-	
+
 	// If this is a new project (i.e., no source files are yet included), 
 	// display the project files dialogue
 	if (pProj->isEmpty()) {
 		slotProjectFiles();
 		return;
 	}
-	
+
 	// Fill the file list with all files in the project. 
 	m_pFileList->setUpdatesEnabled(false);
 	pProj->loadFileList(m_pFileList);
 	m_pFileList->setUpdatesEnabled(true);
-	
+
 	// Restore the last session
 	restoreSession();
-	
+
 	// Rebuild the cross-reference database
 	if (isAutoRebuildEnabled()) {
 		// If Cscope installation was not yet verified, postpone the build
 		// process
 		if (m_bCscopeVerified)
-		slotRebuildDB();
+			slotRebuildDB();
 		else
 			m_bRebuildDB = true;
 	}
@@ -757,7 +779,7 @@ void KScope::openProject(const QString& sDir)
 bool KScope::openCscopeOut(const QString& sFilePath)
 {
 	ProjectBase* pProj;
-	
+
 	// Close the current project (may return false if the user clicks on the
 	// "Cancel" button while prompted to save a file)
 	if (!slotCloseProject())
@@ -766,28 +788,28 @@ bool KScope::openCscopeOut(const QString& sFilePath)
 	// Open a temporary project for this cscope.out file
 	if (!m_pProjMgr->openCscopeOut(sFilePath))
 		return false;
-	
+
 	// Change main window title
 	pProj = m_pProjMgr->curProject();
 	setCaption(pProj->getName());
-	
+
 	// Set the root folder in the file tree
 	m_pFileView->setRoot(pProj->getSourceRoot());
-	
+
 	// Initialise Cscope and create a builder object
 	initCscope();
-	
+
 	// Create an initial query page
 	m_pQueryWidget->addQueryPage();
-	
+
 	// Enable project-related actions
 	m_pActions->slotEnableProjectActions(true);
-	
+
 	// Fill the file list with all files in the project. 
 	m_pFileList->setUpdatesEnabled(false);
 	pProj->loadFileList(m_pFileList);
 	m_pFileList->setUpdatesEnabled(true);
-	
+
 	return true;
 }
 
@@ -800,10 +822,10 @@ void KScope::openLastProject()
 {
 	const QStringList slProjects = Config().getRecentProjects();
 	QString sPath;
-	
+
 	if (slProjects.empty())
 		return;
-		
+
 	// Get the project's path
 	sPath = *slProjects.begin();
 
@@ -827,23 +849,23 @@ void KScope::restoreSession()
 	Project::Session sess;
 	FileLocation* pLoc;
 	EditorPage* pPage;
-	
+
 	// A session is available for persistent projects only
 	pProj = m_pProjMgr->curProject();
 	if (!pProj || pProj->isTemporary())
 		return;
-	
+
 	// Make sure all FileLocation objects are deleted
 	//	sess.fllOpenFiles.setAutoDelete(true);
 	//	sess.fllBookmarks.setAutoDelete(true);
-	
+
 	// Load the session
 	((Project*)pProj)->loadSession(sess);
-	
+
 	// Do not update the GUI when loading the editor parts of the initially
 	// hidden windows
 	m_bUpdateGUI = false;
-	
+
 	QListIterator<FileLocation*> itr(sess.fllOpenFiles);
 
 	while (itr.hasNext()){
@@ -853,20 +875,21 @@ void KScope::restoreSession()
 			pPage->setCursorPos(pLoc->m_nLine, pLoc->m_nCol);
 		}
 	}
-	
+
 	// Merge the GUI of the visible editor part
 	m_bUpdateGUI = true;
 
 	// Set the active editor (or choose a default one)
-	if (m_pEditTabs->findEditorPage(sess.sLastFile, true) == NULL)
-		m_pEditTabs->findEditorPage(sess.fllOpenFiles.last()->m_sPath, true);
-	
+	if (m_pEditTabs->findEditorPage(sess.sLastFile, true) == NULL) {
+		if (! sess.fllOpenFiles.isEmpty())
+			m_pEditTabs->findEditorPage(sess.fllOpenFiles.last()->m_sPath, true);
+	}
+
 	// Reload bookmarks
 	m_pEditTabs->setBookmarks(sess.fllBookmarks);	
-	
+
 	// Load previously stored queries and call trees
 	m_pQueryWidget->loadPages(pProj->getPath(), sess.slQueryFiles);
-	//	m_pCallTreeMgr->loadOpenDialogs(pProj->getPath(), sess.slCallTreeFiles);
 }
 
 /**
@@ -881,7 +904,7 @@ void KScope::toggleQueryWindow(bool bShow)
 {
 	// Remember the user's preferences
 	m_bHideQueryOnSelection = bShow ? m_pQueryDock->isHidden() : false;
-		
+
 	// Change the visibility state of the widget, if required
 	if (m_pQueryDock->isHidden() == bShow)
 		m_pQueryDock->setVisible(bShow);
@@ -908,7 +931,7 @@ void KScope::parseCmdLine(KCmdLineArgs* pArgs)
 		fi.setFile(sArg);
 		if (!fi.exists())
 			continue;
-			
+
 		// Handle the current argument
 		if (fi.isFile()) {
 			if (fi.fileName() == "cscope.proj") {
@@ -937,13 +960,13 @@ void KScope::parseCmdLine(KCmdLineArgs* pArgs)
 void KScope::verifyCscope()
 {
 	CscopeVerifier* pVer;
-	
+
 	statusBar()->showMessage(i18n("Verifying Cscope installation..."));
-	
+
 	pVer = new CscopeVerifier();
 	connect(pVer, SIGNAL(done(bool, uint)), this,
 		SLOT(slotCscopeVerified(bool, uint)));
-	
+
 	pVer->verify();
 }
 
@@ -954,7 +977,7 @@ void KScope::verifyCscope()
 void KScope::initCscope()
 {
 	ProjectBase* pProj;
-	
+
 	// Delete the current object, if one exists
 	if (m_pCscopeBuild)
 		delete m_pCscopeBuild;
@@ -991,16 +1014,16 @@ bool KScope::slotCloseProject()
 {
 	ProjectBase* pProj;
 	Project::Session sess;
-	
+
 	// Do nothing if no project is open
 	pProj = m_pProjMgr->curProject();
 	if (!pProj)
 		return true;
-	
+
 	// Make sure all FileLocation objects are deleted
 	//	sess.fllOpenFiles.setAutoDelete(true);
 	//	sess.fllBookmarks.setAutoDelete(true);
-	
+
 	// Close all open editor pages
 	if (m_pEditTabs->count() > 0) {
 		// Save session information for persistent projects
@@ -1009,14 +1032,14 @@ bool KScope::slotCloseProject()
 			m_pEditTabs->getOpenFiles(sess.fllOpenFiles);
 			m_pEditTabs->getBookmarks(sess.fllBookmarks);
 		}
-		
+
 		if (!m_pEditTabs->removeAllPages())
 			return false;
 	}
-	
+
 	// Disable project-related actions
 	m_pActions->slotEnableProjectActions(false);
-	
+
 	// Destroy the make dialogue
 	if (m_pMakeDlg != NULL) {
 		// Save session information for persistent projects
@@ -1024,27 +1047,24 @@ bool KScope::slotCloseProject()
 			sess.sMakeCmd = m_pMakeDlg->getCommand();
 			sess.sMakeRoot = m_pMakeDlg->getDir();
 		}
-		
+
 		delete m_pMakeDlg;
 		m_pMakeDlg = NULL;
 	}
-	
+
 	// Save session information for persistent projects
 	if (!pProj->isTemporary()) {
 		m_pQueryWidget->savePages(pProj->getPath(), sess.slQueryFiles);
-		//		m_pCallTreeMgr->saveOpenDialogs(pProj->getPath(), sess.slCallTreeFiles);
 	}
-	
+
 	// Close all query pages and call trees
 	m_pQueryWidget->slotCloseAll();
-	//	m_pCallTreeMgr->closeAll();
 
 	// Store session information for persistent projects
 	if (!pProj->isTemporary())
 		((Project*)pProj)->storeSession(sess);
 
-	// Close the project in the project manager, and terminate the Cscope
-	// process
+	// Close the project in the project manager, and terminate the Cscope process
 	m_pProjMgr->close();
 	delete m_pCscopeBuild;
 	m_pCscopeBuild = NULL;
@@ -1058,7 +1078,7 @@ bool KScope::slotCloseProject()
 
 	// Remove any remaining status bar messages
 	statusBar()->showMessage("");
-    
+
 	return true;
 }
 
@@ -1075,7 +1095,7 @@ void KScope::slotExtEdit()
 	sCmdLine = Config().getExtEditor();
 	sCmdLine.replace("%F", m_sCurFilePath);
 	sCmdLine.replace("%L", QString::number(m_nCurLine));
-	
+
 	// Run the external editor
 	proc.setShellCommand(sCmdLine);
 	proc.start();
@@ -1089,7 +1109,7 @@ void KScope::slotExtEdit()
 void KScope::slotCompleteSymbol()
 {
 	EditorPage* pPage;
-	
+
 	pPage = m_pEditTabs->getCurrentPage();
 	if (pPage != NULL)
 		pPage->slotCompleteSymbol();
@@ -1101,10 +1121,6 @@ void KScope::slotCompleteSymbol()
  */
 void KScope::slotShowWelcome()
 {
-#if 0
-	WelcomeDlg dlg;
-	dlg.exec();
-#endif
 }
 
 /**
@@ -1114,7 +1130,7 @@ void KScope::slotShowWelcome()
 void KScope::slotGotoTag()
 {
 	EditorPage* pPage;
-	
+
 	pPage = m_pEditTabs->getCurrentPage();
 	if (pPage)
 		pPage->setTagListFocus();
@@ -1128,7 +1144,7 @@ void KScope::slotGotoTag()
 void KScope::slotCscopeVerified(bool bResult, uint nArgs)
 {
 	statusBar()->showMessage(i18n("Verifying Cscope installation...Done"), 3000);
-	
+
 	// Mark the flag even if Cscope was not found, to avoid nagging the user
 	// (who may wish to use KScope even with Cscope disabled)
 	m_bCscopeVerified = true;
@@ -1141,10 +1157,10 @@ void KScope::slotCscopeVerified(bool bResult, uint nArgs)
 		slotConfigure();
 		return;
 	}
-		
+
 	// Set the discoverred supported command-line arguments
 	CscopeFrontend::setSupArgs(nArgs);
-	
+
 	// Build the database, if required
 	if (m_bRebuildDB) {
 		m_bRebuildDB = false;
@@ -1159,21 +1175,22 @@ void KScope::slotCscopeVerified(bool bResult, uint nArgs)
 void KScope::slotProjectMake()
 {
 	QString sCmd, sDir;
-	
+
 	// Create the make dialogue, if it does not exist
 	if (m_pMakeDlg == NULL) {
 		// Create the dialogue
 		m_pMakeDlg = new MakeDlg();
-		
+
 		// Set make parameters for this project
 		m_pProjMgr->curProject()->getMakeParams(sCmd, sDir);
+		m_pMakeDlg->restoreCmdHistory(m_pProjMgr->curProject()->getPath());
 		m_pMakeDlg->setCommand(sCmd);
 		m_pMakeDlg->setDir(sDir);
-		
+
 		// Show the relevant source location when an error link is clicked
 		connect(m_pMakeDlg, SIGNAL(fileRequested(const QString&, uint)), this,
 			SLOT(slotShowEditor(const QString&, uint)));
-		
+
 		// Show the dialogue
 		m_pMakeDlg->show();
 	}
@@ -1196,7 +1213,7 @@ void KScope::slotProjectRemake()
 {
 	// Make sure the make dialogue exists and is displayed
 	slotProjectMake();
-	
+
 	// Run the make command
 	m_pMakeDlg->slotMake();
 }
@@ -1211,14 +1228,14 @@ void KScope::slotShowBookmarks()
 	BookmarksDlg dlg;
 	QString sPath;
 	uint nLine;
-	
+
 	// Load the bookmark list
 	m_pEditTabs->showBookmarks(dlg.getView());
-	
+
 	// Show the dialogue
 	if (dlg.exec() != QDialog::Accepted)
 		return;
-	
+
 	// Go to the selected bookmark
 	dlg.getBookmark(sPath, nLine);
 	slotShowEditor(sPath, nLine);
@@ -1240,7 +1257,7 @@ bool KScope::getSymbol(uint& nType, QString& sSymbol, bool bPrompt)
 {
 	EditorPage* pPage;
 	QString sSuggested;
-	
+
 	// Set the currently selected text, if any
 	if ((pPage = m_pEditTabs->getCurrentPage()) != NULL)
 		sSuggested = pPage->getSuggestedText();
@@ -1250,14 +1267,14 @@ bool KScope::getSymbol(uint& nType, QString& sSymbol, bool bPrompt)
 		sSymbol = sSuggested;
 		return true;
 	}
-	
+
 	// Show the symbol dialogue
 	sSymbol = SymbolDlg::promptSymbol(this, nType, sSuggested);
 
 	// Cannot accept empty strings
 	if (sSymbol.isEmpty())
 		return false;
-	
+
 	return true;
 }
 
@@ -1273,7 +1290,7 @@ EditorPage* KScope::addEditor(const QString& sFilePath)
 	EditorPage* pPage;
 	QString sAbsFilePath;
 	ProjectBase* pProj;
-	
+
 	// If the file name is given using a relative path, we need to convert
 	// it to an absolute one
 	// TODO: Project needs a translatePath() method
@@ -1284,7 +1301,7 @@ EditorPage* KScope::addEditor(const QString& sFilePath)
 	} else {
 		sAbsFilePath = QDir::cleanPath(sFilePath);
 	}
-	
+
 	// Do not open a new editor if one exists for this file
 	pPage = m_pEditTabs->findEditorPage(sAbsFilePath);
 	if (pPage != NULL)
@@ -1292,10 +1309,10 @@ EditorPage* KScope::addEditor(const QString& sFilePath)
 
 	// Create a new page
 	pPage = createEditorPage();	
-				
+
 	// Open the requested file
 	pPage->open(sAbsFilePath);
-	
+
 	return pPage;
 }
 
@@ -1309,7 +1326,7 @@ EditorPage* KScope::createEditorPage()
 	EditorPage* pPage;
 	QMenu* pMenu;
 	ProjectBase* pProj;
-	
+
 	// Load a new document part
 	pDoc = m_pEditMgr->add();
 	if (pDoc == NULL)
@@ -1327,11 +1344,11 @@ EditorPage* KScope::createEditorPage()
 	// Show cursor position in the status bar
 	connect(pPage, SIGNAL(cursorPosChanged(uint, uint)), this,
 		SLOT(slotShowCursorPos(uint, uint)));
-	
+
 	// Rebuild the database after a file has changed
 	connect(pPage, SIGNAL(fileSaved(const QString&, bool)), this,
 		SLOT(slotFileSaved(const QString&, bool)));
-	
+
 	// Handle file drops
 	connect(pPage->getView(), SIGNAL(dropEventPass(QDropEvent*)), this,
 		SLOT(slotDropEvent(QDropEvent*)));
@@ -1340,10 +1357,10 @@ EditorPage* KScope::createEditorPage()
 	pProj = m_pProjMgr->curProject();
 	if (pProj && pProj->getTabWidth() > 0)
 		pPage->setTabWidth(pProj->getTabWidth());
-	
+
 	return pPage;
 }
-	
+
 /**
  * @return	true if database auto-rebuild is enabled for the current project,
  *			false otherwise
@@ -1351,7 +1368,7 @@ EditorPage* KScope::createEditorPage()
 inline bool KScope::isAutoRebuildEnabled()
 {
 	ProjectBase* pProj;
-	
+
 	pProj = m_pProjMgr->curProject();
 	return (pProj && pProj->getAutoRebuildTime() >= 0);
 }
@@ -1382,7 +1399,7 @@ void KScope::slotDeleteEditor(EditorPage* pPage)
 void KScope::slotChangeEditor(EditorPage* pOldPage, EditorPage* pNewPage)
 {
 	KXMLGUIFactory* pFactory = guiFactory();
-	
+
 	// Remove the current GUI
 	if (pOldPage)
 		pFactory->removeClient(pOldPage->getView());
@@ -1394,7 +1411,7 @@ void KScope::slotChangeEditor(EditorPage* pOldPage, EditorPage* pNewPage)
 		m_sCurFilePath = pNewPage->getFilePath();
 		setCaption(m_pProjMgr->getProjName() + " - " + m_sCurFilePath);
 	}
-	
+
 	// Enable/disable file-related actions, if necessary
 	if (pOldPage && !pNewPage)
 		m_pActions->slotEnableFileActions(false);
@@ -1419,20 +1436,20 @@ void KScope::slotShowEditor(const QString& sFilePath, uint nLine)
 		m_pQueryWidget->addHistoryRecord(m_sCurFilePath, m_nCurLine,
 			pPage->getLineContents(m_nCurLine));
 	}
-	
+
 	// Open the requested file (or select an already-open editor page)
 	pPage = addEditor(sFilePath);
 	if (pPage == NULL)
 		return;
-	
+
 	// Make sure the main window is visible
 	raise();
 	setWindowState(windowState() & ( ~Qt::WindowMinimized | Qt::WindowActive ));
-	
+
 	if (nLine != 0) {
 		// Set the cursor to the requested line
 		pPage->slotGotoLine(nLine);
-	
+
 		// Add the new position to the position history
 		m_pQueryWidget->addHistoryRecord(m_sCurFilePath, m_nCurLine,
 			pPage->getLineContents(m_nCurLine));
@@ -1452,7 +1469,7 @@ void KScope::slotQueryShowEditor(const QString& sFilePath, uint nLine)
 	// Hide the query window, if it was hidden before a query was initiated
 	if (m_bHideQueryOnSelection)
 		toggleQueryWindow(false);
-	
+
 	// Open an editor at the requested line
 	slotShowEditor(sFilePath, nLine);
 }
@@ -1478,7 +1495,7 @@ void KScope::slotNewFile()
 
 	// Create the new editor page
 	pPage = createEditorPage();
-	
+
 	// Mark the page as containing a new file
 	pPage->setNewFile();
 }
@@ -1492,12 +1509,12 @@ void KScope::slotOpenFile()
 	ProjectBase* pProj;
 	QStringList slFiles;
 	QStringList::Iterator itr;
-	
+
 	// Prompt the user for the file(s) to open.
 	pProj = m_pProjMgr->curProject();
 	slFiles = KFileDialog::getOpenFileNames(pProj ? pProj->getSourceRoot() : 
 		QString::null);
-	
+
 	// Open all selected files.
 	for (itr = slFiles.begin(); itr != slFiles.end(); ++itr) {
 		if (!(*itr).isEmpty())
@@ -1548,13 +1565,13 @@ void KScope::slotCscopeError(const QString& sMsg)
 void KScope::slotBuildProgress(int nFiles, int nTotal)
 {
 	QString sMsg;
-	
+
 	// Use the progress dialogue, if it exists (first time builds)
 	if (m_pProgressDlg) {
 		m_pProgressDlg->setValue((nFiles * 100) / nTotal);
 		return;
 	}
-	
+
 	// Show progress information
 	sMsg = i18n("Rebuilding the cross reference database...") + " " +
 		QString::number((nFiles * 100) / nTotal) + "%";
@@ -1574,7 +1591,7 @@ void KScope::slotBuildInvIndex()
 		m_pProgressDlg->setIdle();
 		return;
 	}
-	
+
 	statusBar()->showMessage(i18n("Rebuilding inverted index..."));
 }
 
@@ -1591,7 +1608,7 @@ void KScope::slotBuildFinished(uint)
 		m_pProgressDlg = NULL;
 		return;
 	}
-	
+
 	// Show a message in the status bar
 	statusBar()->showMessage(i18n("Rebuilding the cross reference database..."
 		"Done!"), 3000);
@@ -1608,7 +1625,7 @@ void KScope::slotBuildAborted()
 	if (m_pProgressDlg) {
 		delete m_pProgressDlg;
 		m_pProgressDlg = NULL;
-	
+
 		// Display a failure message
 		KMessageBox::error(0, i18n("The database could not be built.\n"
 			"Cross-reference information will not be available for this "
@@ -1617,7 +1634,7 @@ void KScope::slotBuildAborted()
 			"entered in the \"Settings\" dialogue."));		
 		return;
 	}
-	
+
 	// Show a message in the status bar
 	statusBar()->showMessage(i18n("Rebuilding the cross reference database..."
 		"Failed"), 3000);	
@@ -1649,11 +1666,11 @@ void KScope::slotShowCursorPos(uint nLine, uint nCol)
 {
 	KStatusBar* pStatus = statusBar();
 	QString sText;
-	
+
 	/* Show the line and column numbers. */
 	sText = QString(" Line: %1 Col: %2 ").arg(nLine).arg(nCol);
 	pStatus->changeItem(sText, 0);
-	
+
 	/* Store the current line. */
 	m_nCurLine = nLine;
 }
@@ -1682,44 +1699,44 @@ void KScope::slotFileSaved(const QString& sPath, bool bIsNew)
 {
 	ProjectBase* pProj;
 	int nTime;
-	
+
 	pProj = m_pProjMgr->curProject();
 	if (!pProj)
 		return;
-	
+
 	// Prompt the user to add this file to the current project
 	if (bIsNew && !pProj->isTemporary()) {
 		if (KMessageBox::questionYesNo(0, 
 			i18n("Whould you like to add this file to the active project?")) == 
 				  KMessageBox::Yes) {
-			
+
 			// Add the path to the 'cscope.files' file
 			if (!((Project*)pProj)->addFile(sPath)) {
 				KMessageBox::error(0, i18n("Failed to write the file list."));
 				return;
 			}
-			
+
 			// Add the path to the file list widget
 			m_pFileList->addItem(sPath);
-			
+
 			// Rebuild immediately
 			slotRebuildDB();
 			return;
 		}
 	}
-	
+
 	// Get the project's auto-rebuild time
 	nTime = pProj->getAutoRebuildTime();
-	
+
 	// Do nothing if the time is set to -1
 	if (nTime == -1)
 		return;
-		
+
 	// Check if the file is included in the project (external files should
 	// not trigger the timer)
 	if (!m_pFileList->findFile(sPath))
 		return;
-	
+
 	// Rebuild immediately for a time set to 0
 	if (nTime == 0) {
 		slotRebuildDB();
@@ -1739,10 +1756,10 @@ void KScope::slotDropEvent(QDropEvent* pEvent)
 {
 	// Create a list of file URLs
 	KUrl::List list = KUrl::List::fromMimeData(pEvent->mimeData());
-		
+
 	if (list.isEmpty())
 		return;
-		
+
 	QListIterator<KUrl> itr(list);
 
 	// Open all files in the list
@@ -1751,3 +1768,9 @@ void KScope::slotDropEvent(QDropEvent* pEvent)
 }
 
 #include "kscope.moc"
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

@@ -73,7 +73,7 @@ void HistoryPage::addRecord(const QString& sFile, uint nLine, const QString& sTe
 		// Do not add duplicate items
 		if ((pItem->text(1) == sFile) && (pItem->text(2).toUInt() == nLine))
 			return;
-			
+
 		// Do not add duplicate items : check file name first then line number
 		QList<QTreeWidgetItem*> lItems = m_pView->findItems(sFile, Qt::MatchExactly, 1);
 		if (lItems.count() != 0){

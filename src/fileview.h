@@ -58,10 +58,10 @@ public:
 	 * @return	The file list widget which is a child of this widget.
 	 */
 	FileList* getFileList() { return m_pFileList; }
-	
+
 	void setRoot(const QString&);
 	void clear();
-	
+
 signals:
 	/**
 	 * Emitted when a file is selected, by either double-clicking a list
@@ -75,7 +75,7 @@ private:
 
 	/** The current root of the file tree. */
 	QString m_sRoot;
-	
+
 	int m_nColumns;
 	QAbstractItemModel *m_pModel;
 

@@ -31,9 +31,9 @@
 
 #include <qtextstream.h>
 
-#include <kmessagebox.h>
-#include <kconfiggroup.h>
-#include <klocale.h>
+#include <KConfigGroup>
+#include <KLocale>
+#include <KMessageBox>
 
 #include "project.h"
 #include "kscopeconfig.h"
@@ -80,9 +80,10 @@ inline void stringListFromFlList(QStringList& sl, const FileLocationList& fll)
 
 /**
  */
-Project::Project() : ProjectBase(),
-	m_pConf(NULL)
+Project::Project() :
+	ProjectBase(false)
 {
+	m_pConf = NULL;
 }
 
 /**
@@ -99,44 +100,44 @@ bool Project::open(const QString& sPath)
 	QString sConfFile;
 	KConfigGroup pConfigGrp;
 	Options opt;
-	
+
 	// Associate the object with the project directory
 	m_dir.setPath(sPath);
 	if (!m_dir.exists()) {
 		KMessageBox::error(0, i18n("Project directory does not exist"));
 		return false;
 	}
-	
+
 	// Initialise the file-list file object
 	m_fiFileList.setFileName(sPath + "/cscope.files");
 
 	// Open the configuration files
-	m_pConf = new KConfig(sPath + "/cscope.proj");
+	m_pConf = KSharedConfig::openConfig(sPath + "/cscope.proj");
 
 	// Verify the configuration file's version is compatible
-	pConfigGrp = m_pConf->group("");
-	if (pConfigGrp.readEntry("Version", 0) != PROJECT_CONFIG_VER) {
-		KMessageBox::error(0, i18n("Your project is not compatible with this "
-				"version of KScope.\nPlease re-create the project."));
+	if ((m_pConf->group("")).readEntry("Version", 0) != PROJECT_CONFIG_VER) {
+		KMessageBox::error(NULL, i18n("<p style='white-space:pre'><qt><b>Your project is not compatible with this versio of KScope</b><br/>Please re-create it.</qt>"));
+		m_pConf = NULL;
 		return false;
 	}
-	
+
 	// Get the project name
 	pConfigGrp = m_pConf->group("Project");
-	m_sName = pConfigGrp.readEntry("Name");
-	if (m_sName == QString::null) {
-		KMessageBox::error(0, i18n("Cannot read project name"));
+	m_opt.sName = pConfigGrp.readEntry("Name");
+	if (m_opt.sName == QString::null) {
+		KMessageBox::error(NULL, i18n("<p style='white-space:pre'><qt><b>Cannot read project name</b></qt>"));
+		m_pConf = NULL;
 		return false;
 	}
-	
+
 	// Get stored options
 	initOptions();
-	
+
 	// Set default make values for new projects (overriden in loadSession(), 
 	// which is not called for new projects)
 	m_sMakeRoot = getSourceRoot();
 	m_sMakeCmd = "make";
-	
+
 	return true;
 }
 
@@ -144,8 +145,14 @@ bool Project::open(const QString& sPath)
  */
 void Project::close()
 {
-	if (m_pConf)
-		delete m_pConf;
+	if (m_pConf) {
+		KConfigGroup pConfGrp;
+
+		pConfGrp = m_pConf->group("Project");
+		pConfGrp.writeEntry("IncludeDirs", m_opt.sIncludeDirs);
+		pConfGrp.writeEntry("SourceDirs", m_opt.sSourceDirs);
+		m_pConf->sync();
+	}
 
 	m_fiFileList.close();
 }
@@ -177,7 +184,12 @@ void Project::getOptions(Options& opt) const
 	opt.bSlowPathDef = pConfGrp.readEntry("SlowPathDef", DEF_SLOW_PATH);
 	opt.nAutoRebuildTime = pConfGrp.readEntry("AutoRebuildTime", 0);
 	opt.nTabWidth = pConfGrp.readEntry("TabWidth", 8);
-		
+
+	// Get INCLUDEDIRS & SOURCEDIRS values used as cscope environment variables
+	// when rebuilding database
+	opt.sIncludeDirs = pConfGrp.readEntry("IncludeDirs", QString());
+	opt.sSourceDirs = pConfGrp.readEntry("SourceDirs", QString());
+
 	// Get auto-completion options
 	pConfGrp = m_pConf->group("AutoCompletion");
 	opt.bACEnabled = pConfGrp.readEntry("Enabled", true);
@@ -194,7 +206,7 @@ void Project::setOptions(const Options& opt)
 {
 	// Write the options to the configuration nfile
 	writeOptions(m_pConf, opt);
-				
+
 	// Update project parameters
 	initOptions();
 }
@@ -205,28 +217,28 @@ void Project::loadSession(Session& sess)
 {
 	QStringList slEntry;
 	KConfigGroup pConfGrp;
-	
+
 	pConfGrp = m_pConf->group("Session");
-	
+
 	// Read the list of open file locations
 	slEntry = pConfGrp.readEntry("OpenFiles", QStringList());
 	flListFromStringList(sess.fllOpenFiles, slEntry);
-	
+
 	// Get the path of the last viewed file
 	sess.sLastFile = pConfGrp.readEntry("LastOpenFile", QString());
-	
+
 	// Read the lists of locked query files and call-tree/graph files
 	sess.slQueryFiles = pConfGrp.readEntry("QueryFiles", QStringList());
 	sess.slCallTreeFiles = pConfGrp.readEntry("CallTreeFiles", QStringList());
-	
+
 	// Read the list of bookmarks
 	slEntry = pConfGrp.readEntry("Bookmarks", QStringList());
 	flListFromStringList(sess.fllBookmarks, slEntry);
-	
+
 	// Read make-related information
 	sess.sMakeCmd = pConfGrp.readEntry("MakeCommand", "make");
 	sess.sMakeRoot = pConfGrp.readEntry("MakeRoot", getSourceRoot());
-	
+
 	// Cache make values
 	m_sMakeCmd = sess.sMakeCmd;
 	m_sMakeRoot = sess.sMakeRoot;
@@ -240,24 +252,24 @@ void Project::storeSession(const Session& sess)
 {
 	QStringList slEntry;
 	KConfigGroup pConfGrp;
-	
+
 	pConfGrp = m_pConf->group("Session");
-	
+
 	// Write the list of open file locations
 	stringListFromFlList(slEntry, sess.fllOpenFiles);
 	pConfGrp.writeEntry("OpenFiles", slEntry);
-	
+
 	// Write the path of the last viewed file
 	pConfGrp.writeEntry("LastOpenFile", sess.sLastFile);
-	
+
 	// Write the lists of locked query files and call-tree/graph files
 	pConfGrp.writeEntry("QueryFiles", sess.slQueryFiles);
 	pConfGrp.writeEntry("CallTreeFiles", sess.slCallTreeFiles);
-	
+
 	// Write the list of bookmarks
 	stringListFromFlList(slEntry, sess.fllBookmarks);
 	pConfGrp.writeEntry("Bookmarks", slEntry);
-	
+
 	// Write make-related information
 	// Be careful not to write empty strings, as they may occur if the make
 	// dialogue was not invoked during this session
@@ -278,7 +290,7 @@ void Project::storeSession(const Session& sess)
 bool Project::loadFileList(FileListTarget* pList)
 {
 	QString sFilePath;
-	
+
 	// Open the 'cscope.files' file
 	if (!m_fiFileList.open(IO_ReadOnly))
 		return false;
@@ -306,7 +318,7 @@ bool Project::loadFileList(FileListTarget* pList)
 bool Project::storeFileList(FileListSource* pList)
 {
 	QString sFilePath;
-	
+
 	// Open the 'cscope.files' file
 	if (!m_fiFileList.open(IO_WriteOnly | IO_Truncate))
 		return false;
@@ -334,7 +346,7 @@ bool Project::addFile(const QString& sPath)
 	// Open the 'cscope.files' file
 	if (!m_fiFileList.open(IO_WriteOnly | IO_Append))
 		return false;
-	
+
 	// Write the file path
 	QTextStream str(&m_fiFileList);
 	str << sPath << "\n";
@@ -355,7 +367,7 @@ bool Project::isEmpty()
 {
 	QString sPath, sFileName;
 	bool bResult = true;
-	
+
 	// Open the 'cscope.files' file
 	if (!m_fiFileList.open(IO_ReadOnly))
 		return true;
@@ -408,26 +420,26 @@ bool Project::create(const QString& sName, const QString& sPath,
 	const Options& opt)
 {
 	// Prepare the project's files
-	KConfig conf(sPath + "/cscope.proj");
+	KSharedConfigPtr pConf = KSharedConfig::openConfig(sPath + "/cscope.proj");
 	KConfigGroup pConfGrp;
 
 	// Write the configuration file version
-	pConfGrp = conf.group("");
+	pConfGrp = pConf->group("");
 	pConfGrp.writeEntry("Version", PROJECT_CONFIG_VER);
-	
+
 	// Write project properties in the configuration file
-	pConfGrp = conf.group("Project");
+	pConfGrp = pConf->group("Project");
 	pConfGrp.writeEntry("Name", sName);
-	writeOptions(&conf, opt);
-	
+	writeOptions(pConf, opt);
+
 	// Flush the config file data, so the project is created even if KScope
 	// crashes...
-	conf.sync();
+	pConf->sync();
 
 	return true;
 }
 
-void Project::writeOptions(KConfig* pConf, const Options& opt)
+void Project::writeOptions(KSharedConfigPtr pConf, const Options& opt)
 {
 	KConfigGroup pConfGrp;
 
@@ -440,7 +452,7 @@ void Project::writeOptions(KConfig* pConf, const Options& opt)
 	pConfGrp.writeEntry("SlowPathDef", opt.bSlowPathDef);		
 	pConfGrp.writeEntry("AutoRebuildTime", opt.nAutoRebuildTime);
 	pConfGrp.writeEntry("TabWidth", opt.nTabWidth);
-	
+
 	// Set auto-completion options
 	pConfGrp = pConf->group("AutoCompletion");
 	pConfGrp.writeEntry("Enabled", opt.bACEnabled);
@@ -448,3 +460,9 @@ void Project::writeOptions(KConfig* pConf, const Options& opt)
 	pConfGrp.writeEntry("Delay", opt.nACDelay);
 	pConfGrp.writeEntry("MaxEntries", opt.nACMaxEntries);
 }
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

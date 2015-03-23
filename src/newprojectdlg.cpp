@@ -55,20 +55,20 @@ NewProjectDlg::NewProjectDlg(bool bNewProj, QWidget* pParent, const char* szName
 
 	// Create the auto-completion sub-dialogue
 	m_pAutoCompDlg = new AutoCompletionDlg(this);
-	
+
 	// Restrict the path requester to existing directories.
 	m_pPathRequester->setMode(KFile::Directory | KFile::ExistingOnly | 
 		KFile::LocalOnly);
 	m_pSrcRootRequester->setMode(KFile::Directory | KFile::ExistingOnly | 
 			KFile::LocalOnly);
-	
+
 	// Set up the Create/Cancel buttons	
 	connect(m_pCreateButton, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(m_pCancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
 	// Show the auto-completion properties dialogue
 	connect(m_pACButton, SIGNAL(clicked()), m_pAutoCompDlg, SLOT(exec()));	
-		
+
 	// Perform actions specific to the type of dialog (new project or
 	// project properties)
 	if (bNewProj) {
@@ -80,7 +80,7 @@ NewProjectDlg::NewProjectDlg(bool bNewProj, QWidget* pParent, const char* szName
 		// Give appropriate titles to the dialog and the accept button
 		setWindowTitle(i18n("Project Properties"));
 		m_pCreateButton->setText(i18n("OK"));
-		
+
 		// Disable the non-relevant widgets
 		m_pNameEdit->setEnabled(false);
 		m_pPathRequester->setEnabled(false);
@@ -105,7 +105,7 @@ void NewProjectDlg::setProperties(const QString& sName, const QString& sPath,
 	const ProjectBase::Options& opt)
 {
 	QStringList::ConstIterator itr;
-	
+
 	// Set values for current project
 	m_pNameEdit->setText(sName);
 	m_pPathRequester->setUrl(KUrl(sPath));
@@ -114,7 +114,7 @@ void NewProjectDlg::setProperties(const QString& sName, const QString& sPath,
 	m_pInvCheck->setChecked(opt.bInvIndex);
 	m_pNoCompCheck->setChecked(opt.bNoCompress);
 	m_pSlowPathCheck->setChecked(opt.bSlowPathDef);
-	
+
 	if (opt.nAutoRebuildTime >= 0) {
 		m_pAutoRebuildCheck->setChecked(true);
 		m_pAutoRebuildSpin->setValue(opt.nAutoRebuildTime);
@@ -123,17 +123,17 @@ void NewProjectDlg::setProperties(const QString& sName, const QString& sPath,
 	if (opt.bACEnabled) {
 		m_pACCheck->setChecked(true);
 	}
-	
+
 	if (opt.nTabWidth > 0) {
 		m_pTabWidthCheck->setChecked(true);
 		m_pTabWidthSpin->setValue(opt.nTabWidth);
 	}
-	
+
 	// Initialise the auto-completion sub-dialogue
 	m_pAutoCompDlg->m_nMinChars = opt.nACMinChars;
 	m_pAutoCompDlg->m_nDelay = opt.nACDelay;
 	m_pAutoCompDlg->m_nMaxEntries = opt.nACMaxEntries;
-	
+
 	// Add type strings to the types list box
 	for (itr = opt.slFileTypes.begin(); itr != opt.slFileTypes.end(); ++itr)
 		m_pTypesList->addItem(*itr);
@@ -178,12 +178,12 @@ void NewProjectDlg::getOptions(ProjectBase::Options& opt)
 		opt.nAutoRebuildTime = m_pAutoRebuildSpin->value();
 	else
 		opt.nAutoRebuildTime = -1;
-		
+
 	if (m_pTabWidthCheck->isChecked())
 		opt.nTabWidth = m_pTabWidthSpin->value();
 	else
 		opt.nTabWidth = 0;
-		
+
 	opt.bACEnabled = m_pACCheck->isChecked();
 	opt.nACMinChars = m_pAutoCompDlg->m_nMinChars;
 	opt.nACDelay = m_pAutoCompDlg->m_nDelay;
@@ -196,7 +196,7 @@ void NewProjectDlg::getOptions(ProjectBase::Options& opt)
 void NewProjectDlg::accept()
 {
 	int i, nCount;
-	
+
 	// Validate the name of a new project
 	if (m_bNewProj) {
 		QRegExp re("[^ \\t\\n]+");
@@ -206,7 +206,7 @@ void NewProjectDlg::accept()
 			return;
 		}
 	}
-	
+
 	// Fill the string list with all file types
 	nCount = (int)m_pTypesList->count();
 	for (i = 0; i < nCount; i++)
@@ -218,7 +218,7 @@ void NewProjectDlg::accept()
 		m_pSrcRootRequester->setUrl(KUrl(dir.absolutePath()));
 	else
 		m_pSrcRootRequester->setUrl(KUrl("/"));
-		
+
 	// Close the dialog
 	QDialog::accept();
 }
@@ -230,7 +230,7 @@ void NewProjectDlg::accept()
 void NewProjectDlg::slotAddType()
 {
 	QString sType;
-		
+
 	// Try the custom type edit-box first.
 	sType = m_pTypesEdit->text();
 	sType.trimmed();
@@ -264,7 +264,7 @@ void NewProjectDlg::slotRemoveType()
 	QListWidgetItem* pItem;
 	QString sType;
 	int row;
-	
+
 	// Verify an item is selected
 	pItem = m_pTypesList->currentItem();
 	if (pItem == NULL)
@@ -346,7 +346,7 @@ void AutoCompletionDlg::accept()
 	m_nMinChars = m_pMinCharsSpin->value();
 	m_nDelay = m_pDelaySpin->value();
 	m_nMaxEntries = m_pMaxEntriesSpin->value();
-	
+
 	// Close the dialogue, indicating acceptance
 	QDialog::accept();
 }

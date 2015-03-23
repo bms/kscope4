@@ -244,10 +244,10 @@ KScopePixmaps::KScopePixmaps() :
 KScopePixmaps::~KScopePixmaps()
 {
 	int i;
-	
+
 	for (i = 0; i < PIX_ARRAY_SIZE; i++)
 		delete m_pPixArray[i];
-		
+
 	delete [] m_pPixArray;
 }
 
@@ -320,7 +320,7 @@ QPixmap KScopePixmaps::getPixmap(LoadPixName name)
 	case TabSave:
 		return m_loader.loadIcon("file_save", KIconLoader::User, 0,
 			KIconLoader::DefaultState, QStringList(), NULL, false);
-	
+
 	case TabFileList:
 		return m_loader.loadIcon("view-list-details", KIconLoader::Small, 0,
 			KIconLoader::DefaultState, QStringList(), NULL, false);
@@ -328,39 +328,39 @@ QPixmap KScopePixmaps::getPixmap(LoadPixName name)
 	case TabFileTree:
 		return m_loader.loadIcon("view-list-tree", KIconLoader::Small, 0,
 			KIconLoader::DefaultState, QStringList(), NULL, false);
-			
+
 	case TabList:
 		return m_loader.loadIcon("tab_list", KIconLoader::User, 0,
 			KIconLoader::DefaultState, QStringList(), NULL, false);
-		
+
 	case ButtonSaveAs:
 		return m_loader.loadIcon("document-save-as", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);
-		
+
 	case ButtonZoomIn:
 		return m_loader.loadIcon("zoom-in", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);
-		
+
 	case ButtonZoomOut:
 		return m_loader.loadIcon("zoom-out", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);
-		
+
 	case ButtonRotate:
 		return m_loader.loadIcon("transform-rotate", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);
-		
+
 	case ButtonPref:
 		return m_loader.loadIcon("configure", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);
-	
+
 	case CalledTree:
 		return m_loader.loadIcon("called_tree", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);
-	
+
 	case CallingTree:
 		return m_loader.loadIcon("calling_tree", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);
-			
+
 	case CallGraph:
 		return m_loader.loadIcon("call_graph", KIconLoader::Toolbar, 
 			0, KIconLoader::DefaultState, QStringList(), NULL, false);

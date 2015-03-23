@@ -64,7 +64,7 @@ ProjectFilesDlg::ProjectFilesDlg(Project* pProj, QWidget* pParent,
 
 	// Initialise the list view
 	m_pFileList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	
+
 	// Sort only when asked to by the user
 	if (Config().getAutoSortFiles())
 		m_pFileList->setSortingEnabled(true);
@@ -84,7 +84,7 @@ ProjectFilesDlg::ProjectFilesDlg(Project* pProj, QWidget* pParent,
 	// Hide/show files according to filter
 	connect(m_pFilterButton, SIGNAL(clicked()), this, SLOT(slotFilter()));
 	connect(m_pShowAllButton, SIGNAL(clicked()), this, SLOT(slotShowAll()));
-	
+
 	// Close the dialog when OK/Cancel are clicked
 	connect(m_pOKButton, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(m_pCancelButton, SIGNAL(clicked()), this, SLOT(reject()));
@@ -332,7 +332,7 @@ void ProjectFilesDlg::slotRemDir()
 	sDir = QDir::cleanPath(KFileDialog::getExistingDirectory(m_pProj->getSourceRoot()));
 	if (sDir.isEmpty())
 		return;
-		
+
 	// Confirm the directory removal
 	if (KMessageBox::questionYesNo(0, i18n("Are you sure you want to remove "
 		"the selected directory from the project?")) == KMessageBox::No) {
@@ -359,7 +359,7 @@ void ProjectFilesDlg::slotRemTree()
 	QString sDir, sFilePath;
 	QListWidgetItem* pItem;
 	QList<QListWidgetItem*> lItems;
-	
+
 	// Prompt the user for a directory
 	sDir = QDir::cleanPath(KFileDialog::getExistingDirectory(m_pProj->getSourceRoot()));
 	if (sDir.isEmpty())
@@ -391,7 +391,7 @@ void ProjectFilesDlg::slotFilter()
 	int rowCount = m_pFileList->count();
 	QString sFilter;
 	QListWidgetItem* pItem;
-	
+
 	// Get the user's filter string
 	sFilter = m_pFilterEdit->text().trimmed();
 	if (sFilter.isEmpty())

@@ -83,11 +83,11 @@ EditorPage::EditorPage(KTextEditor::Document* pDoc, QMenu* pMenu,
 
 	// Perform tasks only when the document has been loaded completely
 	connect(m_pDoc, SIGNAL(completed()), this, SLOT(slotFileOpened()));
-	
+
 	// Be notified when the text in the editor changes
 	connect(m_pDoc, SIGNAL(textChanged(KTextEditor::Document*)), this, SLOT(slotSetModified(KTextEditor::Document*)));
 	connect(m_pDoc, SIGNAL(undoChanged()), this, SLOT(slotUndoChanged()));
-	
+
 	// Store the sizes of the child windows when the tag list is resized
 	// (since it may imply a move of the splitter divider)
 	connect(m_pCtagsList, SIGNAL(resized()), this, SLOT(slotChildResized()));
@@ -99,11 +99,11 @@ EditorPage::EditorPage(KTextEditor::Document* pDoc, QMenu* pMenu,
 	// Add Ctag records to the tag list
 	connect(&m_ctags, SIGNAL(dataReady(FrontendToken*)), m_pCtagsList,
 		SLOT(slotDataReady(FrontendToken*)));
-		
+
 	// Monitor Ctags' operation
 	connect(&m_ctags, SIGNAL(finished(uint)), m_pCtagsList, 
 		SLOT(slotCtagsFinished(uint)));
-		
+
 	// Set the context menu
 	m_pView->setContextMenu(pMenu);
 	connect(m_pView, SIGNAL(cursorPositionChanged(KTextEditor::View *, const KTextEditor::Cursor&)),
@@ -165,7 +165,7 @@ bool EditorPage::isWritable()
 	// Check global settings first
 	if (Config().getReadOnlyMode())
 		return false;
-	
+
 	// Return FS write permissions
 	return m_bWritable;
 }
@@ -226,17 +226,17 @@ void EditorPage::save()
 bool EditorPage::close(bool bForce)
 {
 	QString sPath;
-	
+
 	// To override the prompt-on-close behaviour, we need to mark the file
 	// as unmodified
 	if (bForce)
 		m_pDoc->setModified(false);
-	
+
 	// Close the file, unless the user aborts the action
 	sPath = m_pDoc->url().path();
 	if (!m_pDoc->closeUrl())
 		return false;
-		
+
 	emit fileClosed(sPath);
 	return true;
 }
@@ -249,7 +249,7 @@ void EditorPage::applyPrefs()
 	// Determine whether the editor should work in a read-only mode
 	if (m_bWritable)
 		m_pDoc->setReadWrite(!Config().getReadOnlyMode());
-	
+
 	// Apply preferences to the tag list of this window
 	m_pCtagsList->applyPrefs();
 }
@@ -281,7 +281,7 @@ void EditorPage::setTagListFocus()
 void EditorPage::addBookmark(uint nLine)
 {
 	KTextEditor::MarkInterface* pMarkIf;
-	
+
 	pMarkIf = qobject_cast<KTextEditor::MarkInterface*>(m_pDoc);
 	if (pMarkIf)
 		pMarkIf->setMark(nLine, KTextEditor::MarkInterface::markType01);
@@ -297,7 +297,7 @@ void EditorPage::getBookmarks(FileLocationList& fll)
 	pMarkIf = qobject_cast<KTextEditor::MarkInterface*>(m_pDoc);
 	if (!pMarkIf)
 		return;
-	
+
 	// Find all bookmarks
 	KTextEditor::Mark* pMark;
 	QHashIterator<int, KTextEditor::Mark*> hItr(pMarkIf->marks());
@@ -341,35 +341,35 @@ QString EditorPage::getWordUnderCursor(uint* pPosInWord)
 	nLine = cursor.line();
 	nCol = cursor.column();
 	sLine = m_pDoc->line(nLine);
-	
+
 	// Find the beginning of the current word
 	for (nFrom = nCol; nFrom > 0;) {
 		ch = sLine.at(nFrom - 1);
 		if (!ch.isLetter() && !ch.isDigit() && ch != '_')
 			break;
-		
+
 		nFrom--;
 	}
-	
+
 	// Find the end of the current word
 	nLast = sLine.length();
 	for (nTo = nCol; nTo < nLast;) {
 		ch = sLine.at(nTo);
 		if (!ch.isLetter() && !ch.isDigit() && ch != '_')
 			break;
-		
+
 		nTo++;
 	}
-	
+
 	// Mark empty words
 	nLength = nTo - nFrom;
 	if (nLength == 0)
 		return QString::null;
-	
+
 	// Return the in-word position, if required
 	if (pPosInWord != NULL)
 		*pPosInWord = nCol - nFrom;
-	
+
 	// Extract the word under the cursor from the entire line
 	return sLine.mid(nFrom, nLength);
 }
@@ -386,11 +386,11 @@ QString EditorPage::getWordUnderCursor(uint* pPosInWord)
 QString EditorPage::getSuggestedText()
 {
 	QString sText;
-	
+
 	sText = getSelection(m_pView);
 	if (sText == QString::null)
 		sText = getWordUnderCursor();
-	
+
 	return sText;	
 }
 
@@ -408,7 +408,7 @@ QString EditorPage::getLineContents(uint nLine)
 	// Cannot accept line 0
 	if (nLine == 0)
 		return QString::null;
-	
+
 	// Get the line on which the cursor is positioned
 	sLine = m_pDoc->line(nLine - 1);
 	return sLine.trimmed();
@@ -423,7 +423,7 @@ void EditorPage::slotGotoLine(uint nLine)
 	// Ensure there is an open document
 	if (!m_bOpen)
 		return;
-	
+
 	// Set the cursor to the requested line
 	if (!setCursorPos(nLine))
 		return;
@@ -467,7 +467,7 @@ void EditorPage::slotChildResized()
 		m_bSaveNewSizes = true;
 		return;
 	}
-		
+
 	// Get the current widths of the child widgets
 	si = m_pSplit->sizes();
 	if (si.count() == 2)
@@ -483,7 +483,7 @@ void EditorPage::setLayout(bool bShowTagList, const SPLIT_SIZES& si)
 {
 	// Make sure sizes are not stored during this process
 	m_bSaveNewSizes = false;
-	
+
 	// Adjust the layout
 	m_pCtagsList->setVisible(bShowTagList);
 	if (bShowTagList)
@@ -501,18 +501,18 @@ bool EditorPage::getCursorPos(uint& nLine, uint& nCol)
 {
 	KTextEditor::Cursor position(m_pView->cursorPositionVirtual());
 	//	KTextEditor::ViewCursorInterface* pCursorIf;
-	
+
 	// Acquire the view cursor
 	//	pCursorIf = dynamic_cast<KTextEditor::ViewCursorInterface*>(m_pView);
 	//	if (pCursorIf == NULL)
 	//		return false;
-	
+
 	// Get the cursor position (adjusted to 1-based counting)
 	//	pCursorIf->cursorPosition(&nLine, &nCol);
-	
+
 	nLine = position.line() + 1;
 	nCol = position.column() + 1;
-	
+
 	return true;
 }
 
@@ -532,7 +532,7 @@ bool EditorPage::setCursorPos(uint nLine, uint nCol)
 	// Adjust to 0-based counting
 	nLine--;
 	nCol--;
-		
+
 	m_pView->setCursorPosition(KTextEditor::Cursor(nLine, nCol));
 
 	return true;
@@ -562,14 +562,14 @@ void EditorPage::setTabWidth(uint nTabWidth)
 void EditorPage::slotFileOpened()
 {
 	QFileInfo fi(m_pDoc->url().path());
-	
+
 	// Get file information
 	m_sName = fi.fileName();
 	m_bWritable = fi.isWritable();
-	
+
 	// Set read/write or read-only mode
 	m_pDoc->setReadWrite(!Config().getReadOnlyMode() && m_bWritable);
-	
+
 	// Refresh the tag list
 	m_pCtagsList->clear();
 	m_ctags.run(m_pDoc->url().path());
@@ -577,7 +577,7 @@ void EditorPage::slotFileOpened()
 	// Check if this is a modified file that has just been saved
 	if (m_bModified)
 		emit fileSaved(m_pDoc->url().path(), m_bNewFile);
-	
+
 	// Notify that the document has loaded
 	m_bOpen = true;
 	m_bModified = false;
@@ -586,7 +586,7 @@ void EditorPage::slotFileOpened()
 	// Set initial position of the cursor
 	m_nLine = 0;
 	slotCursorPosChange(m_pView);
-	
+
 	// This is no longer a new file
 	m_bNewFile = false;
 }
@@ -603,7 +603,7 @@ void EditorPage::slotSetModified(KTextEditor::Document* pDoc)
 	if (!m_bModified && m_pDoc->isModified()) {
 		m_bModified = true;
 		emit modified(this, m_bModified);
-	
+
 #if KDE_IS_VERSION(3,3,0)
 		// If the editor is a Kate part, check whether it was modified on
 		// disk as well, and issue a warning if so
@@ -642,19 +642,19 @@ void EditorPage::slotUndoChanged()
 void EditorPage::slotCursorPosChange(KTextEditor::View *pView)
 {
 	KTextEditor::Cursor position(pView->cursorPositionVirtual());
-	
+
 	// Find the new line and column number, and emit the signal
 	uint nLine = position.line() + 1;
 	uint nCol = position.column() + 1;
-		
+
 	emit cursorPosChanged(nLine, nCol);
-	
+
 	// Select the relevant symbol in the tag list
 	if (Config().getAutoTagHl() && (m_nLine != nLine)) {
 		m_pCtagsList->gotoLine(nLine);
 		m_nLine = nLine;
 	}
-	
+
 	// Abort code completion on cursor changes during the completion
 	// process
 	m_pCompletion->abort();

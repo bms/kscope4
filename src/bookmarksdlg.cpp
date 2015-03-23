@@ -36,7 +36,7 @@ BookmarksDlg::BookmarksDlg(QWidget* pParent, const char* szName) :
 
 	// Do not show the "Function" column
 	m_pView->setColumnWidth(0, 0);
-	
+
 	// Handle requests for source locations
 	connect(m_pView, SIGNAL(lineRequested(const QString&, uint)), this,
 		SLOT(slotLineRequested(const QString&, uint)));

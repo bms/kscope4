@@ -93,7 +93,7 @@ public:
 	 * @return	The line number associated with this item
 	 */	
 	inline uint getLine() { return m_nPendLine; }
-	
+
 private:
 	/** The numeric value of the line number column of this item. */
 	uint m_nPendLine;		
@@ -174,7 +174,7 @@ void CtagsList::slotDataReady(FrontendToken* pToken)
 	QString sName, sType, sLine;
 	CtagsListItem* pItem;
 	KScopePixmaps::PixName pix;
-	
+
 	// Get the name of the symbol
 	sName = pToken->getData();
 	pToken = pToken->getNext();
@@ -193,42 +193,42 @@ void CtagsList::slotDataReady(FrontendToken* pToken)
 		sType = i18n("Function");
 		pix = KScopePixmaps::SymFunc;
 		break;
-		
+
 	case 'v':
 		sType = i18n("Variable");
 		pix = KScopePixmaps::SymVar;
 		break;
-	
+
 	case 's':
 		sType = i18n("Struct");
 		pix = KScopePixmaps::SymStruct;
 		break;
-	
+
 	case 'd':
 		sType = i18n("Macro");
 		pix = KScopePixmaps::SymMacro;
 		break;
-		
+
 	case 'm':
 		sType = i18n("Member");
 		pix = KScopePixmaps::SymMember;
 		break;
-		
+
 	case 'g':
 		sType = i18n("Enum");
 		pix = KScopePixmaps::SymEnum;
 		break;
-		
+
 	case 'e':
 		sType = i18n("Enumerator");
 		pix = KScopePixmaps::SymEnumerator;
 		break;
-		
+
 	case 't':
 		sType = i18n("Typedef");
 		pix = KScopePixmaps::SymTypedef;
 		break;
-		
+
 	case 'l':
 		sType = i18n("Label");
 		pix = KScopePixmaps::SymLabel;
@@ -238,7 +238,7 @@ void CtagsList::slotDataReady(FrontendToken* pToken)
 		sType = i18n("Include");
 		pix = KScopePixmaps::SymInclude;
 		break;
-		
+
 	default:
 		sType = "Unknown";
 		pix = KScopePixmaps::SymUnknown;
@@ -249,11 +249,11 @@ void CtagsList::slotDataReady(FrontendToken* pToken)
 	pItem->setTextAlignment(1, Qt::AlignHCenter);
 	pItem->setIcon(0, QIcon(Pixmaps().getPixmap(pix)));
 	m_nItems++;
-	
+
 	// Resize the line array, if required
 	if (m_arrLines.size() < m_nItems)
 		m_arrLines.resize(m_nItems + 8);
-	
+
 	// Add the new item to the line array
 	m_arrLines[m_nItems - 1] = pItem;
 }
@@ -320,21 +320,21 @@ void CtagsList::gotoLine(uint nLine)
 {
 	CtagsListItem* pItem;
 	int nFrom, nTo, nItem, nDiff;
-	
+
 	// Wait until Ctags finishes
 	if (!m_bReady) {
 		m_nPendLine = nLine;
 		return;
 	}		
-	
+
 	// Do nothing if no tags are available
 	if (m_nItems == 0)
 		return;
-	
+
 	// Calculate the difference from the current line
 	nDiff = (int)(nLine - m_nCurLine);
 	m_nCurLine = nLine;
-		
+
 	// In most cases, all the user does is move to the next or prevuious lines
 	// Handle these simple cases first
 	if (nDiff == 1) {
@@ -360,14 +360,14 @@ void CtagsList::gotoLine(uint nLine)
 		nFrom = 0;
 		nTo = m_nItems - 1;
 		m_nCurItem = 0; // use the first item if nothing else works
-		
+
 		// Perform a binary search
 		// This algorithm finds the greatest line that is smaller or equal to
 		// the requested line
 		do {
 			nItem = (nFrom + nTo) / 2;
 			pItem = m_arrLines[nItem];
-			
+
 			if (pItem->getLine() == nLine) {
 				m_nCurItem = nItem;
 				break;
@@ -381,7 +381,7 @@ void CtagsList::gotoLine(uint nLine)
 			}
 		} while (nFrom <= nTo);
 	}
-		
+
 	// Mark the selected item
 	pItem = m_arrLines[m_nCurItem];
 	pItem->setHidden(false);
@@ -432,13 +432,13 @@ void CtagsList::slotSortChanged(int nSection)
 		Config().setCtagSortOrder(m_nSortOrder == Qt::Ascending ?
 			KScopeConfig::NameAsc : KScopeConfig::NameDes);
 		break;
-		
+
 	case 1:
 		// Sort by line
 		Config().setCtagSortOrder(m_nSortOrder == Qt::Ascending ?
 			KScopeConfig::LineAsc : KScopeConfig::LineDes);
 		break;
-		
+
 	case 2:
 		// Sort by type
 		Config().setCtagSortOrder(m_nSortOrder == Qt::Ascending ?

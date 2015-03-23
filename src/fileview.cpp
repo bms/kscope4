@@ -58,7 +58,7 @@ FileView::FileView(QWidget* pParent, const char* szName, Qt::WFlags fl) :
 	m_pTabWidget->setTabIcon(m_pTabWidget->indexOf(pPage), GET_PIXMAP(TabFileList));
 	pPage = m_pTabWidget->widget(1);
 	m_pTabWidget->setTabIcon(m_pTabWidget->indexOf(pPage), GET_PIXMAP(TabFileTree));
-	
+
 	// Setup default curent path of tree view 
 	m_pCurrentPath = new KUrl(QDir::currentPath());
 
@@ -74,7 +74,7 @@ FileView::FileView(QWidget* pParent, const char* szName, Qt::WFlags fl) :
 	for (int i = KDirModel::Size; i < KDirModel::ColumnCount; m_pFileTree->hideColumn(i++)){}
 	m_pFileTree->showColumn(KDirModel::Size);
 	m_pFileTree->showColumn(KDirModel::Type);
-	
+
 	// Send the fileRequested() signal whenever a file is selected in either
 	// the list or the tree
 	connect(m_pFileList, SIGNAL(fileRequested(const QString&, uint)), this,
@@ -99,21 +99,21 @@ void FileView::setRoot(const QString& sRoot)
 	// Nothing to do if the given root is the same as the old one
 	if (sRoot == m_sRoot)
 		return;
-	
+
 	m_sRoot = sRoot;
-	
+
 	// Remove the current branch & update new one
 	if (m_pCurrentPath)
 		delete(m_pCurrentPath);
 	m_pCurrentPath = new KUrl(m_sRoot);
-	
+
 	// Update the file list
 	m_pFileList->setRoot(m_sRoot);
-	
+
 	// Nothing more to do for an empty root directory
 	if (sRoot.isEmpty())
 		return;
-	
+
 	// Create and open a new branch, with the newly specified root
 	m_pFileTree->setRootUrl(*m_pCurrentPath);
 	m_pFileTree->setCurrentUrl(*m_pCurrentPath);

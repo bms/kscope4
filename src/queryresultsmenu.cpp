@@ -91,7 +91,7 @@ void QueryResultsMenu::slotShow(const QPoint& ptPos)
 		m_pViewSourceAct->setEnabled(true);
 		m_pCopyAct->setEnabled(true);
 		m_pRemoveAct->setEnabled(true);
-			
+
 		// The "Find Definition" item should only be enabled if the mouse
 		// was clicked over a valid function name 
 		m_pFindDefAct->setEnabled((m_nCol == 0) && 
@@ -102,24 +102,24 @@ void QueryResultsMenu::slotShow(const QPoint& ptPos)
 		case 0:
 			m_pCopyAct->setText("&Copy Function");
 			break;
-			
+
 		case 1:
 			m_pCopyAct->setText("&Copy File");
 			break;
-			
+
 		case 2:
 			m_pCopyAct->setText("&Copy Line Number");
 			break;
-			
+
 		case 3:
 			m_pCopyAct->setText("&Copy Text");
 			break;
-			
+
 		default:
 			m_nCol = 0;
 		}
 	}
-	
+
 	// Get global position & show the menu
 	QWidget* pViewPort = pQueryView->viewport();
 	popup(pViewPort->mapToGlobal(ptPos));

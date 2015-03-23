@@ -66,11 +66,11 @@ class ProgressDlg;
 class GraphWidget : public Q3CanvasView
 {
 	Q_OBJECT
-	
+
 public:
 	GraphWidget(QWidget* pParent = 0, const char* szName = 0);
 	~GraphWidget();
-	
+
 	/**
 	 * Information on a function call, as produced by a Cscope query.
 	 * This structure is used for adding calls to the graph.
@@ -80,16 +80,16 @@ public:
 	{
 		/** The name of the calling function. */
 		QString m_sCaller;
-		
+
 		/** The name of the called function. */
 		QString m_sCallee;
-		
+
 		/** Path of the file in which the call appears. */
 		QString m_sFile;
-		
+
 		/** The line number of the call. */
 		QString m_sLine;
-		
+
 		/** The call's text. */
 		QString m_sText;
 	};
@@ -108,11 +108,11 @@ public:
 	void setZoom(double);
 	void rotate();
 	QString getTip(const QPoint&, QRect&);
-	
+
 	void resize(int, int);
 	void drawNode(const QString&, const QRect&);
 	void drawEdge(const QString&, const QString&, const Q3PointArray&);
-	
+
 	/**
 	 * Adjusts the maximal number of calling/called functions shown for
 	 * every node (@see m_nMaxNodeDegree).
@@ -120,9 +120,9 @@ public:
 	 */
 	void setMaxNodeDegree(int nMaxNodeDegree) { m_nMaxNodeDegree =
 		nMaxNodeDegree; }
-	
+
 	static void setArrowInfo(int, int);
-	
+
 signals:
 	/**
 	 * Emitted when the user makes a request to view the contents of a
@@ -133,64 +133,64 @@ signals:
 	 * @param	nLine	The line number in this file
 	 */
 	void lineRequested(const QString& sPath, uint nLine);
-	
+
 protected:
 	virtual void drawContents(QPainter*, int, int, int, int);
 	virtual void contentsMousePressEvent(QMouseEvent*);
-	
+
 private:
 	/** The graph is stored as a map of nodes indexed by their names. 
 		Each node holds a list of outgoing edges. */
 	Q3Dict<GraphNode> m_dictNodes;
-	
+
 	/** A Cscope process to use for running queries. */
 	CscopeFrontend* m_pCscope;
-	
+
 	/** Displays query progress information. */
 	CscopeProgress m_progress;
-	
+
 	/** A Dot process used to draw the graph. */
 	DotFrontend m_dot;
-	
+
 	/** Remembers the function the was last queried for calling/called
 		functions. */
 	QString m_sQueriedFunc;
-	
+
 	/** Remembers whether the last query was for calling or called
 		functions. */
 	bool m_bCalled;
-	
+
 	/** The node over which the popup menu has been invoked. */
 	Q3CanvasPolygonalItem* m_pMenuItem;
-	
+
 	/** A popup menu that appears when a node is right-clicked. */
 	QMenu* m_pNodePopup;
-	
+
 	/** A popup menu that appears when a node is right-clicked. */
 	QMenu* m_pMultiCallPopup;
-	
+
 	/** A popup menu that appears when an edge is right-clicked. */
 	QMenu* m_pEdgePopup;
 
 	/** The zoom factor for the graph. */
 	double m_dZoom;
-	
+
 	/** Maximal number of in/out edges per node. If this number is exceeded,
 		the graph shows a single "multi-call" node. */
 	int m_nMaxNodeDegree;
-	
+
 	/** Holds information used to draw arrow heads. */
 	static ArrowInfo s_ai;
-	
+
 	/** Used for generating unique names for multi-call nodes. */
 	uint m_nMultiCallNum;
-	
+
 	/** Holds the path of the temporary dot file used for drawing the graph. */
 	QString m_sDrawFilePath;
-	
+
 	/** Allows lengthy drawing operations to be cancelled. */
 	ProgressDlg* m_pProgressDlg;
-	
+
 	/** GraphWidget's own handler of ToolTip event */
 	bool event(QEvent*);
 
@@ -199,7 +199,7 @@ private:
 	void removeDisconnected(GraphNode*);
 	void showNodeMenu(GraphNode*, const QPoint&);
 	void showEdgeMenu(GraphEdge*, const QPoint&);
-	
+
 private slots:
 	void slotDotFinished();
 	void slotDataReady(FrontendToken*);

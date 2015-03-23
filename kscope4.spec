@@ -1,8 +1,8 @@
 %bcond_with			debug
 
 %define name			kscope4
-%define release			4
-%define version			1.7.0
+%define release			1
+%define version			1.7.1
 
 Summary:	KDE frontend to Cscope
 Name:           %name
@@ -74,3 +74,12 @@ rm -rf %buildroot
 %doc %{_kde_docdir}/HTML/*/kscope/*
 
 %changelog
+* Mon Mar 23 2015 fe6fbq <fe6fbq@users.sourceforge.net> 1.7.1-1
+- Fix MakeDlg pb if the command line is too long due to KHistoryComboBox
+  Lineedit behaviour
+- Fix bug when creating or opening a project
+- Allow project creation in an existing directory
+- Fix pb in cscope env. var. setting with a permanent project
+- Cleanup source files (shrink blank lines; remove #if 0 ... #endif blocks)
+- Fix icon name
+- Add dialog to setup cscope env. var. when rebuilding database

@@ -60,46 +60,46 @@ public:
 	void applyPrefs();
 	void gotoLine(uint);
 	void clear();
-	
+
 	virtual bool getTip(QTreeWidgetItem*, QString&);
-	
+
 public slots:
 	void slotDataReady(FrontendToken*);
 	void slotCtagsFinished(uint);
-	
+
 signals:
 	/** 
 	 * Emitted when the size of the list is changed (usually as the result
 	 * of moving the separator between the list and the editor.)
 	 */
 	void resized();
-	
+
 	/**
 	 * Emitted when the user selects a tag item from the list.
 	 * @param	nLine	The line number associated with the selected tag
 	 */
 	void lineRequested(uint nLine);
-	
+
 protected:
 	virtual void resizeEvent(QResizeEvent*);
 	virtual void processItemSelected(QTreeWidgetItem*);
-	
+
 private:
 	/** An array of pointers to the tag list items, sorted by the line number. */
 	QVector<CtagsListItem*> m_arrLines;
-	
+
 	/** The number of items in the tag list. */
 	uint m_nItems;
-	
+
 	/** The last item selected by gotoLine(). */
 	uint m_nCurItem;
-	
+
 	/** This value is set to 'false' while the Ctags process is running. */
 	bool m_bReady;
-	
+
 	/** The current line number. */
 	uint m_nCurLine;
-	
+
 	/** Stores the requested line number during Ctags operation. */
 	uint m_nPendLine;
 

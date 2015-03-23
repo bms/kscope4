@@ -42,11 +42,11 @@ public:
 
 	QueryView* getView() { return m_pView; }
 	void getBookmark(QString&, uint&);
-	
+
 private:
 	QString m_sPath;
 	uint m_nLine;
-	
+
 private slots:
 	void slotLineRequested(const QString&, uint);	
 };

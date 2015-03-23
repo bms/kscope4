@@ -45,7 +45,7 @@ typedef QList<int> SPLIT_SIZES;
 class KScopeConfig : public QObject
 {
 	Q_OBJECT
-	
+
 public:
 	KScopeConfig();
 	~KScopeConfig();
@@ -54,15 +54,15 @@ public:
 	enum ColorElement { AlternateBase=0, FileListFore, FileListBack, TagListFore, 
 		TagListBack, QueryWindowFore, QueryWindowBack, GraphBack,
 		GraphNode, GraphText, GraphMultiCall, LAST_COLOR = GraphMultiCall };
-	
+
 	/** GUI elements whose fonts can be set. */
 	enum FontElement { FileList = 0, TagList, QueryWindow, Graph,
 		LAST_FONT = Graph };
-	
+
 	/** Sort order values for the tags list. */
 	enum CtagSort { NameAsc = 0, NameDes, LineAsc, LineDes, TypeAsc,
 		TypeDes };
-	
+
 	/** Types of systems that determine certain aspects in KScope's
 		behaviour. 
 		For fast systems, certain time-consuming operations, such as
@@ -70,11 +70,11 @@ public:
 		behaviour, however, is not desired on slow systems, in which the user
 		should handle such operations manually. */
 	enum SysProfile { Fast, Slow };	
-		
+
 	/** The different options for a popup menu to be installed in the editor
 		parts. */
 	enum EditorPopup { Embedded, KScopeOnly };	
-	
+
 	void load();
 	void loadDefault();
 	void loadWorkspace(KXmlGuiWindow*);
@@ -82,7 +82,7 @@ public:
 	void storeWorkspace(KXmlGuiWindow*);
 	bool isFirstTime();
 	bool showWelcomeDlg();
-	
+
 	const QString& getCscopePath() const;
 	void setCscopePath(const QString&);
 	const QString& getCtagsPath() const;
@@ -130,7 +130,7 @@ public:
 	void setGraphMaxNodeDegree(int);
 	int getDefGraphView() const;
 	void setDefGraphView(int);
-	
+
 private:
 	/** A list of previously loaded projects. */
 	QStringList m_slProjects;
@@ -140,66 +140,66 @@ private:
 	struct ConfParams {
 		/** The full path of the Cscope executable. */
 		QString sCscopePath;
-		
+
 		/** The full path of the Ctags executable. */
 		QString sCtagsPath;
-		
+
 		/** The full path of the Dot executable. */
 		QString sDotPath;
-		
+
 		/** Whether the tag list should be visible. */
 		bool bShowTagList;
-		
+
 		/** The widths of the tag list and editor panes inside an editor
 			page. */
 		SPLIT_SIZES siEditor;
-		
+
 		/** Colours for GUI elements. */
 		QColor clrs[LAST_COLOR + 1];
-		
+
 		/** Fonts for GUI elements. */
 		QFont fonts[LAST_FONT + 1];
-		
+
 		/** Sort order of the tag lists. */
 		CtagSort ctagSortOrder;
-		
+
 		/** Whether KScope should operate in code read-only mode. */
 		bool bReadOnlyMode;
-		
+
 		/** Whether the last open project should be reloaded on start-up. */
 		bool bLoadLastProj;
-		
+
 		/** Whether tags should be highlighted based on the current cursor
 			position. */
 		bool bAutoTagHl;
-		
+
 		/** Whether query page captions should use mnemonics for query types,
 			instead of the full description. */
 		bool bBriefQueryCaptions;
-		
+
 		/** Whether the warning should be displayed when file is modified on 
 			disk by external process. */
 		bool bWarnModifiedOnDisk;
-		
+
 		/** Should files be sorted automatically when a project is loaded. */
 		bool bAutoSortFiles;
-		
+
 		/** A command line pattern for an external editor (in read-only
 			mode.)*/
 		QString sExtEditor;
-		
+
 		/** How KScope should treat time-consuming operations. */
 		SysProfile profile;
-		
+
 		/** The type of popup menu to use in the embedded editor. */
 		EditorPopup popup;
-		
+
 		/** The default orientation of call graphs. */
 		QString sGraphOrient;
-		
+
 		/** Maximal number of called/calling functions per call graph node. */
 		int nGraphMaxNodeDegree;
-		
+
 		/** Default view for the call graph dialogue. */
 		int nDefGraphView;
 	};
@@ -209,7 +209,7 @@ private:
 
 	/** Holds default values for the configuration parameters */
 	static ConfParams s_cpDef;
-	
+
 	/** Write font preferences only if modified by the user (keep default
 		setting otherwise) */
 	bool m_bFontsChanged;

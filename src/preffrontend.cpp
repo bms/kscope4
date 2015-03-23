@@ -52,7 +52,7 @@ PrefFrontend::PrefFrontend(QWidget* pParent, const char* szName) :
 	// Attempt to guess paths based on the user's PATH environment variable
 	connect(m_pGuessButton, SIGNAL(clicked()), this,
 		SLOT(slotGuessPaths()));	
-		
+
 	// Emit the modified() signal when a new path is set
 	connect(m_pCscopeURL, SIGNAL(textChanged(const QString&)), this,
 		SIGNAL(modified()));
@@ -110,19 +110,19 @@ void PrefFrontend::slotChanged(const QString&)
 void PrefFrontend::slotGuessPaths()
 {
 	ConfigFrontend* pConf;
-	
+
 	// Start with an empty results text widget
 	m_pScriptText->clear();
-	
+
 	// Create a frontend object for the script
 	pConf = new ConfigFrontend(true);
-	
+
 	// Show tests and results in the text widget
 	connect(pConf, SIGNAL(test(uint)), this,
 		SLOT(slotAutoConfigTest(uint)));
 	connect(pConf, SIGNAL(result(uint, const QString&)), this,
 		SLOT(slotAutoConfigResult(uint, const QString&)));
-	
+
 	// Run the script
 	pConf->run(m_pCscopeURL->url().pathOrUrl(), m_pCtagsURL->url().pathOrUrl(),
 		m_pDotURL->url().pathOrUrl());
@@ -141,31 +141,31 @@ void PrefFrontend::slotAutoConfigTest(uint nType)
 	case ConfigFrontend::CscopePath:
 		msg = "Looking for Cscope...";
 		break;
-		
+
 	case ConfigFrontend::CscopeVersion:
 		msg = "Checking Cscope version...";
 		break;
-		
+
 	case ConfigFrontend::CscopeVerbose:
 		msg = "Cscope support for line mode verbose output...";
 		break;
-		
+
 	case ConfigFrontend::CscopeSlowPath:
 		msg = "Cscope support slow path definitions... ";
 		break;
-			
+
 	case ConfigFrontend::CtagsPath:
 		msg = "\nLooking for Ctags...";
 		break;
-					
+
 	case ConfigFrontend::CtagsExub:
 		msg = "Ctags compatibilty with ctags-exuberant...";
 		break;
-			
+
 	case ConfigFrontend::DotPath:
 		msg = "\nLooking for Dot...";
 		break;
-					
+
 	case ConfigFrontend::DotPlain:
 		msg = "Checking -Tplain...";
 		break;
@@ -191,14 +191,14 @@ void PrefFrontend::slotAutoConfigResult(uint nType, const QString& sResult)
 	case ConfigFrontend::DotPath:
 		m_pCscopeURL->lineEdit()->setText((sResult == "ERROR") ? "" : sResult);
 		break;
-	
+
 	case ConfigFrontend::CscopeVersion:
 	case ConfigFrontend::CtagsExub:
 	case ConfigFrontend::DotPlain:
 		if (sResult == "ERROR")
 			m_pCscopeURL->lineEdit()->setText("");
 		break;
-	
+
 	case ConfigFrontend::CscopeVerbose:
 	case ConfigFrontend::CscopeSlowPath:
 		break;

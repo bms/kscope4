@@ -64,19 +64,19 @@ QueryViewDriver::~QueryViewDriver()
 void QueryViewDriver::query(uint nType, const QString& sText, QTreeWidgetItem* pItem)
 {
 	CscopeFrontend* pCscope;
-	
+
 	m_pItem = pItem;
-	
+
 	// Make sure sorting is disabled while entries are added
 	m_pView->setSortingEnabled(false);
-	
+
 	// Create a self-destructing Cscope process
 	pCscope = new CscopeFrontend(this);	
-		
+
 	// Add records to the page when Cscope outputs them
 	connect(pCscope, SIGNAL(dataReady(FrontendToken*)), this,
 		SLOT(slotDataReady(FrontendToken*)));
-		
+
 	// Report progress information
 	connect(pCscope, SIGNAL(progress(int, int)), this,
 		SLOT(slotProgress(int, int)));
@@ -84,7 +84,7 @@ void QueryViewDriver::query(uint nType, const QString& sText, QTreeWidgetItem* p
 	// Perform tasks when the query process terminates
 	connect(pCscope, SIGNAL(finished(uint)), this,
 		SLOT(slotFinished(uint)));
-		
+
 	// Execute the query
 	pCscope->query(nType, sText);
 	m_bRunning = true;
@@ -101,7 +101,7 @@ void QueryViewDriver::query(uint nType, const QString& sText, QTreeWidgetItem* p
 void QueryViewDriver::slotDataReady(FrontendToken* pToken)
 {
 	QString sFile, sFunc, sLine, sText;
-	
+
 	// Get the file name
 	sFile = pToken->getData();
 	pToken = pToken->getNext();
@@ -121,7 +121,7 @@ void QueryViewDriver::slotDataReady(FrontendToken* pToken)
 	else {
 		pToken = pToken->getNext();
 	}
-	
+
 	// Get the line's text
 	sText = pToken->getData();
 	pToken = pToken->getNext();
@@ -143,7 +143,7 @@ void QueryViewDriver::slotFinished(uint nRecords)
 	m_pView->setEnabled(true);
 	m_pView->setUpdatesEnabled(true);
 	m_pView->setSortingEnabled(true);
-	
+
 	// Destroy the progress bar
 	m_progress.finished();
 
@@ -163,7 +163,7 @@ void QueryViewDriver::slotProgress(int nFiles, int nTotal)
 	// A progress report is available, instruct the owner object to show the view
 	if (nTotal > 1)
 		m_pView->queryProgress();
-		
+
 	// Set the progress bar
 	m_progress.setProgress(nFiles, nTotal);
 }

@@ -56,11 +56,11 @@ EditorTabs::EditorTabs(QWidget* pParent, const char* szName) :
 
 	// Accept file drops
 	setAcceptDrops(true);
-	
+
 	// Close an editor page when its close button is clicked
 	connect(this, SIGNAL(closeRequest(QWidget*)), this,
 		SLOT(slotRemovePage(QWidget*)));
-	
+
 	// Set an editor page as the active part, when its tab is selected	
 	connect(this, SIGNAL(currentChanged(QWidget*)), this,
 		SLOT(slotCurrentChanged(QWidget*)));
@@ -106,11 +106,11 @@ void EditorTabs::addEditorPage(EditorPage* pNewPage)
 	// Handle new unnamed files
 	connect(pNewPage, SIGNAL(newFile(EditorPage*)), this,
 		SLOT(slotNewFile(EditorPage*)));
-	
+
 	// Change tab icon when a file is modified
 	connect(pNewPage, SIGNAL(modified(EditorPage*, bool)), this,
 		SLOT(slotFileModified(EditorPage*, bool)));
-	
+
 	// If this is the first page, the current page will not be set by the 
 	// signal handler, so we need to do it manually
 	if (count() == 1)
@@ -133,7 +133,7 @@ EditorPage* EditorTabs::findEditorPage(const QString& sFileName,
 	EditorMap::iterator itr;
 	EditorPage* pPage;
 	bool bEmit;
-	
+
 	// Find the page according to the associated file name
 	itr = m_mapEdit.find(sFileName);
 	if (itr == m_mapEdit.end())
@@ -147,7 +147,7 @@ EditorPage* EditorTabs::findEditorPage(const QString& sFileName,
 	// Emit the editorChanged() signal, if required
 	if (bEmit)
 		emit editorChanged(NULL, m_pCurPage);
-		
+
 	return *itr;
 }
 
@@ -185,7 +185,7 @@ void EditorTabs::removeCurrentPage()
 bool EditorTabs::removeAllPages()
 {
 	QWidget* pPage;
-	
+
 	// Check if there are any modified files
 	if (getModifiedFilesCount()) {
 		// Prompt the user to save these files
@@ -196,21 +196,21 @@ bool EditorTabs::removeAllPages()
 				// Save files
 				slotSaveAll();
 				break;
-				
+
 			case KMessageBox::No:
 				// Close files, ignoring changes
 				break;
-				
+
 			case KMessageBox::Cancel:
 				// Abort
 				return false;
 		}
 	}
-	
+
 	// Iterate pages until none is left
 	while ((pPage = currentWidget()) != NULL)
 		removePage(pPage, true);
-	
+
 	// All pages were successfully removed
 	return true;
 }
@@ -240,12 +240,12 @@ void EditorTabs::slotCurrentChanged(QWidget* pWidget)
 	if (m_pCurPage) {
 		// Set the keyboard focus to the editor part of the page
 		m_pCurPage->setEditorFocus();
-		
+
 		// Adjust the splitter sizes
 		m_pCurPage->setLayout(Config().getShowTagList(),
 				Config().getEditorSizes());
 	}
-	
+
 	/* Notify the main window */
 	emit editorChanged(pOldPage, m_pCurPage);
 }
@@ -264,7 +264,7 @@ void EditorTabs::slotAttachFile(EditorPage* pEditPage,
 		setTabIcon(indexOf(pEditPage), Pixmaps().getPixmap(KScopePixmaps::TabRW));
 	else
 		setTabIcon(indexOf(pEditPage), Pixmaps().getPixmap(KScopePixmaps::TabRO));
-	
+
 	// Do nothing if the file name has not changed
 	if (m_mapEdit[sFilePath] == pEditPage)
 		return;
@@ -299,7 +299,7 @@ void EditorTabs::slotAttachFile(EditorPage* pEditPage,
 void EditorTabs::slotNewFile(EditorPage* pEditPage)
 {
 	QString sCaption;
-	
+
 	// Set the tab caption to mark a new file
 	m_nNewFiles++;
 	sCaption = i18n("Untitled ") + QString::number(m_nNewFiles);
@@ -351,7 +351,7 @@ void EditorTabs::getOpenFiles(FileLocationList& list)
 	int i;
 	EditorPage* pPage;
 	uint nLine, nCol;
-	
+
 	// Iterate over all editor pages
 	for (i = 0; i < count(); i++) {
 		// Obtain file and cursor position information
@@ -360,7 +360,7 @@ void EditorTabs::getOpenFiles(FileLocationList& list)
 			nLine = 1;
 			nCol = 1;
 		}
-		
+
 		// Create a new list item
 		list.append(new FileLocation(pPage->getFilePath(), nLine, nCol));
 	}
@@ -375,7 +375,7 @@ void EditorTabs::getBookmarks(FileLocationList& fll)
 {
 	int i;
 	EditorPage* pPage;
-	
+
 	// Iterate over all editor pages
 	for (i = 0; i < count(); i++) {
 		pPage = (EditorPage*)widget(i);
@@ -458,10 +458,10 @@ void EditorTabs::slotRemovePage(QWidget* pPage)
 void EditorTabs::slotToggleTagList(bool showHide)
 {
 	EditorPage* pPage;
-	
+
 	// Change the default value
 	Config().setShowTagList(showHide);
-	
+
 	// Apply for the current page, if any
 	if ((pPage = (EditorPage*)currentWidget()) != NULL) {
 		bool showTagList = Config().getShowTagList();
@@ -477,7 +477,7 @@ void EditorTabs::slotToggleTagList(bool showHide)
 void EditorTabs::dragMoveEvent(QDragMoveEvent* pEvent)
 {
 	KUrl::List list = KUrl::List::fromMimeData(pEvent->mimeData());
-	
+
 	pEvent->setAccepted(! list.isEmpty());
 }
 
@@ -511,7 +511,7 @@ void EditorTabs::slotInitiateDrag(QWidget* pWidget)
 	KUrl::List list = KUrl::List(url);
 	list.populateMimeData(pMd);
 	pDrag->setMimeData(pMd);
-	
+
 	// Start the drag
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 }
@@ -538,13 +538,13 @@ void EditorTabs::slotFileModified(EditorPage* pEditPage, bool bModified)
 int EditorTabs::getModifiedFilesCount()
 {
 	int i, nResult;
-	
+
 	// Iterate through pages
 	for (i = 0, nResult = 0; i < count(); i++) {
 		if (((EditorPage*)widget(i))->isModified())
 			nResult++;
 	}
-	
+
 	return nResult;
 }
 
@@ -564,7 +564,7 @@ void EditorTabs::slotSaveAll()
 void EditorTabs::slotGoLeft()
 {
 	int nIndex;
-	
+
 	nIndex = currentIndex();
 	if (nIndex > 0) {
 		nIndex--;
@@ -578,7 +578,7 @@ void EditorTabs::slotGoLeft()
 void EditorTabs::slotGoRight()
 {
 	int nIndex;
-	
+
 	nIndex = currentIndex();
 	if (nIndex < count() - 1) {
 		nIndex++;
@@ -618,15 +618,15 @@ bool EditorTabs::removePage(QWidget* pPage, bool bForce)
 	EditorPage* pEditPage;
 	QString sFilePath;
 	int index = indexOf(pPage);
-	
+
 	// Store the file path for later
 	pEditPage = (EditorPage*)pPage;
 	sFilePath = pEditPage->getFilePath();
-	
+
 	// Close the edited file (may fail if the user aborts the action)
 	if (!pEditPage->close(bForce))
 		return false;
-		
+
 	// Remove the page and all references to it
 	m_mapEdit.remove(sFilePath);
 	TabWidget::removeTab(index);
@@ -636,7 +636,7 @@ bool EditorTabs::removePage(QWidget* pPage, bool bForce)
 	// special handling)
 	if (currentIndex() < 0)
 		slotCurrentChanged(NULL);
-	
+
 	// Notify the page has been removed
 	emit editorRemoved(pEditPage);
 

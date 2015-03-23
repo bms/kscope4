@@ -42,7 +42,7 @@ CscopeMsgDlg::CscopeMsgDlg(QWidget* pParent, const char* szName) :
 
 	// Hide the dialog when the "Hide" button is clicked
 	connect(m_pHideButton, SIGNAL(clicked()), this, SLOT(hide()));
-	
+
 	// Clear all messages when the "Clear" button is clicked
 	connect(m_pClearButton, SIGNAL(clicked()), m_pMsgText, SLOT(clear()));
 }

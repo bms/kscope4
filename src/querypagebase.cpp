@@ -80,17 +80,17 @@ bool QueryPageBase::load(const QString& sProjPath, const QString& sFileName)
 {
 	QString sTemp, sFile, sFunc, sLine, sText;
 	int nState;
-	
+
 	// Try to open the query file for reading
 	QFile file(sProjPath + "/" + sFileName);
 	if (!file.open(IO_ReadOnly))
 		return false;
-	
+
 	{
 		// Use a new scope for the QTextStream object, to ensure its 
 		// destruction before the file is deleted
 		QTextStream str(&file);
-		
+
 		// Make sure the file's version is correct
 		sTemp = str.readLine();
 		if (sTemp != FILE_VERSION) {
@@ -101,7 +101,7 @@ bool QueryPageBase::load(const QString& sProjPath, const QString& sFileName)
 		// Try to read the file header
 		if (!readHeader(str))
 			return false;
-		
+
 		// Read query records
 		sTemp = str.readLine();
 		nState = 0;
@@ -111,32 +111,32 @@ bool QueryPageBase::load(const QString& sProjPath, const QString& sFileName)
 			case 0:
 				sFile = sTemp;
 				break;
-				
+
 			// Function name
 			case 1:
 				sFunc = sTemp;
 				break;
-				
+
 			// Line number
 			case 2:
 				sLine = sTemp;
 				break;
-				
+
 			// Text string
 			case 3:
 				sText = sTemp;
 				addRecord(sFile, sFunc, sLine, sText);
 				break;
 			}
-			
+
 			nState = (nState + 1) % 4;
 			sTemp = str.readLine();
 		}
 	}
-	
+
 	// Delete the query file
 	file.remove();
-	
+
 	return true;
 }
 

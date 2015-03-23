@@ -52,11 +52,11 @@ SearchResultsDlg::SearchResultsDlg(QWidget* pParent, const char* szName) :
 	case PlainText:
 		m_pTextRadio->setChecked(true);
 		break;
-		
+
 	case RegExp:
 		m_pRegExpRadio->setChecked(true);
 		break;
-		
+
 	case SimpRegExp:
 		m_pSimpRegExpRadio->setChecked(true);
 		break;
@@ -65,7 +65,7 @@ SearchResultsDlg::SearchResultsDlg(QWidget* pParent, const char* szName) :
 	// Set the default value of the check-boxes
 	m_pCaseSenCheck->setChecked(s_bCaseSensitive);
 	m_pNegateCheck->setChecked(s_bNegate);
-		
+
 	// Terminate the dialogue when either the "OK" or "Cancel" buttons are
 	// clicked
 	connect(m_pOKButton, SIGNAL(clicked()), this, SLOT(accept()));
@@ -103,27 +103,27 @@ int SearchResultsDlg::getColumn()
 void SearchResultsDlg::getPattern(QRegExp& re)
 {
 	QString sPattern;
-	
+
 	sPattern = m_pSearchEdit->text();
-	
+
 	// Create the regular expression
 	switch (s_nType) {
 	case PlainText:
 		re.setPattern(QRegExp::escape(sPattern));
 		re.setPatternSyntax(QRegExp::RegExp);
 		break;
-		
+
 	case RegExp:
 		re.setPattern(sPattern);
 		re.setPatternSyntax(QRegExp::RegExp);
 		break;
-	
+
 	case SimpRegExp:
 		re.setPattern(sPattern);
 		re.setPatternSyntax(QRegExp::Wildcard);
 		break;
 	}
-	
+
 	// Set the case-(in)sensitive parameter
 	re.setCaseSensitivity(s_bCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 }
@@ -135,7 +135,7 @@ void SearchResultsDlg::getPattern(QRegExp& re)
 void SearchResultsDlg::accept()
 {
 	QString sText;
-		
+
 	// Determine the selected type and store its value for the next invocation
 	if (m_pTextRadio->isChecked())
 		s_nType = PlainText;
@@ -143,11 +143,11 @@ void SearchResultsDlg::accept()
 		s_nType = RegExp;
 	else if (m_pSimpRegExpRadio->isChecked())
 		s_nType = SimpRegExp;
-	
+
 	// Determine search parameters
 	s_bCaseSensitive = m_pCaseSenCheck->isChecked();
 	s_bNegate = m_pNegateCheck->isChecked();
-	
+
 	// Remove white space from the search text
 	sText = m_pSearchEdit->text();
 	sText.trimmed();

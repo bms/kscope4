@@ -51,11 +51,11 @@ class QueryResultsMenu;
 class QueryView : public QTreeWidget
 {
 	Q_OBJECT
-	
+
 public:
 	QueryView(QWidget* pParent = 0, const char* szName = 0);
 	~QueryView();
-	
+
 	virtual void addRecord(const QString&, const QString&, const QString&,
 		const QString&, QTreeWidgetItem* pParent = NULL);
 	virtual void select(QTreeWidgetItem*);

@@ -91,7 +91,7 @@ void DirScanner::start(const QString& sDir, const QString& sNameFilter,
 void DirScanner::run()
 {
 	int nFiles;
-	
+
 	nFiles = scanDir(m_dir);
 	QCoreApplication::postEvent(m_pEventReceiver, new DirScanEvent(nFiles, true));
 
@@ -114,15 +114,15 @@ int DirScanner::scanDir(QDir& dir)
 
 	if (m_bCancel)
 		return -1;
-		
+
 	// Make sure this directory has not been previously visited (e.g., through a
 	// symbolic link)
 	sCanon = dir.canonicalPath();
 	if (m_setScanned.contains(sCanon))
 		return 0;
-	
+
 	m_setScanned.insert(sCanon);
-	
+
 	// Add all files in this directory
 	slDirFiles = dir.entryList(QDir::nameFiltersFromString(m_sNameFilter), QDir::Files);
 	for (itr = slDirFiles.begin(); itr != slDirFiles.end(); ++itr) {

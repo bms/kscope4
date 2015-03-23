@@ -56,34 +56,34 @@ public:
 	bool save(const QString&, QString&);
 	void selectNext();
 	void selectPrev();
-	
-	
+
+
 	/**
 	 * Determines whether this page can be locked.
 	 * Can be used by inheriting classes to define non-lockable pages.
 	 * @return	Always true
 	 */
 	virtual bool canLock() { return true; }
-	
+
 	/**
 	 * Locks or unlocks this page.
 	 * @param	bLocked	true to lock the page, false to unlock it.
 	 */
 	void setLocked(bool bLocked) { m_bLocked = bLocked; }
-	
+
 	/**
 	 * Determines whether this page is locked.
 	 * @return	true if the page is locked, false otherwise
 	 */
 	bool isLocked() { return m_bLocked; }
-	
+
 	/**
 	 * Determines whether this page should be saved when the project is closed.
 	 * By default, pages are saved if and only if they are locked.
 	 * @return	true to save the page, false otherwise
 	 */
 	virtual bool shouldSave() const { return m_bLocked; };
-	
+
 	/**
 	 * Constructs a caption for this page.
 	 * The caption appears in the page's tab button and as the page's
@@ -92,7 +92,7 @@ public:
 	 * @return	The page's title
 	 */
 	virtual QString getCaption(bool bBrief = false) const = 0;
-	
+
 signals:
 	/**
 	 * Emitted when a record is selected in the view widget.
@@ -104,12 +104,12 @@ signals:
 protected:
 	/** The embedded list. */
 	QueryView* m_pView;
-	
+
 	/** Indicates whether this page is locked. A locked page is never
 		overriden by new data, and is also saved to a disc file when the
 		session is closed. */
 	bool m_bLocked;
-	
+
 	/**
 	 * Creates a new list item and adds it to the embedded view.
 	 * This method is used to add records read from a stored file.
@@ -120,7 +120,7 @@ protected:
 	 */
 	virtual void addRecord(const QString& sFile, const QString& sFunc, 
 		const QString& sLine, const QString& sText) = 0;
-	
+
 	/**
 	 * Creates a file path to store this page.
 	 * The path is composed of the project's path and a unique file name
@@ -129,7 +129,7 @@ protected:
 	 * @return	The page's file path
 	 */
 	virtual QString getFileName(const QString& sProjPath) const = 0;
-	
+
 	/**
 	 * Tries to read the file header of a stored page.
 	 * The contents of the header differ among inheriting classes.
@@ -138,7 +138,7 @@ protected:
 	 *			expected information, false otherwise
 	 */
 	virtual bool readHeader(QTextStream& str) = 0;
-	
+
 	/**
 	 * Writes a header to a page's file.
 	 * The contents of the header differ among inheriting classes.

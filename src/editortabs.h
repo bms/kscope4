@@ -51,7 +51,7 @@ class QueryView;
 class EditorTabs : public TabWidget
 {
    Q_OBJECT
-   
+
 public:
 	EditorTabs(QWidget* pParent = 0, const char* szName = 0);
 	~EditorTabs();
@@ -67,14 +67,14 @@ public:
 	void getBookmarks(FileLocationList&);
 	void setBookmarks(FileLocationList&);
 	void showBookmarks(QueryView*);
-	
+
 public slots:
 	void slotRemovePage(QWidget*);
 	void slotToggleTagList(bool);
 	void slotSaveAll();
 	void slotGoLeft();
 	void slotGoRight();
-	
+
 signals:
 	/**
 	 * Emitted when the current editor page changes.
@@ -82,23 +82,23 @@ signals:
 	 * @param	pNew	The new current page
 	 */
 	void editorChanged(EditorPage* pOld, EditorPage* pNew);
-	
+
 	/**
 	 * Emitted when an editor page is closed.
 	 * @param	pPage	The removed page
 	 */
 	void editorRemoved(EditorPage* pPage);
-	
+
 	/**
 	 * Indicates that files were dragged and dropped over the tab widget.
 	 * @param	pEvent	The drop event information
 	 */
 	void filesDropped(QDropEvent* pEvent);
-	
+
 protected:
 	virtual void dragMoveEvent(QDragMoveEvent*);
 	virtual void dropEvent(QDropEvent*);
-	
+
 private:
 	/** Links a file name with an editor page that has this file open. */
 	EditorMap m_mapEdit;
@@ -106,22 +106,22 @@ private:
 	/** We need to keep track of the current page in order to implement the
 		editorChanged() signal. */
 	EditorPage* m_pCurPage;
-	
+
 	/** A popup menu with Cscope operations for the editor windows. */
 	QMenu* m_pWindowMenu;
-	
+
 	/** The number & the list of items added to the window menu (used for removing
 	 *  old items). Items are considered to be "actions" triggered when selected
 	 */
 	int m_nWindowMenuItems;
 	QList<QAction*>	m_lWindowList;
-	
+
 	/** A counter for creating unique tab captions for new files. */
 	int m_nNewFiles;
-	
+
 	int getModifiedFilesCount();
 	bool removePage(QWidget*, bool);
-		
+
 private slots:
 	void slotCurrentChanged(QWidget*);
 	void slotAttachFile(EditorPage*, const QString&);

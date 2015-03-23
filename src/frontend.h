@@ -49,7 +49,7 @@ public:
 	 * @return	The text associated with this token
 	 */
 	const QString& getData() const { return m_sData; }
-	
+
 	/**
 	 * @return	A pointer to the next token in the strem.
 	 */
@@ -58,13 +58,13 @@ public:
 protected:
 	/** Free text associated with the token. */
 	QString m_sData;
-	
+
 	/** A pointer to the next token in the stream. */
 	FrontendToken* m_pNext;
 
 	friend class Frontend;
 };
- 
+
 /**
  * Abstract base class that provides a front-end to console-based programmes.
  * Provides a parsing infrastructure which is based on a list of records, all
@@ -76,22 +76,24 @@ protected:
 class Frontend : public KProcess
 {
 	Q_OBJECT
-	
+
 public: 
 	Frontend(uint, bool bAutoDelete = false);
 	~Frontend();
 
-	virtual bool run(const QString&, const QStringList&, 
-		const QString& sWorkDir = "", bool bBlock = false);
+	virtual bool run(const QString&, const QStringList&,
+			 const QString& incDirs = QString(),
+			 const QString& srcDirs = QString(),
+			 const QString& sWorkDir = "", bool bBlock = false);
 
 	void kill();
 	void setUseShell() { m_bUseShell = true; }
-		
+
 	/**
 	 * @return	An string describing the error which made run() fail
 	 */
 	const QString& getRunError() { return m_sError; }
-	
+
 signals:
 	/**
 	 * Indicates tokens can be read.
@@ -101,18 +103,18 @@ signals:
 	 * @param	pToken	The head of the token list
 	 */
 	void dataReady(FrontendToken* pToken);
-	
+
 	/**
 	 * Emitted when the back-end process terminates.
 	 * @param	nRecords	The number of complete records parsed
 	 */
 	void finished(uint nRecords);
-	
+
 	/**
 	 * Indicates that the Cscope process was terminated.
 	 */
 	void aborted();
-	
+
 	/**
 	 * This signal is used to report the progress of the back-end process.
 	 * @param	nProgress		The current progress value
@@ -120,12 +122,12 @@ signals:
 	 *							is finished
 	 */
 	void progress(int nProgress, int nTotal);
-	
+
 	/**
 	 * Emitted when an error message is produced by the back-end process.
 	 */
 	void error(const QString& sMsg);
-	
+
 protected:
 	/** A set of possible delimiters for parsing process output. */
 	enum ParserDelim { Newline = 0x01, Space = 0x02, Tab = 0x04,
@@ -142,7 +144,7 @@ protected:
 
 	/** Number of complete records read so far. */
 	uint m_nRecords;	
-	
+
 	/** The head of the list of parsed output tokens. */
 	FrontendToken* m_pHeadToken;
 
@@ -154,10 +156,10 @@ protected:
 
 	/** The current delimiters used for parsing the output. */
 	ParserDelim m_delim;
-	
+
 	/** An error string produced if run() fails. */
 	QString m_sError;
-	
+
 	/**
 	 * Handles a text token received on the Standard Output stream of the
 	 * controlled process.
@@ -173,7 +175,7 @@ protected:
 	virtual ParseResult parseStdout(QString& sToken, ParserDelim delim) = 0;
 
 	virtual void parseStderr(const QString&);
-	
+
 	/**
 	 * Called when the process exits.
 	 * Allows inheriting classes to implement process termination handlers.
@@ -182,7 +184,7 @@ protected:
 
 protected slots:
 	virtual void slotProcessExit(int, QProcess::ExitStatus);
-	
+
 private:
 	/** Determines whether the object should be deleted once the process has
 		exited */
@@ -195,12 +197,12 @@ private:
 	/** The number of fields in each parsed record. Should be defined for 
 		every sub-class. */
 	uint m_nRecordSize;
-	
+
 	/** This flag is raised when kill() is called. It signifies that even
 		though the process may not be dead yet, it should be considered as
 		such. */
 	bool m_bKilled;
-	
+
 	/** Determibes whether user's shell should be used or not when running
 	    the command. */
 	bool m_bUseShell;
@@ -209,7 +211,7 @@ private:
 	void removeToken();
 	void removeRecord();
 	bool tokenize(char**, int*, QString&, ParserDelim&);
-		
+
 private slots:
 	void slotReadStdout();
 	void slotReadStderr();
