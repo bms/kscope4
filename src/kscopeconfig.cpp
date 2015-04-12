@@ -109,19 +109,22 @@ KScopeConfig::ConfParams KScopeConfig::s_cpDef = {
 		QFont(),
 		QFont()
 	},
-	NameAsc, // Ctags sort order
-	false, // Read-only mode
-	true, // Load last project
-	true, // Automatic tag highlighting
-	false, // Brief query captions
-	true, // Warn when file is modified on the disk
-	true, // Sort files when a project is loaded
-	"kate --line %L %F", // External editor example
-	Fast, // System profile
-	Embedded, // Editor context menu
-	"TB",  // Call graph orientation
-	10, // Maximum calls per graph node
-	0 // Default graph view
+	NameAsc,		// Ctags sort order
+	false,			// Read-only mode
+	true,			// Load last project
+	true,			// Automatic tag highlighting
+	false,			// Brief query captions
+	true,			// Warn when file is modified on the disk
+	true,			// Sort files when a project is loaded
+	0,			// Default active current tab in file list window
+	(int)Qt::AscendingOrder,	// File tree view sort order
+	true,			// File tree view show hidden files
+	"kate --line %L %n",	// External editor example
+	Fast,			// System profile
+	Embedded,		// Editor context menu
+	"TB",			// Call graph orientation
+	10,			// Maximum calls per graph node
+	0			// Default graph view
 };
 
 /**
@@ -196,6 +199,12 @@ void KScopeConfig::load()
 		s_cpDef.bWarnModifiedOnDisk);
 	m_cp.bAutoSortFiles = configGrp.readEntry("AutoSortFiles",
 		s_cpDef.bAutoSortFiles);
+	m_cp.nActiveFileWindowTab = configGrp.readEntry("ActiveFileWindowTab",
+		s_cpDef.nActiveFileWindowTab);
+	m_cp.nFileTreeSortOrder = configGrp.readEntry("FileTreeSortOrder",
+		s_cpDef.nFileTreeSortOrder);
+	m_cp.bFileTreeShowHiddenFiles = configGrp.readEntry("FileTreeShowHiddenFiles",
+		s_cpDef.bFileTreeShowHiddenFiles);
 	m_cp.sExtEditor = configGrp.readEntry("ExternalEditor", s_cpDef.sExtEditor);
 	m_cp.profile = (SysProfile)configGrp.readEntry("SystemProfile",
 		int(s_cpDef.profile));
@@ -277,6 +286,9 @@ void KScopeConfig::store()
 	configGrp.writeEntry("BriefQueryCaptions", m_cp.bBriefQueryCaptions);
 	configGrp.writeEntry("WarnModifiedOnDisk", m_cp.bWarnModifiedOnDisk);
 	configGrp.writeEntry("AutoSortFiles", m_cp.bAutoSortFiles);
+	configGrp.writeEntry("ActiveFileWindowTab", m_cp.nActiveFileWindowTab);
+	configGrp.writeEntry("FileTreeSortOrder", m_cp.nFileTreeSortOrder);
+	configGrp.writeEntry("FileTreeShowHiddenFiles", m_cp.bFileTreeShowHiddenFiles);
 	configGrp.writeEntry("ExternalEditor", m_cp.sExtEditor);
 	configGrp.writeEntry("SystemProfile", (uint)m_cp.profile);
 	configGrp.writeEntry("EditorPopup", (uint)m_cp.popup);
@@ -520,7 +532,7 @@ KScopeConfig::CtagSort KScopeConfig::getCtagSortOrder()
 
 /**
  * @param	ctagSortOrder	The column and direction by which the tags should
- *							be sorted
+ *				be sorted
  */
 void KScopeConfig::setCtagSortOrder(CtagSort ctagSortOrder)
 {
@@ -553,7 +565,7 @@ bool KScopeConfig::getLoadLastProj()
 
 /**
  * @param	bLoadLastProj	true to load the last project on start-up, false
- *							otherwise
+ *				otherwise
  */
 void KScopeConfig::setLoadLastProj(bool bLoadLastProj)
 {
@@ -562,7 +574,7 @@ void KScopeConfig::setLoadLastProj(bool bLoadLastProj)
 
 /**
  * @return	true to enable tag highlighting based on cursor position, false
- *			to disable this feature
+ *		to disable this feature
  */
 bool KScopeConfig::getAutoTagHl()
 {
@@ -571,7 +583,7 @@ bool KScopeConfig::getAutoTagHl()
 
 /**
  * @param	bAutoTagHl	true to enable tag highlighting based on cursor
- *			position, false to disable this feature
+ *				position, false to disable this feature
  */
 void KScopeConfig::setAutoTagHl(bool bAutoTagHl)
 {
@@ -629,6 +641,57 @@ bool KScopeConfig::getAutoSortFiles()
 void KScopeConfig::setAutoSortFiles(bool bSort)
 {
 	m_cp.bAutoSortFiles = bSort;
+}
+
+/**
+ * @param	bSort	true to sort files when a project is loaded, false 
+ *					otherwise
+ */
+void KScopeConfig::setActiveFileWindowTab(int index)
+{
+	m_cp.nActiveFileWindowTab = index;
+}
+
+/**
+ * @return	true to sort files when a project is loaded, false otherwise
+ */
+int KScopeConfig::getActiveFileWindowTab()
+{
+	return m_cp.nActiveFileWindowTab;
+}
+
+/**
+ * @param	sortOrder	the current sort order (Qt::AscendingOrder or
+ *				Qt::DesccendingOrder) applied to the file tree view
+ */
+void KScopeConfig::setFileTreeSortOrder(int sortOrder)
+{
+	m_cp.nFileTreeSortOrder = sortOrder;
+}
+
+/**
+ * @return	the current sort order of the file tree view (first column only)
+ */
+int KScopeConfig::getFileTreeSortOrder()
+{
+	return m_cp.nFileTreeSortOrder;
+}
+
+/**
+ * @param	bSort	true to show the hidden files in file tree view, false 
+ *			otherwise
+ */
+void KScopeConfig::setShowHiddenFiles(bool enabled)
+{
+	m_cp.bFileTreeShowHiddenFiles = enabled;
+}
+
+/**
+ * @return	current value of the file tree view `ShowHiddenFiles' property
+ */
+bool KScopeConfig::getShowHiddenFiles()
+{
+	return m_cp.bFileTreeShowHiddenFiles;
 }
 
 /**
@@ -773,3 +836,9 @@ KScopeConfig& Config()
 }
 
 #include "kscopeconfig.moc"
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

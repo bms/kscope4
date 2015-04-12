@@ -116,6 +116,12 @@ public:
 	void setWarnModifiedOnDisk(bool);
 	bool getAutoSortFiles();
 	void setAutoSortFiles(bool);
+	int getActiveFileWindowTab();
+	void setActiveFileWindowTab(int);
+	int getFileTreeSortOrder();
+	void setFileTreeSortOrder(int);
+	bool getShowHiddenFiles();
+	void setShowHiddenFiles(bool);
 	const QString& getExtEditor();
 	void setExtEditor(const QString&);
 	bool useExtEditor();
@@ -136,7 +142,7 @@ private:
 	QStringList m_slProjects;
 
 	/** Defines the list of all configurable parameters in KScope.
-		The use of a structure helps define default values (@see s_cpDef) */
+	    The use of a structure helps define default values (@see s_cpDef) */
 	struct ConfParams {
 		/** The full path of the Cscope executable. */
 		QString sCscopePath;
@@ -151,7 +157,7 @@ private:
 		bool bShowTagList;
 
 		/** The widths of the tag list and editor panes inside an editor
-			page. */
+		    page. */
 		SPLIT_SIZES siEditor;
 
 		/** Colours for GUI elements. */
@@ -170,7 +176,7 @@ private:
 		bool bLoadLastProj;
 
 		/** Whether tags should be highlighted based on the current cursor
-			position. */
+		    position. */
 		bool bAutoTagHl;
 
 		/** Whether query page captions should use mnemonics for query types,
@@ -178,14 +184,23 @@ private:
 		bool bBriefQueryCaptions;
 
 		/** Whether the warning should be displayed when file is modified on 
-			disk by external process. */
+		    disk by external process. */
 		bool bWarnModifiedOnDisk;
 
 		/** Should files be sorted automatically when a project is loaded. */
 		bool bAutoSortFiles;
 
+		/** Active file window tab at startup: 0: File list 1: File tree. */
+		int nActiveFileWindowTab;
+
+		/** File tree sort order at startup */
+		int nFileTreeSortOrder;
+
+		/** File tree should display hidden files */
+		bool bFileTreeShowHiddenFiles;
+
 		/** A command line pattern for an external editor (in read-only
-			mode.)*/
+		    mode.)*/
 		QString sExtEditor;
 
 		/** How KScope should treat time-consuming operations. */
@@ -218,3 +233,9 @@ private:
 extern KScopeConfig& Config();
 
 #endif
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

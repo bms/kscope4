@@ -31,6 +31,7 @@
 #include <QtGui/QAbstractItemView>
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QDir>
+#include <QtCore/QPoint>
 
 #include <kfiletreeview.h>
 #include <kdirmodel.h>
@@ -72,7 +73,6 @@ signals:
 	void fileRequested(const QString& sPath, uint nLine);
 
 private:
-
 	/** The current root of the file tree. */
 	QString m_sRoot;
 
@@ -83,8 +83,17 @@ private:
 	KUrl *m_pCurrentPath;
 
 private slots:
+	void slotActiveTabChanged(int);
+	void slotContextMenuRequest(const QPoint&);
+	void slotShowHiddenFiles(bool);
+	void slotSortOrderChanged(int, Qt::SortOrder);
 	void slotTreeItemSelected(const KUrl &);
 };
 
 #endif
 
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */

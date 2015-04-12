@@ -25,16 +25,20 @@
  *
  ***************************************************************************/
 
-#include <qpushbutton.h>
-#include <qfileinfo.h>
-#include <QTabWidget>
+#include <QContextMenuEvent>
 #include <QDockWidget>
+#include <QFileInfo>
 #include <QMainWindow>
+#include <QMenu>
+#include <QPushButton>
+#include <QTabWidget>
 
 #include <kfiledialog.h>
+#include <ktoggleaction.h>
 
 #include "fileview.h"
 #include "filelist.h"
+#include "kscopeconfig.h"
 #include "kscopepixmaps.h"
 
 /**
@@ -59,7 +63,12 @@ FileView::FileView(QWidget* pParent, const char* szName, Qt::WFlags fl) :
 	pPage = m_pTabWidget->widget(1);
 	m_pTabWidget->setTabIcon(m_pTabWidget->indexOf(pPage), GET_PIXMAP(TabFileTree));
 
-	// Setup default curent path of tree view 
+	// Setup the default current tab at startup
+	m_pTabWidget->setCurrentIndex(Config().getActiveFileWindowTab());
+	connect(m_pTabWidget, SIGNAL(currentChanged(int)),
+		this, SLOT(slotActiveTabChanged(int)));
+
+	// Setup default curent path of tree view
 	m_pCurrentPath = new KUrl(QDir::currentPath());
 
 	// Setup tree view widget
@@ -68,7 +77,14 @@ FileView::FileView(QWidget* pParent, const char* szName, Qt::WFlags fl) :
 	m_pFileTree->setRootUrl(*m_pCurrentPath);
 	m_pFileTree->setCurrentUrl(*m_pCurrentPath);
 	m_pFileTree->setSortingEnabled(true);
-	m_pFileTree->setShowHiddenFiles(true);
+	m_pFileTree->sortByColumn(0, (Qt::SortOrder)(Config().getFileTreeSortOrder()));
+	m_pFileTree->setShowHiddenFiles(Config().getShowHiddenFiles());
+	m_pFileTree->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(m_pFileTree->header(), SIGNAL(sortIndicatorChanged(int, Qt::SortOrder)),
+		this, SLOT(slotSortOrderChanged(int, Qt::SortOrder)));
+	connect(m_pFileTree, SIGNAL(customContextMenuRequested(const QPoint&)),
+		this, SLOT(slotContextMenuRequest(const QPoint&)));
 
 	// Hide all but columns <name>, <size> & <type>
 	for (int i = KDirModel::Size; i < KDirModel::ColumnCount; m_pFileTree->hideColumn(i++)){}
@@ -144,4 +160,53 @@ void FileView::slotTreeItemSelected(const KUrl& url)
 		emit fileRequested(url.pathOrUrl(), 0);
 }
 
+/**
+ * Activated when the current tab changed. The last current tab index is saved in
+ * the global config file and restored when starting a new session
+ */
+void FileView::slotActiveTabChanged(int index)
+{
+	Config().setActiveFileWindowTab(index);
+}
+
+/**
+ * Activated when the sort order changed. The last setting is saved in the global config
+ * file and restored when starting a new session. This is valid only for the first
+ * column
+ */
+void FileView::slotSortOrderChanged(int index, Qt::SortOrder newOrder)
+{
+	if (index == 0) {
+		Config().setFileTreeSortOrder((int)newOrder);
+	}
+}
+
+/**
+ * Display a `custom context menu' to show hidden files & folder (or not). The last
+ * setting is saved in the global config file. This override the default context menu
+ * provided by KFileTreeView
+ */
+void FileView::slotContextMenuRequest(const QPoint& pt)
+{
+	QMenu menu;
+	KToggleAction *showHiddenAction = new KToggleAction(i18n("Show Hidden Folders"), &menu);
+	showHiddenAction->setChecked(Config().getShowHiddenFiles());
+	connect(showHiddenAction, SIGNAL(toggled(bool)),
+		this, SLOT(slotShowHiddenFiles(bool)));
+	menu.addAction(showHiddenAction);
+	menu.exec(m_pFileTree->mapToGlobal(pt));
+}
+
+void FileView::slotShowHiddenFiles(bool enabled)
+{
+	m_pFileTree->setShowHiddenFiles(enabled);
+	Config().setShowHiddenFiles(enabled);
+}
+
 #include "fileview.moc"
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */
