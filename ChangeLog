@@ -1,3 +1,8 @@
+1.7.2 (Apr 12 2015)
+* Properties of the file list & tree widget (last active tab, sort order of the tree,
+	should the tree view show the hidden files) are saved in the global config file
+	(kscope.rc) to be restored during the next session
+
 1.7.1 (Mar 23 2015)
 * Cleanup source files: remove `#if 0 ... #endif' blocks, commented instructions;
 	delete space chars. in  blank lines
