@@ -1,3 +1,7 @@
+1.7.2 (May 25 2015)
+* Fix bug in processing of sorting order of file list
+* Improve appearance of selected items: they are made visible at the center of the view
+
 1.7.2 (Apr 12 2015)
 * Properties of the file list & tree widget (last active tab, sort order of the tree,
 	should the tree view show the hidden files) are saved in the global config file

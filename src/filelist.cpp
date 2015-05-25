@@ -46,13 +46,6 @@ FileList::FileList(QWidget* pParent, const char* szName) :
 	headerItem->setText(1, "File");
 	headerItem->setText(2, "Path");
 	m_pList->setHeaderItem(headerItem);
-
-	// Sort only when asked to by the user
-	if (Config().getAutoSortFiles())
-		m_pList->sortByColumn(1, Qt::AscendingOrder);
-	else
-		m_pList->sortByColumn(m_pList->columnCount() + 1, Qt::AscendingOrder);
-
 	m_pList->setAllColumnsShowFocus(true);
 
 	// Set colours and font

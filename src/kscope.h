@@ -41,6 +41,7 @@
 #include <kxmlguiwindow.h>
 
 class ProjectManager;
+class ProjectBase;
 class EditorTabs;
 class FileView;
 class FileList;
@@ -183,6 +184,7 @@ private:
 	inline bool isAutoRebuildEnabled();
 	void restoreSession();
 	void toggleQueryWindow(bool);
+	void populateFileList(ProjectBase *);
 
 	friend class KScopeActions;
 

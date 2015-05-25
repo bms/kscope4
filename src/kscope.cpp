@@ -752,10 +752,7 @@ void KScope::openProject(const QString& sDir)
 		return;
 	}
 
-	// Fill the file list with all files in the project. 
-	m_pFileList->setUpdatesEnabled(false);
-	pProj->loadFileList(m_pFileList);
-	m_pFileList->setUpdatesEnabled(true);
+	populateFileList(pProj);
 
 	// Restore the last session
 	restoreSession();
@@ -805,10 +802,7 @@ bool KScope::openCscopeOut(const QString& sFilePath)
 	// Enable project-related actions
 	m_pActions->slotEnableProjectActions(true);
 
-	// Fill the file list with all files in the project. 
-	m_pFileList->setUpdatesEnabled(false);
-	pProj->loadFileList(m_pFileList);
-	m_pFileList->setUpdatesEnabled(true);
+	populateFileList(pProj);
 
 	return true;
 }
@@ -836,6 +830,24 @@ void KScope::openLastProject()
 	}
 
 	openProject(sPath);
+}
+
+/**
+ * Fill the file list from the given project (or cscope.out file)
+ * Setup sort if required by the user from configuration (default is "true")
+ */
+void KScope::populateFileList(ProjectBase *pProj)
+{
+	QTreeWidget *pList = m_pFileList->getList();
+
+	// Fill the file list with all files in the project. 
+	m_pFileList->setUpdatesEnabled(false);
+	pProj->loadFileList(m_pFileList);
+	if (Config().getAutoSortFiles()) {
+		pList->sortByColumn(1, Qt::AscendingOrder);
+		pList->setSortingEnabled(true);
+	}
+	m_pFileList->setUpdatesEnabled(true);
 }
 
 /**
