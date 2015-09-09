@@ -71,8 +71,7 @@ QueryView::QueryView(QWidget* pParent, const char* szName) :
 	m_pModel->setHeaderData(3, Qt::Horizontal, i18n("Text"));
 	header()->setSortIndicator(1, Qt::AscendingOrder);
 	header()->setSortIndicatorShown(true);
-	header()->resizeSection(0, 200);
-	header()->resizeSection(1, 350);
+	header()->setResizeMode(QHeaderView::ResizeToContents);
 
 	// A record is selected if it is either double-clicked, or the ENTER
 	// key is pressed while the record is highlighted
