@@ -148,6 +148,7 @@ CtagsList::CtagsList(QWidget* pParent, const char* szName) :
 	m_pList->header()->setSortIndicatorShown(true);
 	m_pList->header()->setClickable(true);
 	m_pList->header()->setSortIndicator(0, m_nSortOrder);
+        m_pList->header()->setResizeMode(QHeaderView::ResizeToContents);
 
 	connect(m_pList->header(), SIGNAL(sectionClicked(int)), this,
 		SLOT(slotSortChanged(int)));
