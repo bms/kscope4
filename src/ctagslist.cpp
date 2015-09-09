@@ -429,19 +429,19 @@ void CtagsList::slotSortChanged(int nSection)
 	switch (nSection) {
 	case 0:
 		// Sort by name
-		Config().setCtagSortOrder(m_nSortOrder == Qt::Ascending ?
+		Config().setCtagSortOrder(m_nSortOrder == Qt::AscendingOrder ?
 			KScopeConfig::NameAsc : KScopeConfig::NameDes);
 		break;
 
 	case 1:
 		// Sort by line
-		Config().setCtagSortOrder(m_nSortOrder == Qt::Ascending ?
+		Config().setCtagSortOrder(m_nSortOrder == Qt::AscendingOrder ?
 			KScopeConfig::LineAsc : KScopeConfig::LineDes);
 		break;
 
 	case 2:
 		// Sort by type
-		Config().setCtagSortOrder(m_nSortOrder == Qt::Ascending ?
+		Config().setCtagSortOrder(m_nSortOrder == Qt::AscendingOrder ?
 			KScopeConfig::TypeAsc : KScopeConfig::TypeDes);
 		break;
 	}

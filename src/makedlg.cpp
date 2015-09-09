@@ -39,19 +39,13 @@
 #include "makefrontend.h"
 #include "queryview.h"
 
-/** Window flags for call-tree widgets. */
-#define MAKE_DLG_W_FLAGS \
-	Qt::WStyle_Customize |      \
-	Qt::WStyle_NormalBorder |   \
-	Qt::WStyle_Title
-
 /**
  * Class constructor.
  * @param	pParent	The parent widget
  * @param	szName	The widget's name
  */
 MakeDlg::MakeDlg(QWidget* pParent, const char* szName) :
-	QWidget(pParent, MAKE_DLG_W_FLAGS),
+	QWidget(pParent, Qt::WindowTitleHint),
 	m_pConf(NULL),
 	m_pMake(NULL),
 	m_pHistoryMenu(NULL)

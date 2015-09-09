@@ -46,13 +46,6 @@
 /** The currently supported version of saved call-tree files. */
 #define FILE_VERSION		5
 
-/** Window flags for call-tree widgets. */
-#define CALL_TREE_W_FLAGS \
-	Qt::WStyle_Customize | \
-	Qt::WStyle_NormalBorder | \
-	Qt::WStyle_Title | \
-	Qt::WDestructiveClose
-
 /** File Name index for the file name generation */
 int CallTreeDlg::s_nFileNameIndex = 0;
 
@@ -62,10 +55,11 @@ int CallTreeDlg::s_nFileNameIndex = 0;
  * @param	szName	The widget's name
  */
 CallTreeDlg::CallTreeDlg(QWidget* pParent, const char* szName) :
-	QWidget(pParent, CALL_TREE_W_FLAGS)
+	QWidget(pParent, Qt::WindowTitleHint)
 {
 	setupUi( this );
 	setObjectName(szName);
+	setAttribute(Qt::WA_DeleteOnClose);
 
 	// Setup Graph & Tree button group.
 	m_pGraphButtonGrp = new QButtonGroup(this);

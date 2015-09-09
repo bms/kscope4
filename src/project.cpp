@@ -292,7 +292,7 @@ bool Project::loadFileList(FileListTarget* pList)
 	QString sFilePath;
 
 	// Open the 'cscope.files' file
-	if (!m_fiFileList.open(IO_ReadOnly))
+	if (!m_fiFileList.open(QIODevice::ReadOnly))
 		return false;
 
 	// Read all file names from the file
@@ -320,7 +320,7 @@ bool Project::storeFileList(FileListSource* pList)
 	QString sFilePath;
 
 	// Open the 'cscope.files' file
-	if (!m_fiFileList.open(IO_WriteOnly | IO_Truncate))
+	if (!m_fiFileList.open(QIODevice::WriteOnly | QIODevice::Truncate))
 		return false;
 
 	QTextStream str(&m_fiFileList);
@@ -344,7 +344,7 @@ bool Project::storeFileList(FileListSource* pList)
 bool Project::addFile(const QString& sPath)
 {
 	// Open the 'cscope.files' file
-	if (!m_fiFileList.open(IO_WriteOnly | IO_Append))
+	if (!m_fiFileList.open(QIODevice::WriteOnly | QIODevice::Append))
 		return false;
 
 	// Write the file path
@@ -369,7 +369,7 @@ bool Project::isEmpty()
 	bool bResult = true;
 
 	// Open the 'cscope.files' file
-	if (!m_fiFileList.open(IO_ReadOnly))
+	if (!m_fiFileList.open(QIODevice::ReadOnly))
 		return true;
 
 	// Find at least one file name entry in the file

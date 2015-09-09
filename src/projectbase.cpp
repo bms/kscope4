@@ -174,7 +174,7 @@ bool ProjectBase::isCscopeOut(const QString& sPath)
 	char szDir[PATH_MAX];
 
 	// Try to open the file
-	if (!file.open(IO_ReadOnly))
+	if (!file.open(QIODevice::ReadOnly))
 		return false;
 
 	// Check if the first line matches the expected format
@@ -201,7 +201,7 @@ bool ProjectBase::loadFileList(FileListTarget* pList)
 
 	// Open the file
 	file.setFileName(m_dir.absolutePath() + "/cscope.files");
-	if (!file.open(IO_ReadOnly))
+	if (!file.open(QIODevice::ReadOnly))
 		return false;
 
 	// Read all file names from the file

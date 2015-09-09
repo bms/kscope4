@@ -83,7 +83,7 @@ bool QueryPageBase::load(const QString& sProjPath, const QString& sFileName)
 
 	// Try to open the query file for reading
 	QFile file(sProjPath + "/" + sFileName);
-	if (!file.open(IO_ReadOnly))
+	if (!file.open(QIODevice::ReadOnly))
 		return false;
 
 	{
@@ -160,7 +160,7 @@ bool QueryPageBase::save(const QString& sProjPath, QString& sFileName)
 
 	// Open the query file for writing
 	QFile file(sProjPath + "/" + sFileName);
-	if (!file.open(IO_WriteOnly))
+	if (!file.open(QIODevice::WriteOnly))
 		return false;
 
 	QTextStream str(&file);

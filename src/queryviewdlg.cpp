@@ -44,7 +44,7 @@ QueryViewDlg::QueryViewDlg(uint nFlags, QWidget* pParent,
 
 	// Set the destructive flag, if required
 	if (nFlags & DestroyOnClose)
-	  setWindowFlags(windowFlags() | Qt::WDestructiveClose);
+	  setAttribute(Qt::WA_DeleteOnClose);
 
 	// Create a driver for running queries
 	m_pDriver = new QueryViewDriver(m_pView, this);

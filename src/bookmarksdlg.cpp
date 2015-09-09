@@ -29,7 +29,7 @@
 #include "queryview.h"
 
 BookmarksDlg::BookmarksDlg(QWidget* pParent, const char* szName) :
-	QDialog(pParent)
+  QDialog(pParent)
 {
 
 	setupUi(this);
