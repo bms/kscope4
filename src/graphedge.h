@@ -28,9 +28,8 @@
 #ifndef GRAPHEDGE_H
 #define GRAPHEDGE_H
 
-#include <q3canvas.h>
-//Added by qt3to4:
-#include <Q3PointArray>
+#include <QAbstractGraphicsShapeItem>
+#include <QPolygon>
 
 class GraphNode;
 
@@ -55,30 +54,25 @@ struct ArrowInfo
  * is its head.
  * @author Elad Lahav
  */
-class GraphEdge : public Q3CanvasPolygonalItem
+class GraphEdge : public QAbstractGraphicsShapeItem
 {
 public:
-    GraphEdge(Q3Canvas*, GraphNode*, GraphNode*);
-    ~GraphEdge();
+	GraphEdge(QGraphicsItem*, GraphNode*, GraphNode*);
+	~GraphEdge();
 
 	void setCallInfo(const QString&, const QString&, const QString&);
-	void setPoints(const Q3PointArray&, const ArrowInfo&);
+	void setPoints(const QPolygon&, const ArrowInfo&);
 	QString getTip() const;
-
-	/**
-	 * @return	The coordinates of the convex hull surrounding the edge
-	 */
-	virtual Q3PointArray areaPoints() const { return m_arrArea; }
 
 	/**
 	 * @return	The head node of the edge
 	 */
-	GraphNode* getHead() { return m_pHead; }
+	GraphNode* getHead() const { return m_pHead; }
 
 	/**
 	 * @return	The tail node of the edge
 	 */
-	GraphNode* getTail() { return m_pTail; }
+	GraphNode* getTail() const { return m_pTail; }
 
 	/**
 	 * @return	 The bounding rectangle of the edge's head
@@ -100,16 +94,16 @@ public:
 	 */
 	const QString& getText() const { return m_sText; }
 
-	/** Identifies this class among other QCanvasItem classes. */
-	static int RTTI;
-
-	/** 
-	 * @return	The class identifier
+	/**
+	 * @return	The type value
 	 */
-	virtual int rtti() const { return RTTI; }
+	enum { Type = UserType + 2 };
+
+	virtual int type() const { return Type; }
 
 protected:
-	virtual void drawShape(QPainter&);
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+	virtual QRectF boundingRect() const;
 
 private:
 	/** The edge's starting point. */
@@ -119,12 +113,10 @@ private:
 	GraphNode* m_pTail;
 
 	/** The points of the polygon part of the edge. */
-	Q3PointArray m_arrPoly;
+	QPolygon m_arrPoly;
 
 	/** Control points for the spline part of the edge. */
-	Q3PointArray m_arrCurve;
-
-	Q3PointArray m_arrArea;
+	QPolygon m_arrCurve;
 
 	/** The bounding rectangle of the edge's head, used for displaying the
 		edge's tool-tip. */

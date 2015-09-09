@@ -28,8 +28,7 @@
 #ifndef GRAPHNODE_H
 #define GRAPHNODE_H
 
-#include <q3canvas.h>
-#include <q3dict.h>
+#include <QGraphicsPolygonItem>
 #include "graphedge.h"
 
 /**
@@ -37,10 +36,10 @@
  * This item represents a function in the call graph.
  * @author Elad Lahav
  */
-class GraphNode : public Q3CanvasPolygon
+class GraphNode : public QGraphicsPolygonItem
 {
 public:
-	GraphNode(Q3Canvas* pCanvas, const QString&, bool bMultiCall = false);
+	GraphNode(QGraphicsItem* pCanvas, const QString&, bool bMultiCall = false);
 	~GraphNode();
 
 	GraphEdge* addOutEdge(GraphNode*);
@@ -72,39 +71,38 @@ public:
 	/**
 	 * @return	The set of outgoing edges
 	 */
-	Q3Dict<GraphEdge>& getOutEdges() { return m_dictOutEdges; }
+	QHash<QString, GraphEdge*>& getOutEdges() { return m_dictOutEdges; }
 
 	/**
 	 * @return	true if this node was already visited during the current DFS,
 	 *			false otherwise
 	 */
-	bool dfsVisited() { return m_bDfsFlag; }
+	bool dfsVisited() const { return m_bDfsFlag; }
 
 	/**
 	 * Clears the 'DFS-visited' flag, in preparation for the next DFS.
 	 */
 	void dfsReset() { m_bDfsFlag = false; }
 
-	/** Identifies this class among other QCanvasItem classes. */
-	static int RTTI;
-
 	/**
-	 * @return	The class identifier
+	 * @return	The type value
 	 */
-	virtual int rtti() const { return RTTI; }
+	enum { Type = UserType + 1 };
+
+	virtual int type() const { return Type; }
 
 protected:
-	virtual void drawShape(QPainter&);
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
 private:
 	/** Function name. */
 	QString m_sFunc;
 
 	/** A list of outgoing edges indexed by destination. */
-	Q3Dict<GraphEdge> m_dictOutEdges;
+	QHash<QString, GraphEdge*> m_dictOutEdges;
 
 	/** A list of incoming edges indexed by destination. */
-	Q3Dict<GraphEdge> m_dictInEdges;
+	QHash<QString, GraphEdge*> m_dictInEdges;
 
 	/** The bounding rectangle for the node. */
 	QRect m_rect;

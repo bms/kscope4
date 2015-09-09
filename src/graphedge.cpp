@@ -28,124 +28,20 @@
 #include <math.h>
 #include <stdlib.h>
 #include <qpainter.h>
-//Added by qt3to4:
-#include <Q3PointArray>
+#include <QPainterPath>
+#include <QAbstractGraphicsShapeItem>
+#include <QPolygon>
 #include "graphedge.h"
 #include "graphnode.h"
 
-int GraphEdge::RTTI = 1002;
-
-// Some definitions required by the ConvexHull class
-typedef int (*CompFunc)(const void*, const void*);
-#define ISLEFT(P0, P1, P2) \
-	(P1.x() - P0.x()) * (P2.y() - P0.y()) - \
-	(P2.x() - P0.x()) * (P1.y() - P0.y())
-#define FARTHEST(P0, P1, P2) \
-	((P1.x() - P0.x()) * (P1.x() - P0.x()) - \
-	(P1.y() - P0.y()) * (P1.y() - P0.y())) - \
-	((P2.x() - P0.x()) * (P2.x() - P0.x()) - \
-	(P2.y() - P0.y()) * (P2.y() - P0.y()))
-
-
-/**
- * An array of QPoint objects that can compute the convex hull surrounding all
- * points in the array.
- * @author Elad Lahav
- */
-class ConvexHull : public Q3PointArray
-{
-public:
-	/**
-	 * Class constructor.
-	 */
-	ConvexHull() : Q3PointArray() {}
-
-	/**
-	 * Computes the convex hull of the points stored in the array, using
-	 * Graham's scan.
-	 * @param	arrHull	Holds the coordinates of the convex hull, upon return
-	 */
-	void compute(Q3PointArray& arrHull) {
-		int i, nPivot, nTop;
-
-		// Find the pivot point
-		nPivot = 0;
-		for (i = 1; i < size(); i++) {
-			if ((*this)[i].y() < (*this)[nPivot].y()) {
-				nPivot = i;
-			}
-			else if ((*this)[i].y() == (*this)[nPivot].y() &&
-				(*this)[i].x() < (*this)[nPivot].x()) {
-				nPivot = i;
-			}
-		}
-
-		// Sort points in radial order, relative to the pivot
-		s_ptPivot = (*this)[nPivot];
-		(*this)[nPivot] = (*this)[0];
-		(*this)[0] = s_ptPivot;
-		qsort(&(*this).data()[1], (*this).size() - 1, sizeof(QPoint), 
-			(CompFunc)compRadial);
-
-		// Initialise Graham's scan algorithm
-		arrHull.resize(size() + 1);
-		arrHull[0] = (*this)[0];
-		arrHull[1] = (*this)[1];
-		nTop = 1;
-
-		// Compute the convex hull
-		for (i = 2; i < size();) {
-			// TODO: According to the algorithm, the condition should be >0
-			// for pushing the point into the stack. For some reason, it
-			// works only with < 0. Why?
-			if (ISLEFT(arrHull[nTop - 1], arrHull[nTop], (*this)[i]) < 0) {
-				arrHull[++nTop] = (*this)[i];
-				i++;
-			} else {
-				nTop--;
-			}
-		}
-
-		// Close the hull
-		arrHull[++nTop] = (*this)[0];
-		arrHull.resize(nTop + 1);
-	}
-
-private:
-	/** The current pivot point, required by compRadial. */
-	static QPoint s_ptPivot;
-
-	/**
-	 * Compares two points based on their angle relative to the current
-	 * pivot point.
-	 * This function is passed as the comparison function of qsort().
-	 * @param	pPt1	A pointer to the first point
-	 * @param	pPt2	A pointer to the second point
-	 * @return	>0 if the first point is to the left of the second, <0 otherwise
-	 */
-	static int compRadial(const QPoint* pPt1, const QPoint* pPt2) {
-		int nResult;
-
-		// Determine which point is to the left of the other. If the angle is
-		// the same, the greater point is the one farther from the pivot
-		nResult = ISLEFT(s_ptPivot, (*pPt1), (*pPt2));
-		if (nResult == 0)
-			return FARTHEST(s_ptPivot, (*pPt1), (*pPt2));
-
-		return nResult;
-	}
-};
-
-QPoint ConvexHull::s_ptPivot;
-
 /**
  * Class constructor.
- * @param	pCanvas	The canvas on which to draw the edge
+ * @param	pParent	The parent on which to draw the edge
  * @param	pHead	The edge's starting point
  * @param	pTail	The edge's end point
  */
-GraphEdge::GraphEdge(Q3Canvas* pCanvas, GraphNode* pHead, GraphNode* pTail) :
-	Q3CanvasPolygonalItem(pCanvas),
+GraphEdge::GraphEdge(QGraphicsItem* pParent, GraphNode* pHead, GraphNode* pTail) :
+	QAbstractGraphicsShapeItem(pParent),
 	m_pHead(pHead),
 	m_pTail(pTail),
 	m_arrPoly(4)
@@ -157,9 +53,6 @@ GraphEdge::GraphEdge(Q3Canvas* pCanvas, GraphNode* pHead, GraphNode* pTail) :
  */
 GraphEdge::~GraphEdge()
 {
-	// Classes derived from QCanvasPolygonalItem must call hide() in their
-	// detructor (according to the Qt documentation)
-	hide();
 }
 
 /**
@@ -173,27 +66,20 @@ GraphEdge::~GraphEdge()
  * @param	arrCurve	The control points of the edge's spline
  * @param	ai			Used to calculate the arrow head polygon
  */
-void GraphEdge::setPoints(const Q3PointArray& arrCurve, const ArrowInfo& ai)
+void GraphEdge::setPoints(const QPolygon& arrCurve, const ArrowInfo& ai)
 {
-	ConvexHull ch;
+// 	ConvexHull ch;
 	uint i;
 	int nXpos, nYpos;
 
 	// Redraw an existing edge
-	if (m_arrArea.size() > 0)
-		invalidate();
+	prepareGeometryChange();
 
 	// Store the point array for drawing
 	m_arrCurve = arrCurve;
 
 	// Calculate the arrowhead's polygon
 	makeArrowhead(ai);
-
-	// Compute the convex hull of the edge
-	ch.resize(m_arrCurve.size() + m_arrPoly.size() - 2);
-	ch.putPoints(0, m_arrCurve.size() - 1, m_arrCurve);
-	ch.putPoints(m_arrCurve.size() - 1, m_arrPoly.size() - 1, m_arrPoly);	
-	ch.compute(m_arrArea);
 
 	// Calculate the head's bounding rectangle
 	m_rcTip = QRect(m_arrPoly[0], m_arrPoly[0]);
@@ -242,17 +128,34 @@ QString GraphEdge::getTip() const
  * Draws the spline as a sequence of cubic Bezier curves.
  * @param	painter	Used for drawing the item on the canvas view
  */
-void GraphEdge::drawShape(QPainter& painter)
+void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
 	uint i;
 
+	// Set QPainter's brush to our own
+	painter->setBrush(brush());
+
 	// Draw the polygon
-	painter.drawConvexPolygon(m_arrPoly);
+	painter->drawConvexPolygon(m_arrPoly);
 
+#warning: loop condition rework
 	// Draw the Bezier curves
-	for (i = 0; i < m_arrCurve.size() - 1; i += 3)
-		painter.drawCubicBezier(m_arrCurve, i);
+	if (m_arrCurve.size())
+	for (i = 0; i < m_arrCurve.size() - 1; i += 3) {
+		QPainterPath path;
 
+		path.moveTo(m_arrCurve.at(i));
+		path.cubicTo(m_arrCurve.at(i + 1),
+				m_arrCurve.at(i + 2),
+				m_arrCurve.at(i + 3));
+		painter->strokePath(path, painter->pen());
+	}
+
+}
+
+QRectF GraphEdge::boundingRect() const
+{
+        return m_rcTip;
 }
 
 /**

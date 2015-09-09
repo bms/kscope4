@@ -28,12 +28,10 @@
 #ifndef GRAPHWIDGET_H
 #define GRAPHWIDGET_H
 
-#include <q3canvas.h>
-#include <q3dict.h>
+#include <QGraphicsView>
 #include <QtGui/QMenu>
 #include <QTextStream>
-//Added by qt3to4:
-#include <Q3PointArray>
+#include <QPolygon>
 #include <QMouseEvent>
 
 #include "cscopefrontend.h"
@@ -63,12 +61,12 @@ class ProgressDlg;
  * any of these widgets.
  * @author Elad Lahav
  */
-class GraphWidget : public Q3CanvasView
+class GraphWidget : public QGraphicsView
 {
 	Q_OBJECT
 
 public:
-	GraphWidget(QWidget* pParent = 0, const char* szName = 0);
+	GraphWidget(QWidget* pParent = 0);
 	~GraphWidget();
 
 	/**
@@ -111,7 +109,7 @@ public:
 
 	void resize(int, int);
 	void drawNode(const QString&, const QRect&);
-	void drawEdge(const QString&, const QString&, const Q3PointArray&);
+	void drawEdge(const QString&, const QString&, const QPolygon&);
 
 	/**
 	 * Adjusts the maximal number of calling/called functions shown for
@@ -135,13 +133,13 @@ signals:
 	void lineRequested(const QString& sPath, uint nLine);
 
 protected:
-	virtual void drawContents(QPainter*, int, int, int, int);
-	virtual void contentsMousePressEvent(QMouseEvent*);
+	virtual void drawForeground(QPainter*, const QRectF & rect);
+	virtual void mousePressEvent(QMouseEvent*);
 
 private:
 	/** The graph is stored as a map of nodes indexed by their names. 
 		Each node holds a list of outgoing edges. */
-	Q3Dict<GraphNode> m_dictNodes;
+	QHash<QString, GraphNode*> m_dictNodes;
 
 	/** A Cscope process to use for running queries. */
 	CscopeFrontend* m_pCscope;
@@ -161,7 +159,7 @@ private:
 	bool m_bCalled;
 
 	/** The node over which the popup menu has been invoked. */
-	Q3CanvasPolygonalItem* m_pMenuItem;
+	QAbstractGraphicsShapeItem* m_pMenuItem;
 
 	/** A popup menu that appears when a node is right-clicked. */
 	QMenu* m_pNodePopup;
@@ -192,7 +190,7 @@ private:
 	ProgressDlg* m_pProgressDlg;
 
 	/** GraphWidget's own handler of ToolTip event */
-	bool event(QEvent*);
+	virtual bool event(QEvent*);
 
 	void write(QTextStream&, const QString&, const QString&, bool);
 	void removeEdges(GraphNode*, bool);

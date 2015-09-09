@@ -27,26 +27,20 @@
 
 #include <qpainter.h>
 #include <qfontmetrics.h>
-//Added by qt3to4:
-#include <Q3PointArray>
 #include "graphnode.h"
-
-int GraphNode::RTTI = 1001;
 
 /**
  * Class constructor.
- * @param	pCanvas		The owner canvas
+ * @param	pParent		The parent graphics item
  * @param	sFunc		The node's function
  * @param	bMultiCall	Whether this node represents multiple calls
  */
-GraphNode::GraphNode(Q3Canvas* pCanvas, const QString& sFunc, bool bMultiCall) : 
-	Q3CanvasPolygon(pCanvas),
+GraphNode::GraphNode(QGraphicsItem* pParent, const QString& sFunc, bool bMultiCall) : 
+	QGraphicsPolygonItem(pParent),
 	m_sFunc(sFunc),
 	m_bMultiCall(bMultiCall),
 	m_bDfsFlag(false)
 {
-	// Every node deletes its out-edges only
-	m_dictOutEdges.setAutoDelete(true);
 }
 
 /**
@@ -54,6 +48,8 @@ GraphNode::GraphNode(Q3Canvas* pCanvas, const QString& sFunc, bool bMultiCall) :
  */
 GraphNode::~GraphNode()
 {
+	// Every node deletes its out-edges only
+	qDeleteAll(m_dictOutEdges);
 }
 
 /**
@@ -67,11 +63,12 @@ GraphEdge* GraphNode::addOutEdge(GraphNode* pTail)
 	GraphEdge* pEdge;
 
 	// Look for the edge
-	if ((pEdge = m_dictOutEdges.find(pTail->getFunc())) == NULL) {
+	if ((pEdge = m_dictOutEdges.value(pTail->getFunc())) == NULL) {
 		// Create a new edge
-		pEdge = new GraphEdge(canvas(), this, pTail);
+		pEdge = new GraphEdge(this, this, pTail);
 		m_dictOutEdges.insert(pTail->getFunc(), pEdge);
-		pTail->m_dictInEdges.replace(m_sFunc, pEdge);
+		delete pTail->m_dictInEdges.take(m_sFunc);
+		pTail->m_dictInEdges.insert(m_sFunc, pEdge);
 	}
 
 	// Return the new/constructed edge
@@ -92,22 +89,23 @@ void GraphNode::dfs()
 	m_bDfsFlag = true;
 
 	// Continue along outgoing edges
-	Q3DictIterator<GraphEdge> itrOut(m_dictOutEdges);
-	for (; itrOut.current(); ++itrOut)
+	QHash<QString, GraphEdge*>::iterator itrOut;
+	for (itrOut = m_dictOutEdges.begin(); itrOut != m_dictOutEdges.end(); ++itrOut)
 		(*itrOut)->getTail()->dfs();
 
+
 	// Continue along incoming edges
-	Q3DictIterator<GraphEdge> itrIn(m_dictInEdges);
-	for (; itrIn.current(); ++itrIn)
+	QHash<QString, GraphEdge*>::iterator itrIn;
+	for (itrIn = m_dictInEdges.begin(); itrIn != m_dictInEdges.end(); ++itrIn)
 		(*itrIn)->getHead()->dfs();
 }
 
 /**
  * Deletes all outgoing edges.
- * Uses the auto-delete property of the dictionary.
  */
 void GraphNode::removeOutEdges()
 {
+	qDeleteAll(m_dictOutEdges);
 	m_dictOutEdges.clear();
 }
 
@@ -118,13 +116,14 @@ void GraphNode::removeOutEdges()
  */
 void GraphNode::removeInEdges()
 {
-	Q3DictIterator<GraphEdge> itr(m_dictInEdges);
+	QHash<QString, GraphEdge*>::iterator itr;
 	GraphNode* pNode;
 
+
 	// Delete edges through their head nodes
-	for (; itr.current(); ++itr) {
+	for (itr = m_dictInEdges.begin(); itr != m_dictInEdges.end(); ++itr) {
 		if ((pNode = (*itr)->getHead()) != NULL)
-			pNode->m_dictOutEdges.remove(m_sFunc);
+			delete pNode->m_dictOutEdges.take(m_sFunc);
 	}
 
 	// remove edges from the local dictionary (will not delete them)
@@ -139,14 +138,14 @@ void GraphNode::removeInEdges()
  */
 void GraphNode::getFirstNeighbour(GraphNode*& pNode, bool& bCalled)
 {
-	Q3DictIterator<GraphEdge> itrIn(m_dictInEdges);
-	Q3DictIterator<GraphEdge> itrOut(m_dictOutEdges);
+	QHash<QString, GraphEdge*>::const_iterator itrIn = m_dictInEdges.constBegin();
+	QHash<QString, GraphEdge*>::const_iterator itrOut = m_dictOutEdges.constBegin();
 
-	if (itrIn.current()) {
-		pNode = itrIn.current()->getHead();
+	if (itrIn.value()) {
+		pNode = itrIn.value()->getHead();
 		bCalled = false;
-	} else if (itrOut.current()) {
-		pNode = itrOut.current()->getTail();
+	} else if (itrOut.value()) {
+		pNode = itrOut.value()->getTail();
 		bCalled = true;
 	} else {
 		pNode = NULL;
@@ -159,7 +158,7 @@ void GraphNode::getFirstNeighbour(GraphNode*& pNode, bool& bCalled)
  */
 void GraphNode::setRect(const QRect& rect)
 {
-	Q3PointArray arr(4);
+	QPolygon arr(4);
 
 	m_rect = rect;
 
@@ -167,29 +166,25 @@ void GraphNode::setRect(const QRect& rect)
 	arr.setPoint(1, m_rect.topRight());
 	arr.setPoint(2, m_rect.bottomRight());
 	arr.setPoint(3, m_rect.bottomLeft());
-	setPoints(arr);
+	setPolygon(arr);
 }
 
 /**
  * Draws the node.
  * @param	painter	Used for drawing the item on the canvas view
  */
-void GraphNode::drawShape(QPainter& painter)
+void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-	const QPen& pen = painter.pen();
-	const QFont& font = painter.font();
+	const QFont& font = painter->font();
 
-	// Draw the rectangle
-	painter.setPen(QPen(Qt::black));
-	painter.drawRect(m_rect);
+	QGraphicsPolygonItem::paint(painter, option, widget);
 
 	// Draw the text
-	painter.setPen(pen);
-	painter.setFont(m_font);
+	painter->setFont(m_font);
 	if (m_bMultiCall)
-		painter.drawText(m_rect, Qt::AlignCenter, "...");
+		painter->drawText(m_rect, Qt::AlignCenter, "...");
 	else
-		painter.drawText(m_rect, Qt::AlignCenter, m_sFunc);
+		painter->drawText(m_rect, Qt::AlignCenter, m_sFunc);
 
-	painter.setFont(font);
+	painter->setFont(font);
 }
