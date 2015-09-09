@@ -61,6 +61,12 @@ int main(int argc, char *argv[])
 	aboutData.addCredit(ki18n("Gabor Fekete"),
 			ki18n("Bug fixes and patches"),		
 			QByteArray("feketgai@index.hu"));
+	aboutData.addCredit(ki18n("Gilles Allard"),
+			ki18n("Port to Qt4 / Qt3Support"),		
+			QByteArray("fe6fbq@users.sourceforge.net"));
+	aboutData.addCredit(ki18n("Alexander Stein"),
+			ki18n("Port graph feature to pure Qt4"),		
+			QByteArray("alexanders83@web.de"));
 
 	// Initialise command-line argument parsing
 	KCmdLineArgs::init(argc, argv, &aboutData);

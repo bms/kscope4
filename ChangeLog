@@ -1,3 +1,8 @@
+1.8.0 (May 26 2015)
+* Port code of graph part to pure Qt4
+* Remove use of Qt3Support
+* Cleanup some .ui files : remove unused images
+	
 1.7.2 (May 25 2015)
 * Fix bug in processing of sorting order of file list
 * Improve appearance of selected items: they are made visible at the center of the view

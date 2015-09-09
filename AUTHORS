@@ -1,3 +1,5 @@
 Elad Lahav <elad_lahav@users.sf.net> : Initial release
-Gilles Allard <fe6fbq@users.sourceforge.net> : Port to KDE4 / Qt4
 
+Contributors:
+Gilles Allard <fe6fbq@users.sourceforge.net> : Port to KDE4 / Qt4
+Alexander Stein <alexanders83@web.de> : Graph code is ported to pure Qt4
