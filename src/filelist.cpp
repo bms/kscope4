@@ -46,6 +46,7 @@ FileList::FileList(QWidget* pParent, const char* szName) :
 	headerItem->setText(1, "File");
 	headerItem->setText(2, "Path");
 	m_pList->setHeaderItem(headerItem);
+	m_pList->setSortingEnabled(true);
 	m_pList->setAllColumnsShowFocus(true);
 
 	// Set colours and font
