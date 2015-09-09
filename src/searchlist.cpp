@@ -150,22 +150,10 @@ void SearchList::slotFindItem(const QString& sText)
 
 	// Find & select all matching items
 	itemsList = m_pList->findItems(sText, Qt::MatchStartsWith, m_nSearchCol);
-
-	// If `AutoSortFiles' is true selected items are contiguous. Scroll the central
-	// item (if true) or the first (if not) of the selected items to the center of
-	// the view
 	if (! itemsList.isEmpty()) {
-		int i = (Config().getAutoSortFiles()) ? itemsList.count() / 2 : 0;
+		QTreeWidgetItem* item = itemsList.first();
 
-		m_pList->scrollToItem(itemsList[i], QAbstractItemView::PositionAtCenter);
-
-		QListIterator<QTreeWidgetItem*> it(itemsList);
-
-		m_pList->clearSelection();
-		while (it.hasNext()){
-			QTreeWidgetItem* pItem = it.next();
-			pItem->setSelected(true);
-		}
+		m_pList->setCurrentItem(item);
 	}
 }
 
