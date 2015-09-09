@@ -30,7 +30,6 @@
 
 #include <qobject.h>
 #include <qregexp.h>
-//Added by qt3to4:
 #include <QLinkedList>
 #include <ktexteditor/codecompletioninterface.h>
 #include <ktexteditor/view.h>

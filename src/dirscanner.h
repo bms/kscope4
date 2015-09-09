@@ -35,7 +35,6 @@
 #include <qstringlist.h>
 #include <qhash.h>
 #include <qlistwidget.h>
-//Added by qt3to4:
 #include <QEvent>
 
 class DirScanner;

@@ -30,7 +30,6 @@
 
 #include <qwidget.h>
 #include <qhash.h>
-//Added by qt3to4:
 #include <QEvent>
 
 #include "ui_projectfileslayout.h"

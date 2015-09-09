@@ -33,7 +33,6 @@
 #endif
 
 #include <qtimer.h>
-//Added by qt3to4:
 #include <QDropEvent>
 
 #include <kcmdlineargs.h>

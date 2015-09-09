@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <QtGui/QHeaderView>
-//Added by qt3to4:
 #include <QKeyEvent>
 
 #include "kscopeconfig.h"

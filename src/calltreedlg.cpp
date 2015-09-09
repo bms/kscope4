@@ -29,7 +29,6 @@
 #include <qtoolbutton.h>
 #include <qbuttongroup.h>
 #include <qstackedwidget.h>
-//Added by qt3to4:
 #include <QCloseEvent>
 
 #include <klocale.h>

@@ -30,7 +30,6 @@
 #include <qlineedit.h>
 #include <qregexp.h>
 #include <qbytearray.h>
-//Added by qt3to4:
 #include <QEvent>
 
 #include <klocale.h>

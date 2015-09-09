@@ -33,7 +33,6 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QToolTip>
-//Added by qt3to4:
 #include <QKeyEvent>
 
 class SearchList;
