@@ -25,6 +25,7 @@
  *
  ***************************************************************************/
 
+#include <QHeaderView>
 #include <klocale.h>
 
 #include "filelist.h"
@@ -47,6 +48,7 @@ FileList::FileList(QWidget* pParent, const char* szName) :
 	headerItem->setText(2, "Path");
 	m_pList->setHeaderItem(headerItem);
 	m_pList->setSortingEnabled(true);
+	m_pList->header()->setResizeMode(QHeaderView::ResizeToContents);
 	m_pList->setAllColumnsShowFocus(true);
 
 	// Set colours and font
