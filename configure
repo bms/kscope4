@@ -17,19 +17,20 @@ esac
 TOP_DIR=.
 BUILD_DIR=${TOP_DIR}/build
 BUILD_TYPE=${DEFAULT_BUILD_TYPE:-Release}
-OPT_CXXFLAGS=${DEFAULT_OPT_CXXFLAGS:-"-O2 -fomit-frame-pointer "}
+OPT_CXXFLAGS=
 PREFIX=${prefix:-/usr}
+
+export CMAKE_MODULE_PATH=/usr/share/kde4/apps/cmake/modules
 
 export QTDIR=/usr/lib/qt4
 export PATH=/usr/lib/qt4/bin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/lib/qt4/bin:/usr/lib/jdk-1_5_0_06/bin:/usr/lib/qt4/bin
-export CXXFLAGS="${OPT_CXXFLAGS} -pipe -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i586 -mtune=generic -fasynchronous-unwind-tables"
-export LDFLAGS='-Wl,--as-needed -Wl,--no-undefined -Wl,-z,relro'
 
 mkdir -p ${BUILD_DIR} && ( cd ${BUILD_DIR} && {
     /usr/bin/cmake .. 							\
 	-DBUILD_SHARED_LIBS:BOOL=ON					\
 	-DBUILD_STATIC_LIBS:BOOL=OFF					\
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE}				\
+	-DCMAKE_MODULE_PATH=/usr/share/kde4/apps/cmake/modules		\
 	-DCMAKE_INSTALL_LIBDIR:PATH=${PREFIX}/lib			\
 	-DCMAKE_INSTALL_PREFIX:PATH=${PREFIX}				\
 	-DCMAKE_MODULE_LINKER_FLAGS='-Wl,--as-needed  -Wl,-z,relro'	\
