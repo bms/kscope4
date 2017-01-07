@@ -1,5 +1,13 @@
 project(kscope4)
 
+cmake_minimum_required(VERSION 3.5)
+if(POLICY CMP0005)
+   cmake_policy(SET CMP0005 NEW)
+endif()
+if(POLICY CMP0059)
+   cmake_policy(SET CMP0059 NEW)
+endif()
+
 # set version
 set (KSCOPE_VERSION_MAJOR 1)
 set (KSCOPE_VERSION_MINOR 8)
@@ -30,7 +38,7 @@ include(KDE4Defaults)
 include(MacroLibrary)
  
 add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
-add_definitions (-DVERSION=\\\"${KSCOPE_VERSION}\\\")
+add_definitions (-DVERSION="${KSCOPE_VERSION}")
 
 include_directories(
    ${CMAKE_SOURCE_DIR}
@@ -40,3 +48,4 @@ include_directories(
 
 add_subdirectory ( src )
 add_subdirectory( doc )
+
