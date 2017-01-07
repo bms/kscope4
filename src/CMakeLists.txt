@@ -115,7 +115,7 @@ target_link_libraries(kscope
 
 install( TARGETS kscope DESTINATION ${KDE4_BIN_INSTALL_DIR} )
 install( FILES kscope.desktop DESTINATION ${XDG_APPS_INSTALL_DIR} )
-install( FILES kscopeui.rc kscope_config DESTINATION  ${DATA_INSTALL_DIR}/kscope )
+install( FILES kscopeui.rc kscope_config DESTINATION  ${KDE4_DATA_DIR}/kscope )
 
 install( FILES ${kscope_PICS} DESTINATION ${DATA_INSTALL_DIR}/kscope/pics )
 kde4_install_icons( ${ICON_INSTALL_DIR} )
